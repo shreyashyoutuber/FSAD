@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - BharatHome Value</title>
+    <link rel="stylesheet" href="admin-login.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="admin-login-container">
+        <div class="admin-login-box">
+            <a href="index.html" class="logo">Bharat<span>Home</span> Value</a>
+            <h2>Admin Portal</h2>
+            <p class="subtitle">Login to manage estimator requests</p>
+            
+            <form id="adminLoginForm">
+                <div class="form-group">
+                    <label for="adminEmail">Admin Email</label>
+                    <input type="email" id="adminEmail" placeholder="Enter admin email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="adminPassword">Password</label>
+                    <input type="password" id="adminPassword" placeholder="Enter your password" required>
+                </div>
+
+                <div class="form-group captcha-group">
+                    <label for="captchaInputAdmin">Enter the code shown</label>
+                    <div class="captcha-row">
+                        <span id="captchaCodeAdmin" class="captcha-code">-----</span>
+                        <button type="button" class="captcha-refresh" id="captchaRefreshAdmin">Refresh</button>
+                    </div>
+                    <input type="text" id="captchaInputAdmin" placeholder="Type the code" autocomplete="off" required>
+                </div>
+                
+                <button type="submit" class="btn-admin-login">Login as Admin</button>
+            </form>
+            
+            <div class="divider">
+                <span>or</span>
+            </div>
+
+            <div class="login-options">
+                <a href="login.html" class="customer-login">Customer Login</a>
+            </div>
+            
+            <div class="back-link">
+                <a href="index.html">← Back to Home</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // CAPTCHA functionality
+        let captchaCodeAdmin = '';
+
+        function generateCaptchaAdmin() {
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            captchaCodeAdmin = '';
+            for (let i = 0; i < 5; i++) {
+                captchaCodeAdmin += characters.charAt(Math.floor(Math.random() * characters.length));
+            }
+            document.getElementById('captchaCodeAdmin').textContent = captchaCodeAdmin;
+        }
+
+        document.getElementById('captchaRefreshAdmin').addEventListener('click', function(e) {
+            e.preventDefault();
+            generateCaptchaAdmin();
+            document.getElementById('captchaInputAdmin').value = '';
+        });
+
+        document.getElementById('adminLoginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const email = document.getElementById('adminEmail').value;
+            const password = document.getElementById('adminPassword').value;
+            const captchaInput = document.getElementById('captchaInputAdmin').value.toUpperCase();
+
+            // Validate CAPTCHA
+            if (captchaInput !== captchaCodeAdmin) {
+                alert('Invalid CAPTCHA code. Please try again.');
+                generateCaptchaAdmin();
+                document.getElementById('captchaInputAdmin').value = '';
+                return;
+            }
+
+            // Simple validation - In real app, validate against backend
+            if (email && password) {
+                // Store admin session
+                localStorage.setItem('adminLoggedIn', 'true');
+                localStorage.setItem('adminEmail', email);
+                localStorage.setItem('adminLoginTime', new Date().getTime());
+                
+                // Redirect to admin dashboard
+                window.location.href = 'admin-dashboard.html';
+            }
+        });
+
+        // Initialize CAPTCHA on page load
+        generateCaptchaAdmin();
+    </script>
+</body>
+</html>

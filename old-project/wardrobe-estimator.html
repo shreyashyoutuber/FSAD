@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wardrobe Estimator | BharatHome Value</title>
+  <link rel="stylesheet" href="estimator.css">
+  <link rel="stylesheet" href="wardrobe-estimator.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="wizard-frame">
+    <header class="wizard-header">
+      <a href="index.html" class="brand">Bharat<span>Home</span> Value</a>
+      <a href="user-dashboard.html" class="dashboard-link" title="Back to Dashboard">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7"/>
+          <rect x="14" y="3" width="7" height="7"/>
+          <rect x="14" y="14" width="7" height="7"/>
+          <rect x="3" y="14" width="7" height="7"/>
+        </svg>
+        Dashboard
+      </a>
+      <div class="progress-wrap">
+        <ol class="progress-track" aria-label="Estimator steps">
+          <li class="progress-step active" data-step="0"><span class="dot"></span><span class="label">Wardrobe Type</span></li>
+          <li class="progress-step" data-step="1"><span class="dot"></span><span class="label">Package</span></li>
+          <li class="progress-step" data-step="2"><span class="dot"></span><span class="label">Get Quote</span></li>
+        </ol>
+        <div class="progress-meter"><span class="bar"></span></div>
+        <div class="step-count">Step <span id="stepIndex">1</span>/3</div>
+      </div>
+    </header>
+
+    <main class="wizard-body">
+      <!-- Step 1: Type -->
+      <section class="step-card active" data-step="0" aria-label="Select wardrobe type">
+        <div class="card-head">
+          <h1>Select the type of wardrobe</h1>
+        </div>
+        <div class="option-stack wardrobe-options">
+          <label class="pill-option">
+            <input type="radio" name="wtype" value="Sliding" checked>
+            <div class="pill-media">
+              <img src="https://media.istockphoto.com/id/1419085349/photo/wardrobe-sliding-doors.webp?a=1&b=1&s=612x612&w=0&k=20&c=LwUf1ds489O7s7hnIBm_1AKylOROWMt3nOjl4iC4Faw=" alt="Sliding wardrobe">
+            </div>
+            <div class="pill-text">
+              <div class="pill-title">Sliding</div>
+              <div class="pill-sub">Space saving</div>
+            </div>
+          </label>
+          <label class="pill-option">
+            <input type="radio" name="wtype" value="Hinged">
+            <div class="pill-media">
+              <img src="https://media.istockphoto.com/id/1349227954/photo/wardrobes-with-hinged-doors-on-white-door-hinges-in-the-apartment.jpg?s=612x612&w=0&k=20&c=etE6MyULdqPsLAhwVd-jUCN84DLU0g1-gE0wgs8pGkA=" alt="Hinged wardrobe">
+            </div>
+            <div class="pill-text">
+              <div class="pill-title">Hinged</div>
+              <div class="pill-sub">Classic doors</div>
+            </div>
+          </label>
+          <label class="pill-option">
+            <input type="radio" name="wtype" value="Walk-in">
+            <div class="pill-media">
+              <img src="https://media.istockphoto.com/id/2174594380/photo/modern-dressing-room-with-shoes-bags-and-hanging-clothes.jpg?s=612x612&w=0&k=20&c=SYEqQU935v85EPS7ynwLOlHW3KmGZTGOeOAff88avK4=" alt="Walk-in wardrobe">
+            </div>
+            <div class="pill-text">
+              <div class="pill-title">Walk-in</div>
+              <div class="pill-sub">Luxury storage</div>
+            </div>
+          </label>
+        </div>
+      </section>
+
+      <!-- Step 2: Package -->
+      <section class="step-card" data-step="1" aria-label="Pick your package">
+        <div class="card-head">
+          <h1>Pick your package</h1>
+        </div>
+        <div class="package-grid">
+          <label class="package-card selected"><input type="radio" name="package" value="Essentials" checked><div class="package-pill">Essentials</div><div class="package-img wardrobe-package-img essentials"></div><ul class="package-points"><li>Affordable pricing</li><li>Convenient designs</li><li>Basic accessories</li></ul></label>
+          <label class="package-card"><input type="radio" name="package" value="Premium"><div class="package-pill">Premium</div><div class="package-img wardrobe-package-img premium"></div><ul class="package-points"><li>Mid-range pricing</li><li>Premium designs</li><li>Wide range of accessories</li></ul></label>
+          <label class="package-card"><input type="radio" name="package" value="Luxe"><div class="package-pill">Luxe</div><div class="package-img wardrobe-package-img luxe"></div><ul class="package-points"><li>Elite pricing</li><li>Lavish designs</li><li>Exclusive accessories</li></ul></label>
+        </div>
+      </section>
+
+      <!-- Step 3: Quote -->
+      <section class="step-card" data-step="2" aria-label="Get your quote">
+        <div class="card-head"><h1>Almost there! Review and get your quote</h1></div>
+        <div class="summary-card">
+          <div class="summary-row"><span>Type</span><strong id="summaryType">Sliding</strong></div>
+          <div class="summary-row"><span>Package</span><strong id="summaryPackage">Essentials</strong></div>
+          <div class="summary-cta">
+            <p>Share your contact details and we’ll send the estimate plus a design consult slot.</p>
+            <div class="inline-inputs"><input type="text" placeholder="Full name" id="quoteName" required><input type="tel" placeholder="Mobile number" id="quotePhone" required><input type="email" placeholder="Email" id="quoteEmail" required></div>
+            <button class="btn-primary" id="btnQuote">Get My Quote</button>
+            <p class="tiny">By continuing, you agree to be contacted via call/WhatsApp.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="wizard-footer"><button class="ghost" id="btnBack">Back</button><button class="solid" id="btnNext">Next</button></footer>
+  </div>
+
+  <script>
+    const steps = Array.from(document.querySelectorAll('.step-card'));
+    const progressSteps = Array.from(document.querySelectorAll('.progress-step'));
+    const bar = document.querySelector('.progress-meter .bar');
+    const stepIndexEl = document.getElementById('stepIndex');
+    const btnNext = document.getElementById('btnNext');
+    const btnBack = document.getElementById('btnBack');
+    let current = 0;
+
+    function setStep(i){ current=Math.min(Math.max(i,0),steps.length-1); steps.forEach((s,idx)=>s.classList.toggle('active',idx===current)); progressSteps.forEach((p,idx)=>p.classList.toggle('active',idx<=current)); bar.style.width=`${(current)/(steps.length-1)*100}%`; stepIndexEl.textContent=current+1; btnBack.disabled=current===0; btnNext.textContent=current===steps.length-1?'Finish':'Next'; }
+    btnNext.addEventListener('click',()=>{ if(current===steps.length-1){ document.getElementById('btnQuote').click(); return;} setStep(current+1); });
+    btnBack.addEventListener('click',()=>{ if(current===0){ window.location.href='user-dashboard.html'; } else { setStep(current-1); } });
+
+    document.querySelectorAll('.package-card').forEach(card=>{ card.addEventListener('click',()=>{ document.querySelectorAll('.package-card').forEach(c=>c.classList.remove('selected')); card.classList.add('selected'); card.querySelector('input').checked=true; document.getElementById('summaryPackage').textContent=card.querySelector('input').value; }); });
+    document.querySelectorAll('input[name="wtype"]').forEach(inp=>{ inp.addEventListener('change',()=>{ document.getElementById('summaryType').textContent=inp.value; }); });
+
+    document.getElementById('btnQuote').addEventListener('click',()=>{
+      const name=document.getElementById('quoteName').value.trim();
+      const phone=document.getElementById('quotePhone').value.trim();
+      const email=document.getElementById('quoteEmail').value.trim();
+      if(!name||!phone||!email){ alert('Please share your contact details to receive the quote.'); return; }
+      
+      // Save estimate before redirecting
+      saveEstimateToMyEstimates(name, phone, email);
+      saveToAdminDashboard(name, phone, email);
+      
+      const params=new URLSearchParams({name,phone,email,type:'wardrobe'});
+      window.location.href=`thankyou.html?${params.toString()}`;
+    });
+    
+    // Save estimate to localStorage for My Estimates page
+    function saveEstimateToMyEstimates(name, phone, email) {
+      const wtype = document.querySelector('input[name="wtype"]:checked')?.value || 'Sliding';
+      const packageType = document.querySelector('input[name="package"]:checked')?.value || 'Essentials';
+      
+      // Calculate estimated cost based on wardrobe type and package
+      const basePrices = {
+        'Sliding': { 'Essentials': 85000, 'Premium': 135000, 'Luxe': 185000 },
+        'Hinged': { 'Essentials': 95000, 'Premium': 145000, 'Luxe': 195000 },
+        'Walk-in': { 'Essentials': 135000, 'Premium': 185000, 'Luxe': 245000 }
+      };
+      
+      const totalCost = basePrices[wtype]?.[packageType] || 85000;
+      
+      const estimateData = {
+        type: 'wardrobe',
+        typeName: 'Wardrobe',
+        totalCost: totalCost,
+        details: {
+          'Wardrobe Type': wtype,
+          'Package Type': packageType
+        }
+      };
+      
+      // Get existing estimates
+      const stored = localStorage.getItem('bharatHomeEstimates');
+      const estimates = stored ? JSON.parse(stored) : [];
+      
+      // Add new estimate
+      const newEstimate = {
+        id: Date.now(),
+        type: estimateData.type,
+        typeName: estimateData.typeName,
+        date: new Date().toISOString().split('T')[0],
+        totalCost: estimateData.totalCost,
+        details: estimateData.details
+      };
+      
+      estimates.push(newEstimate);
+      localStorage.setItem('bharatHomeEstimates', JSON.stringify(estimates));
+    }
+    
+    // Save to Admin Dashboard
+    function saveToAdminDashboard(name, phone, email) {
+      const wtype = document.querySelector('input[name="wtype"]:checked')?.value || 'Sliding';
+      const packageType = document.querySelector('input[name="package"]:checked')?.value || 'Essentials';
+      
+      // Calculate estimated cost
+      const basePrices = {
+        'Sliding': { 'Essentials': 85000, 'Premium': 135000, 'Luxe': 185000 },
+        'Hinged': { 'Essentials': 95000, 'Premium': 145000, 'Luxe': 195000 },
+        'Walk-in': { 'Essentials': 135000, 'Premium': 185000, 'Luxe': 245000 }
+      };
+      
+      const totalCost = basePrices[wtype]?.[packageType] || 85000;
+      
+      // Get existing admin requests
+      const stored = localStorage.getItem('allAdminRequests');
+      const requests = stored ? JSON.parse(stored) : [];
+      
+      // Generate request ID
+      const requestId = 'EST-' + String(requests.length + 1).padStart(3, '0');
+      
+      // Create new admin request
+      const newRequest = {
+        id: requestId,
+        customerName: name,
+        customerEmail: email,
+        customerPhone: phone,
+        type: 'Wardrobe Estimator',
+        status: 'pending',
+        dateSubmitted: new Date().toISOString().split('T')[0],
+        wardrobeType: wtype,
+        package: packageType,
+        estimatedCost: totalCost,
+        description: `${wtype} wardrobe with ${packageType} package`,
+        budget: `₹${(totalCost * 0.8).toLocaleString('en-IN')} - ₹${(totalCost * 1.2).toLocaleString('en-IN')}`,
+        responded: false
+      };
+      
+      requests.push(newRequest);
+      localStorage.setItem('allAdminRequests', JSON.stringify(requests));
+    }
+
+    setStep(0);
+  </script>
+</body>
+</html>

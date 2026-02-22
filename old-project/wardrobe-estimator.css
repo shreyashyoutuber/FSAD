@@ -1,0 +1,375 @@
+/* Wardrobe estimator specific enhancements */
+
+.wardrobe-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+    animation: fadeIn 0.6s ease;
+}
+
+.pill-option {
+    position: relative;
+    overflow: hidden;
+}
+
+.pill-media {
+    width: 100%;
+    height: 220px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #f9e8e0, #f2ddd5);
+    margin-bottom: 12px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pill-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    display: block;
+}
+
+.pill-option input:checked ~ .pill-media {
+    transform: scale(1.05);
+    box-shadow: 0 16px 48px rgba(232, 91, 104, 0.25);
+}
+
+.pill-option:hover .pill-media img {
+    transform: scale(1.08);
+    filter: brightness(1.08);
+}
+
+.pill-text {
+    transition: all 0.3s ease;
+}
+
+.pill-title {
+    font-weight: 700;
+    color: var(--ink);
+    font-size: 1.1em;
+    margin-bottom: 4px;
+    transition: all 0.3s ease;
+}
+
+.pill-sub {
+    color: #888;
+    font-size: 0.95em;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.pill-option input:checked ~ .pill-text .pill-title {
+    color: #e85b68;
+    font-size: 1.15em;
+}
+
+.pill-option input:checked ~ .pill-text .pill-sub {
+    color: #e85b68;
+    font-weight: 600;
+}
+
+/* Package styling enhancements */
+.package-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    animation: fadeIn 0.6s ease;
+}
+
+.package-card {
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.wardrobe-package-img {
+    width: 100%;
+    height: 200px;
+    border-radius: 16px;
+    background-size: cover;
+    background-position: center;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+
+.wardrobe-package-img.essentials {
+    background: linear-gradient(135deg, #f5d9db, #fce4e1);
+}
+
+.wardrobe-package-img.premium {
+    background: linear-gradient(135deg, #e0f2f7, #d1e8f5);
+}
+
+.wardrobe-package-img.luxe {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+}
+
+.package-card:hover .wardrobe-package-img {
+    transform: scale(1.06);
+}
+
+.package-pill {
+    font-weight: 700;
+    color: #e85b68;
+    font-size: 1.1em;
+    transition: all 0.3s ease;
+}
+
+.package-card.selected .package-pill {
+    color: #fff;
+    text-shadow: 0 2px 4px rgba(232, 91, 104, 0.3);
+}
+
+.package-points {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.package-points li {
+    padding: 8px 0;
+    color: #666;
+    font-size: 0.95em;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.package-points li:last-child {
+    border-bottom: none;
+}
+
+.package-points li::before {
+    content: '✓';
+    color: #e85b68;
+    font-weight: 700;
+    font-size: 1.1em;
+    opacity: 0;
+    transform: scale(0);
+    transition: all 0.3s ease;
+}
+
+.package-card.selected .package-points li::before {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.package-card.selected .package-points li {
+    color: #333;
+    font-weight: 600;
+}
+
+/* Quote section styling */
+.inline-inputs {
+    display: grid;
+    gap: 12px;
+    margin: 16px 0;
+    animation: slideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.inline-inputs input {
+    padding: 14px 16px;
+    border: 2px solid #f0dede;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #fff 0%, #f9f5f5 100%);
+    color: #5a1d26;
+    font-weight: 600;
+    font-family: inherit;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.inline-inputs input::placeholder {
+    color: #bbb;
+}
+
+.inline-inputs input:hover {
+    border-color: #e85b68;
+    box-shadow: 0 4px 16px rgba(232, 91, 104, 0.12);
+}
+
+.inline-inputs input:focus {
+    outline: none;
+    border-color: #e85b68;
+    box-shadow: 0 0 0 3px rgba(232, 91, 104, 0.1);
+    background: #fff;
+}
+
+.summary-cta {
+    animation: slideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.summary-cta p {
+    color: #666;
+    font-weight: 600;
+    margin-bottom: 16px;
+    transition: all 0.3s ease;
+}
+
+.summary-cta .tiny {
+    color: #999;
+    font-size: 0.85em;
+    font-weight: 500;
+    margin-top: 12px;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .wardrobe-options {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+    
+    .pill-option {
+        margin-bottom: 6px;
+    }
+    
+    .pill-media {
+        height: 160px;
+        margin-bottom: 10px;
+        border-radius: 10px;
+    }
+    
+    .pill-media img {
+        border-radius: 10px;
+    }
+    
+    .pill-text {
+        gap: 4px;
+    }
+    
+    .pill-title {
+        font-size: 1em;
+    }
+    
+    .pill-sub {
+        font-size: 0.9em;
+    }
+    
+    .package-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .wardrobe-package-img {
+        height: 140px;
+        border-radius: 12px;
+    }
+    
+    .package-pill {
+        font-size: 0.95em;
+        margin-bottom: 6px;
+    }
+    
+    .package-points li {
+        padding: 6px 0;
+        font-size: 0.85em;
+    }
+    
+    .inline-inputs {
+        gap: 10px;
+    }
+    
+    .inline-inputs input {
+        padding: 11px 12px;
+        font-size: 16px;
+        border-radius: 8px;
+    }
+}
+
+@media (max-width: 640px) {
+    .wardrobe-options {
+        gap: 10px;
+    }
+    
+    .pill-media {
+        height: 140px;
+    }
+    
+    .pill-title {
+        font-size: 0.95em;
+    }
+    
+    .pill-sub {
+        font-size: 0.85em;
+    }
+    
+    .package-grid {
+        gap: 10px;
+    }
+    
+    .wardrobe-package-img {
+        height: 120px;
+    }
+    
+    .package-pill {
+        font-size: 0.9em;
+    }
+    
+    .package-points {
+        max-height: 80px;
+        overflow-y: auto;
+    }
+    
+    .package-points li {
+        padding: 4px 0;
+        font-size: 0.8em;
+    }
+    
+    .inline-inputs {
+        gap: 8px;
+    }
+    
+    .inline-inputs input {
+        padding: 10px 10px;
+        font-size: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .wardrobe-options {
+        gap: 8px;
+    }
+    
+    .pill-media {
+        height: 120px;
+        border-radius: 8px;
+    }
+    
+    .pill-title {
+        font-size: 0.9em;
+    }
+    
+    .pill-sub {
+        font-size: 0.8em;
+    }
+    
+    .package-grid {
+        gap: 8px;
+    }
+    
+    .wardrobe-package-img {
+        height: 100px;
+    }
+    
+    .package-pill {
+        font-size: 0.85em;
+    }
+    
+    .package-points {
+        display: none;
+    }
+    
+    .inline-inputs {
+        gap: 6px;
+    }
+    
+    .inline-inputs input {
+        padding: 9px 10px;
+        font-size: 14px;
+    }
+}

@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - BharatHome Value</title>
+    <link rel="stylesheet" href="admin-dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="admin-header">
+        <div class="admin-header-content">
+            <a href="index.html" class="admin-logo">Bharat<span>Home</span> Value</a>
+            <div class="header-title">Admin Dashboard</div>
+            <div class="admin-user-menu">
+                <span class="admin-email" id="adminEmailDisplay"></span>
+                <button class="btn-logout" onclick="adminLogout()">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="admin-main">
+        <div class="admin-container">
+            <div class="dashboard-header">
+                <h1>Estimator Requests</h1>
+                <div class="filter-section">
+                    <button class="filter-btn active" onclick="filterRequests('all')">All</button>
+                    <button class="filter-btn" onclick="filterRequests('pending')">Pending</button>
+                    <button class="filter-btn" onclick="filterRequests('responded')">Responded</button>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalRequests">0</div>
+                    <div class="stat-label">Total Requests</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="pendingRequests">0</div>
+                    <div class="stat-label">Pending Responses</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="respondedRequests">0</div>
+                    <div class="stat-label">Responded</div>
+                </div>
+            </div>
+
+            <!-- Requests Table -->
+            <div class="requests-section">
+                <table class="requests-table">
+                    <thead>
+                        <tr>
+                            <th>Request ID</th>
+                            <th>Customer Name</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>Date Submitted</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="requestsTableBody">
+                        <tr class="empty-state">
+                            <td colspan="6">No requests available</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Request Details Modal -->
+    <div id="requestModal" class="modal">
+        <div class="modal-content">
+            <div style="padding: 20px 30px; border-bottom: 1px solid #eee; flex-shrink: 0;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h2 id="modal-title" style="margin: 0;">Request Details</h2>
+                    <span class="modal-close" onclick="closeRequestModal()">&times;</span>
+                </div>
+            </div>
+            <div id="requestDetails" class="modal-body"></div>
+            <div class="modal-actions">
+                <button class="btn-respond" onclick="respondToRequest()">Respond with Quote</button>
+                <button class="btn-cancel" onclick="closeRequestModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check if admin is logged in
+        window.addEventListener('DOMContentLoaded', function() {
+            const isAdminLoggedIn = localStorage.getItem('adminLoggedIn');
+            if (!isAdminLoggedIn) {
+                window.location.href = 'admin-login.html';
+            }
+            
+            const adminEmail = localStorage.getItem('adminEmail');
+            document.getElementById('adminEmailDisplay').textContent = adminEmail || 'Admin';
+            
+            loadRequests();
+        });
+
+        // Mock data - In real app, fetch from backend
+        let allRequests = [
+            {
+                id: 'EST-001',
+                customerName: 'Rajesh Kumar',
+                customerEmail: 'rajesh@example.com',
+                type: 'Kitchen Estimator',
+                status: 'pending',
+                dateSubmitted: '2026-02-14',
+                roomSize: '120 sq ft',
+                description: 'Kitchen renovation with modern cabinets and countertops',
+                budget: '₹150,000 - ₹250,000',
+                responded: false
+            },
+            {
+                id: 'EST-002',
+                customerName: 'Priya Singh',
+                customerEmail: 'priya@example.com',
+                type: 'Full Home Estimator',
+                status: 'pending',
+                dateSubmitted: '2026-02-15',
+                bedrooms: '2',
+                squareFeet: '1200 sq ft',
+                description: 'Complete home interior design and renovation',
+                budget: '₹1,000,000 - ₹2,000,000',
+                responded: false
+            },
+            {
+                id: 'EST-003',
+                customerName: 'Amit Patel',
+                customerEmail: 'amit@example.com',
+                type: 'Wardrobe Estimator',
+                status: 'responded',
+                dateSubmitted: '2026-02-10',
+                description: 'Custom wardrobe design for bedroom',
+                budget: '₹200,000 - ₹350,000',
+                responded: true,
+                quote: '₹285,000',
+                adminDescription: 'Premium wooden wardrobe with modular design'
+            }
+        ];
+
+        function loadRequests() {
+            // Try to load requests from localStorage, otherwise use mock data
+            const storedRequests = localStorage.getItem('allAdminRequests');
+            if (storedRequests) {
+                allRequests = JSON.parse(storedRequests);
+            } else {
+                // Check responses and update responded status
+                const responses = JSON.parse(localStorage.getItem('adminResponses') || '{}');
+                allRequests = allRequests.map(req => {
+                    if (responses[req.id]) {
+                        return { ...req, responded: true };
+                    }
+                    return req;
+                });
+            }
+            
+            updateStats();
+            displayRequests(allRequests);
+        }
+
+        function updateStats() {
+            const total = allRequests.length;
+            const pending = allRequests.filter(r => !r.responded).length;
+            const responded = allRequests.filter(r => r.responded).length;
+            
+            document.getElementById('totalRequests').textContent = total;
+            document.getElementById('pendingRequests').textContent = pending;
+            document.getElementById('respondedRequests').textContent = responded;
+        }
+
+        function displayRequests(requests) {
+            const tbody = document.getElementById('requestsTableBody');
+            
+            if (requests.length === 0) {
+                tbody.innerHTML = '<tr class="empty-state"><td colspan="6">No requests found</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = requests.map(req => `
+                <tr class="request-row ${req.responded ? 'responded' : 'pending'}">
+                    <td class="request-id">${req.id}</td>
+                    <td>${req.customerName}</td>
+                    <td>${req.type}</td>
+                    <td>
+                        <span class="status-badge ${req.responded ? 'responded' : 'pending'}">
+                            ${req.responded ? 'Responded' : 'Pending'}
+                        </span>
+                    </td>
+                    <td>${req.dateSubmitted}</td>
+                    <td class="action-cell">
+                        <button class="btn-view" onclick="viewRequest('${req.id}')">View</button>
+                        ${!req.responded ? `<button class="btn-respond-action" onclick="openResponsePage('${req.id}')">Respond</button>` : `<button class="btn-edit-action" onclick="openResponsePage('${req.id}')">Edit Response</button>`}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function filterRequests(filter) {
+            // Update button active state
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            let filtered = allRequests;
+            if (filter === 'pending') {
+                filtered = allRequests.filter(r => !r.responded);
+            } else if (filter === 'responded') {
+                filtered = allRequests.filter(r => r.responded);
+            }
+            
+            displayRequests(filtered);
+        }
+
+        function viewRequest(requestId) {
+            const request = allRequests.find(r => r.id === requestId);
+            if (!request) return;
+            
+            let detailsHTML = `
+                <div class="detail-group">
+                    <strong>Request ID:</strong> ${request.id}
+                </div>
+                <div class="detail-group">
+                    <strong>Customer Name:</strong> ${request.customerName}
+                </div>
+                <div class="detail-group">
+                    <strong>Email:</strong> ${request.customerEmail}
+                </div>
+                ${request.customerPhone ? `
+                <div class="detail-group">
+                    <strong>Phone:</strong> ${request.customerPhone}
+                </div>
+                ` : ''}
+                <div class="detail-group">
+                    <strong>Estimator Type:</strong> ${request.type}
+                </div>
+                <div class="detail-group">
+                    <strong>Date Submitted:</strong> ${request.dateSubmitted}
+                </div>
+            `;
+            
+            // Add type-specific details
+            if (request.type === 'Full Home Estimator') {
+                if (request.bhk) {
+                    detailsHTML += `<div class="detail-group"><strong>BHK Type:</strong> ${request.bhk} (${request.bhkSize || 'N/A'})</div>`;
+                }
+                if (request.rooms) {
+                    detailsHTML += `<div class="detail-group"><strong>Rooms to Design:</strong> ${request.rooms}</div>`;
+                }
+            } else if (request.type === 'Kitchen Estimator') {
+                if (request.layout) {
+                    detailsHTML += `<div class="detail-group"><strong>Layout:</strong> ${request.layout}</div>`;
+                }
+                if (request.measurements) {
+                    detailsHTML += `<div class="detail-group"><strong>Measurements:</strong> ${request.measurements}</div>`;
+                }
+            } else if (request.type === 'Wardrobe Estimator') {
+                if (request.wardrobeType) {
+                    detailsHTML += `<div class="detail-group"><strong>Wardrobe Type:</strong> ${request.wardrobeType}</div>`;
+                }
+            }
+            
+            // Add common details
+            if (request.package) {
+                detailsHTML += `<div class="detail-group"><strong>Package:</strong> ${request.package}</div>`;
+            }
+            if (request.estimatedCost) {
+                detailsHTML += `<div class="detail-group"><strong>Estimated Cost:</strong> ₹${request.estimatedCost.toLocaleString('en-IN')}</div>`;
+            }
+            
+            detailsHTML += `
+                <div class="detail-group">
+                    <strong>Description:</strong> ${request.description}
+                </div>
+                <div class="detail-group">
+                    <strong>Budget Range:</strong> ${request.budget}
+                </div>
+            `;
+            
+            if (request.responded) {
+                const responses = JSON.parse(localStorage.getItem('adminResponses') || '{}');
+                const response = responses[request.id];
+                
+                if (response) {
+                    detailsHTML += `
+                        <div class="response-section">
+                            <h3>Admin Response</h3>
+                            <div class="detail-group">
+                                <strong>Quote:</strong> ₹${parseInt(response.quote).toLocaleString('en-IN')}
+                            </div>
+                            <div class="detail-group">
+                                <strong>Timeline:</strong> ${response.timeline}
+                            </div>
+                            <div class="detail-group">
+                                <strong>Warranty:</strong> ${response.warranty}
+                            </div>
+                            <div class="detail-group">
+                                <strong>Description:</strong> ${response.description}
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+            
+            document.getElementById('requestDetails').innerHTML = detailsHTML;
+            document.getElementById('requestModal').style.display = 'block';
+        }
+
+        function closeRequestModal() {
+            document.getElementById('requestModal').style.display = 'none';
+        }
+
+        function openResponsePage(requestId) {
+            localStorage.setItem('currentRequestId', requestId);
+            window.location.href = 'admin-respond.html';
+        }
+
+        function respondToRequest() {
+            // This will be handled by the response page
+            closeRequestModal();
+        }
+
+        function adminLogout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('adminLoggedIn');
+                localStorage.removeItem('adminEmail');
+                window.location.href = 'admin-login.html';
+            }
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('requestModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

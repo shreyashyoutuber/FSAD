@@ -1,0 +1,558 @@
+/* Kitchen specific small tweaks on top of estimator.css */
+.inline-link { 
+    color: #e85b68; 
+    text-decoration: underline;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.inline-link:hover {
+    color: var(--accent-dark);
+    text-decoration-thickness: 2px;
+}
+
+.layout-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(240px, 1fr));
+    gap: 20px;
+    animation: fadeIn 0.6s ease;
+}
+
+.layout-card {
+    background: var(--card);
+    border: 2px solid transparent;
+    border-radius: 16px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    position: relative;
+    overflow: hidden;
+}
+
+.layout-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(232, 91, 104, 0.05) 0%, transparent 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.layout-card:hover {
+    box-shadow: 0 12px 35px rgba(232, 91, 104, 0.12);
+    transform: translateY(-4px);
+    border-color: rgba(232, 91, 104, 0.3);
+}
+
+.layout-card input {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: #e85b68;
+    z-index: 2;
+}
+
+.layout-card:has(input:checked) {
+    border-color: #e85b68;
+    background: linear-gradient(135deg, var(--card) 0%, rgba(232, 91, 104, 0.05) 100%);
+    box-shadow: 0 14px 45px rgba(232, 91, 104, 0.2);
+    transform: scale(1.02);
+}
+
+.layout-card:has(input:checked)::before {
+    opacity: 1;
+}
+
+.layout-img {
+    width: 240px;
+    height: 160px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #f9e8e0, #f2ddd5);
+    position: relative;
+    overflow: hidden;
+    border: 2px solid #e8d5cc;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 16px rgba(192, 128, 128, 0.2);
+}
+
+.layout-img:hover {
+    box-shadow: 0 8px 28px rgba(192, 128, 128, 0.3);
+    transform: scale(1.02);
+}
+
+.layout-img .seg {
+    position: absolute;
+    background: #c08080;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(100, 50, 50, 0.2);
+    opacity: 0.8;
+    transition: all 0.3s ease;
+}
+.layout-img .h{height:12px}
+.layout-img .v{width:12px}
+.appliance {
+    position: absolute;
+    border-radius: 8px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+    border: 1.5px solid #999;
+    transition: all 0.3s ease;
+}
+
+.appliance:hover {
+    box-shadow: 0 5px 16px rgba(0, 0, 0, 0.2);
+    transform: scale(1.08);
+}
+
+.appliance.cooktop {
+    width: 32px;
+    height: 24px;
+    background: linear-gradient(135deg, #fce4e1, #f8efef);
+    border-color: #d97070;
+    position: relative;
+    padding: 3px;
+}
+
+.appliance.cooktop::before {
+    content: "";
+    position: absolute;
+    left: 4px;
+    top: 3px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #e85b68;
+    box-shadow: 9px 0 0 #e85b68, 0 9px 0 #e85b68, 9px 9px 0 #e85b68;
+}
+
+.appliance.sink {
+    width: 34px;
+    height: 26px;
+    background: linear-gradient(135deg, #e8f4f8, #dce8f0);
+    border-color: #6b9fb8;
+    position: relative;
+}
+
+.appliance.sink::before {
+    content: "";
+    position: absolute;
+    top: 5px;
+    left: 8px;
+    width: 18px;
+    height: 14px;
+    border: 1px solid #5a8fa3;
+    border-radius: 2px;
+    background: linear-gradient(135deg, #f0f9fc, #dce8f0);
+}
+
+.appliance.fridge {
+    width: 20px;
+    height: 36px;
+    background: linear-gradient(135deg, #e5e5e5, #d4d4d4);
+    border-color: #777;
+    position: relative;
+}
+
+.appliance.fridge::before {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 50%;
+    width: 14px;
+    height: 14px;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #d4d4d4, #c5c5c5);
+    border-radius: 2px;
+    border: 0.5px solid #666;
+}
+
+.appliance.fridge::after {
+    content: "";
+    position: absolute;
+    top: 18px;
+    left: 50%;
+    width: 14px;
+    height: 14px;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #d4d4d4, #c5c5c5);
+    border-radius: 2px;
+    border: 0.5px solid #666;
+}
+/* positions per layout */
+.layout-img.l .appliance.fridge{bottom:12px;left:14px}
+.layout-img.l .appliance.cooktop{top:14px;right:14px}
+.layout-img.l .appliance.sink{top:14px;left:50%;transform:translateX(-50%)}
+.layout-img.s .appliance.fridge{top:50%;left:10px;transform:translateY(-50%)}
+.layout-img.s .appliance.cooktop{top:50%;left:50%;transform:translate(-50%,-50%)}
+.layout-img.s .appliance.sink{top:50%;right:10px;transform:translateY(-50%)}
+.layout-img.u .appliance.fridge{bottom:12px;left:14px}
+.layout-img.u .appliance.sink{bottom:12px;right:14px}
+.layout-img.u .appliance.cooktop{top:14px;left:50%;transform:translateX(-50%)}
+.layout-img.p .appliance.fridge{top:14px;left:14px}
+.layout-img.p .appliance.cooktop{bottom:14px;right:14px}
+.layout-img.p .appliance.sink{top:50%;left:50%;transform:translate(-50%,-50%)}
+
+/* L-shaped: one horizontal + one vertical */
+/* L-shaped: one horizontal + one vertical */
+.layout-img.l .seg-a.h{width:72%;left:50%;transform:translateX(-50%);bottom:16px}
+.layout-img.l .seg-b.v{height:66%;left:18px;top:18px}
+
+/* Straight: single run */
+.layout-img.s .seg-a.h{width:82%;left:50%;transform:translateX(-50%);top:50%;margin-top:-8px}
+
+/* U-shaped: bottom + left + right */
+.layout-img.u .seg-a.h{width:84%;left:50%;transform:translateX(-50%);bottom:16px}
+.layout-img.u .seg-b.v{height:62%;left:18px;top:18px}
+.layout-img.u .seg-c.v{height:62%;right:18px;top:18px}
+
+/* Parallel: two horizontal runs */
+.layout-img.p .seg-a.h{width:78%;left:50%;transform:translateX(-50%);top:26px}
+.layout-img.p .seg-b.h {
+    width: 78%;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 16px;
+}
+
+.layout-name {
+    font-weight: 700;
+    color: var(--ink);
+    margin-top: 8px;
+    transition: all 0.3s ease;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.layout-card:has(input:checked) .layout-name {
+    color: #e85b68;
+    font-size: 1.05em;
+}
+.measure-card {
+    background: var(--card);
+    border: 2px solid #e8d5cc;
+    border-radius: 16px;
+    padding: 24px;
+    animation: slideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+}
+
+.measure-card:hover {
+    box-shadow: 0 12px 40px rgba(232, 91, 104, 0.12);
+    transform: translateY(-2px);
+}
+
+.measure-guide {
+    background: transparent;
+    margin-bottom: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    text-align: center;
+}
+
+.measure-guide-title {
+    font-weight: 700;
+    color: #a62a36;
+    margin: 0;
+    font-size: 18px;
+    background: linear-gradient(135deg, #a62a36, #e85b68);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.measure-preview {
+    width: 100%;
+    max-width: 520px;
+    height: 190px;
+    background: linear-gradient(135deg, #f8efef, #fff0f0);
+    border: 2px solid #f0dede;
+    border-radius: 16px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 24px rgba(166, 42, 54, 0.1);
+    transition: all 0.3s ease;
+}
+
+.measure-preview:hover {
+    box-shadow: 0 12px 36px rgba(232, 91, 104, 0.15);
+    transform: scale(1.01);
+}
+
+.mp-seg {
+    position: absolute;
+    background: linear-gradient(135deg, #f5d9db, #f8efef);
+    border: 2.5px solid #e85b68;
+    border-radius: 8px;
+    color: #5a1d26;
+    font-weight: 700;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(166, 42, 54, 0.15);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mp-seg:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(232, 91, 104, 0.25);
+}
+
+.measure-pill-list {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+    animation: fadeIn 0.6s ease;
+}
+
+.measure-guide .measure-pill {
+    border: 2px solid #e85b68;
+    border-radius: 8px;
+    padding: 8px 18px;
+    color: #a62a36;
+    font-weight: 700;
+    background: linear-gradient(135deg, #fff, #f9e8e0);
+    cursor: default;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(232, 91, 104, 0.1);
+}
+
+.measure-guide .measure-pill:hover {
+    box-shadow: 0 4px 12px rgba(232, 91, 104, 0.2);
+    transform: translateY(-2px);
+    background: linear-gradient(135deg, #f9e8e0, rgba(232, 91, 104, 0.08));
+}
+
+.measure-note {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border-radius: 12px;
+    padding: 14px 16px;
+    text-align: center;
+    color: #6b4f00;
+    margin-bottom: 16px;
+    border-left: 4px solid #f59e0b;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
+    font-weight: 600;
+    animation: slideInDown 0.4s ease;
+}
+
+.measure-inputs {
+    display: grid;
+    gap: 12px;
+}
+
+.measure-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.measure-row select {
+    padding: 12px 14px;
+    border: 2px solid #f0dede;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #fff 0%, #f9f5f5 100%);
+    color: #5a1d26;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.measure-row select:hover {
+    border-color: #e85b68;
+    box-shadow: 0 4px 16px rgba(232, 91, 104, 0.12);
+}
+
+.measure-row select:focus {
+    outline: none;
+    border-color: #e85b68;
+    box-shadow: 0 0 0 3px rgba(232, 91, 104, 0.1);
+}
+@media (max-width: 700px) {
+    .layout-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+        padding: 0 8px;
+    }
+    
+    .layout-card {
+        padding: 14px;
+        gap: 10px;
+    }
+    
+    .layout-img {
+        width: 100%;
+        max-width: 280px;
+        height: 140px;
+    }
+    
+    .layout-name {
+        font-size: 0.95em;
+    }
+}
+
+@media (max-width: 640px) {
+    .layout-grid {
+        gap: 12px;
+        padding: 0;
+    }
+    
+    .layout-card {
+        padding: 12px;
+    }
+    
+    .layout-img {
+        height: 120px;
+        border-radius: 10px;
+    }
+    
+    .inline-link {
+        font-size: 0.9em;
+    }
+    
+    .measure-card {
+        padding: 16px;
+        border-radius: 12px;
+    }
+    
+    .measure-guide-title {
+        font-size: 16px;
+    }
+    
+    .measure-preview {
+        height: 160px;
+        max-width: 100%;
+        border-radius: 12px;
+    }
+    
+    .mp-seg {
+        font-size: 12px;
+        border-radius: 6px;
+    }
+    
+    .measure-pill-list {
+        gap: 8px;
+    }
+    
+    .measure-guide .measure-pill {
+        padding: 6px 12px;
+        font-size: 0.85em;
+        border-radius: 6px;
+    }
+    
+    .measure-note {
+        padding: 10px 12px;
+        font-size: 12px;
+        border-radius: 8px;
+    }
+    
+    .measure-inputs {
+        gap: 10px;
+    }
+    
+    .measure-row {
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+    
+    .measure-row select {
+        padding: 10px 10px;
+        font-size: 14px;
+        border-radius: 8px;
+        flex: 1;
+        min-width: 120px;
+    }
+}
+
+@media (max-width: 480px) {
+    .layout-grid {
+        gap: 10px;
+    }
+    
+    .layout-card {
+        padding: 10px;
+        gap: 8px;
+    }
+    
+    .layout-img {
+        height: 100px;
+        max-width: 100%;
+    }
+    
+    .layout-img .seg {
+        border-radius: 6px;
+    }
+    
+    .appliance {
+        border-radius: 6px;
+    }
+    
+    .layout-name {
+        font-size: 0.9em;
+    }
+    
+    .measure-card {
+        padding: 12px;
+        border-radius: 10px;
+    }
+    
+    .measure-guide-title {
+        font-size: 14px;
+        margin: 0;
+    }
+    
+    .measure-preview {
+        height: 140px;
+        border-radius: 10px;
+    }
+    
+    .mp-seg {
+        font-size: 11px;
+        border-width: 2px;
+    }
+    
+    .measure-pill-list {
+        gap: 6px;
+    }
+    
+    .measure-guide .measure-pill {
+        padding: 5px 10px;
+        font-size: 0.8em;
+        border-width: 1.5px;
+    }
+    
+    .measure-note {
+        padding: 8px 10px;
+        font-size: 11px;
+        border-left-width: 3px;
+    }
+    
+    .measure-inputs {
+        gap: 8px;
+    }
+    
+    .measure-row {
+        gap: 4px;
+    }
+    
+    .measure-row select {
+        padding: 9px 8px;
+        font-size: 13px;
+        border-width: 1.5px;
+    }
+}

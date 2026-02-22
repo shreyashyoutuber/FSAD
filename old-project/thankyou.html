@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thank You | BharatHome Value</title>
+    <link rel="stylesheet" href="thankyou.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="thankyou-wrapper">
+        <header class="thankyou-header">
+            <a href="index.html" class="brand">Bharat<span>Home</span> Value</a>
+        </header>
+
+        <main class="thankyou-main">
+            <div class="thankyou-container">
+                <div class="checkmark-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                </div>
+                
+                <h1 class="thankyou-title">Thank You!</h1>
+                <p class="thankyou-message">We've received your estimate request</p>
+                
+                <div class="thankyou-details">
+                    <div class="detail-item">
+                        <span class="detail-value" id="displayName"></span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-value" id="displayPhone"></span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-value" id="displayEmail"></span>
+                    </div>
+                </div>
+                
+                <div class="thankyou-info">
+                    <p><strong>What Happens Next:</strong></p>
+                    <ul>
+                        <li>We'll send the detailed estimate to your email within 24 hours</li>
+                        <li>A design consultation slot will be scheduled via WhatsApp</li>
+                        <li>Our team will help you maximize your property value</li>
+                    </ul>
+                </div>
+                
+                <div class="contact-info">
+                    <p><strong>Need Help?</strong></p>
+                    <p class="contact-details">
+                        <span>📞 +91 XXXX XXXX XX</span>
+                        <span>📧 support@bharathomevalue.com</span>
+                    </p>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn-primary" onclick="window.location.href='index.html'">Back to Home</button>
+                    <button class="btn-secondary" onclick="window.location.href='user-dashboard.html'">View Dashboard</button>
+                </div>
+            </div>
+        </main>
+
+        <footer class="thankyou-footer">
+            <p>&copy; 2026 BharatHome Value. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Get parameters from URL
+        const params = new URLSearchParams(window.location.search);
+        const name = params.get('name') || 'Guest';
+        const phone = params.get('phone') || '-';
+        const email = params.get('email') || '-';
+
+        // Display the information
+        document.getElementById('displayName').textContent = name;
+        document.getElementById('displayPhone').textContent = phone;
+        document.getElementById('displayEmail').textContent = email;
+    </script>
+</body>
+</html>

@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Full Home Interior Estimator | BharatHome Value</title>
+    <link rel="stylesheet" href="estimator.css">
+    <link rel="stylesheet" href="full-home-estimator.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<!-- Copied from estimator.html -->
+<!-- BEGIN -->
+    <div class="wizard-frame">
+        <header class="wizard-header">
+            <a href="index.html" class="brand">Bharat<span>Home</span> Value</a>
+            <a href="user-dashboard.html" class="dashboard-link" title="Back to Dashboard">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7"/>
+                    <rect x="14" y="3" width="7" height="7"/>
+                    <rect x="14" y="14" width="7" height="7"/>
+                    <rect x="3" y="14" width="7" height="7"/>
+                </svg>
+                Dashboard
+            </a>
+            <div class="progress-wrap">
+                <ol class="progress-track" aria-label="Estimator steps">
+                    <li class="progress-step active" data-step="0">
+                        <span class="dot"></span>
+                        <span class="label">BHK Type</span>
+                    </li>
+                    <li class="progress-step" data-step="1">
+                        <span class="dot"></span>
+                        <span class="label">Rooms to Design</span>
+                    </li>
+                    <li class="progress-step" data-step="2">
+                        <span class="dot"></span>
+                        <span class="label">Package</span>
+                    </li>
+                    <li class="progress-step" data-step="3">
+                        <span class="dot"></span>
+                        <span class="label">Get Quote</span>
+                    </li>
+                </ol>
+                <div class="progress-meter"><span class="bar"></span></div>
+                <div class="step-count">Step <span id="stepIndex">1</span>/4</div>
+            </div>
+        </header>
+
+        <main class="wizard-body">
+            <!-- Step 1 -->
+            <section class="step-card active" data-step="0" aria-label="Select your BHK type">
+                <div class="card-head">
+                    <h1>Select your BHK type</h1>
+                    <p>Choose the home size we should design for you.</p>
+                </div>
+                <div class="option-stack">
+                    <div class="bhk-group">
+                        <label class="radio-tile">
+                            <input type="radio" name="bhk" value="1 BHK" data-bhk="1">
+                            <div class="tile-body">
+                                <span class="title">1 BHK</span>
+                                <span class="hint">Compact and efficient</span>
+                            </div>
+                        </label>
+                        <div class="size-stack hidden">
+                            <p class="size-title">Select size</p>
+                            <div class="size-options">
+                                <label class="pill-option">
+                                    <input type="radio" name="bhkSize-1" value="Small">
+                                    <div>
+                                        <div class="pill-title">Small</div>
+                                        <div class="pill-sub">Below 800 sq ft</div>
+                                    </div>
+                                </label>
+                                <label class="pill-option">
+                                    <input type="radio" name="bhkSize-1" value="Large">
+                                    <div>
+                                        <div class="pill-title">Large</div>
+                                        <div class="pill-sub">Above 800 sq ft</div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bhk-group">
+                        <label class="radio-tile">
+                            <input type="radio" name="bhk" value="2 BHK" checked data-bhk="2">
+                            <div class="tile-body">
+                                <span class="title">2 BHK</span>
+                                <span class="hint">Balanced for small families</span>
+                            </div>
+                        </label>
+                        <div class="size-stack">
+                            <p class="size-title">Select size</p>
+                            <div class="size-options">
+                                <label class="pill-option">
+                                    <input type="radio" name="bhkSize" value="Small" checked>
+                                    <div>
+                                        <div class="pill-title">Small</div>
+                                        <div class="pill-sub">Below 800 sq ft</div>
+                                    </div>
+                                </label>
+                                <label class="pill-option">
+                                    <input type="radio" name="bhkSize" value="Large">
+                                    <div>
+                                        <div class="pill-title">Large</div>
+                                        <div class="pill-sub">Above 800 sq ft</div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bhk-group">
+                        <label class="radio-tile">
+                            <input type="radio" name="bhk" value="3 BHK" data-bhk="3">
+                            <div class="tile-body">
+                                <span class="title">3 BHK</span>
+                                <span class="hint">Spacious family living</span>
+                            </div>
+                        </label>
+                        <div class="size-stack hidden">
+                            <p class="size-title">Select size</p>
+                            <div class="size-options">
+                                <label class="pill-option">
+                                    <input type="radio" name="bhkSize-3" value="Small">
+                                    <div>
+                                        <div class="pill-title">Small</div>
+                                        <div class="pill-sub">Below 800 sq ft</div>
+                                    </div>
+                                </label>
+                                <label class="pill-option">
+                                    <input type="radio" name="bhkSize-3" value="Large">
+                                    <div>
+                                        <div class="pill-title">Large</div>
+                                        <div class="pill-sub">Above 800 sq ft</div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bhk-group">
+                        <label class="radio-tile">
+                            <input type="radio" name="bhk" value="4 BHK" data-bhk="4">
+                            <div class="tile-body">
+                                <span class="title">4 BHK</span>
+                                <span class="hint">Room to entertain</span>
+                            </div>
+                        </label>
+                        <div class="size-stack hidden">
+                            <p class="size-title">Select size</p>
+                            <div class="size-options">
+                                <label class="pill-option">
+                                    <input type="radio" name="bhkSize-4" value="Small">
+                                    <div>
+                                        <div class="pill-title">Small</div>
+                                        <div class="pill-sub">Below 800 sq ft</div>
+                                    </div>
+                                </label>
+                                <label class="pill-option">
+                                    <input type="radio" name="bhkSize-4" value="Large">
+                                    <div>
+                                        <div class="pill-title">Large</div>
+                                        <div class="pill-sub">Above 800 sq ft</div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bhk-group">
+                        <label class="radio-tile">
+                            <input type="radio" name="bhk" value="5 BHK+" data-bhk="5">
+                            <div class="tile-body">
+                                <span class="title">5 BHK+</span>
+                                <span class="hint">Plenty of flexibility</span>
+                            </div>
+                        </label>
+                        <div class="size-stack hidden">
+                            <p class="size-title">Select size</p>
+                            <div class="size-options">
+                                <label class="pill-option">
+                                    <input type="radio" name="bhkSize-5" value="Small">
+                                    <div>
+                                        <div class="pill-title">Small</div>
+                                        <div class="pill-sub">Below 800 sq ft</div>
+                                    </div>
+                                </label>
+                                <label class="pill-option">
+                                    <input type="radio" name="bhkSize-5" value="Large">
+                                    <div>
+                                        <div class="pill-title">Large</div>
+                                        <div class="pill-sub">Above 800 sq ft</div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Step 2 -->
+            <section class="step-card" data-step="1" aria-label="Select rooms">
+                <div class="card-head">
+                    <h1>Select the rooms you’d like us to design</h1>
+                    <p>Tell us how many of each space you need.</p>
+                </div>
+                <div class="counter-stack">
+                    <div class="counter-row" data-room="Living Room">
+                        <div class="room-name">Living Room</div>
+                        <div class="counter-controls">
+                            <button class="minus" aria-label="Remove living room">−</button>
+                            <span class="count">1</span>
+                            <button class="plus" aria-label="Add living room">+</button>
+                        </div>
+                    </div>
+                    <div class="counter-row" data-room="Kitchen">
+                        <div class="room-name">Kitchen</div>
+                        <div class="counter-controls">
+                            <button class="minus" aria-label="Remove kitchen">−</button>
+                            <span class="count">1</span>
+                            <button class="plus" aria-label="Add kitchen">+</button>
+                        </div>
+                    </div>
+                    <div class="counter-row" data-room="Bedroom">
+                        <div class="room-name">Bedroom</div>
+                        <div class="counter-controls">
+                            <button class="minus" aria-label="Remove bedroom">−</button>
+                            <span class="count">2</span>
+                            <button class="plus" aria-label="Add bedroom">+</button>
+                        </div>
+                    </div>
+                    <div class="counter-row" data-room="Bathroom">
+                        <div class="room-name">Bathroom</div>
+                        <div class="counter-controls">
+                            <button class="minus" aria-label="Remove bathroom">−</button>
+                            <span class="count">2</span>
+                            <button class="plus" aria-label="Add bathroom">+</button>
+                        </div>
+                    </div>
+                    <div class="counter-row" data-room="Dining">
+                        <div class="room-name">Dining</div>
+                        <div class="counter-controls">
+                            <button class="minus" aria-label="Remove dining room">−</button>
+                            <span class="count">1</span>
+                            <button class="plus" aria-label="Add dining room">+</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Step 3 -->
+            <section class="step-card" data-step="2" aria-label="Pick your package">
+                <div class="card-head">
+                    <h1>Pick your package</h1>
+                    <p>Choose the experience level that fits your needs.</p>
+                </div>
+                <div class="package-grid">
+                    <label class="package-card selected">
+                        <input type="radio" name="package" value="Essentials" checked>
+                        <div class="package-pill">Essentials</div>
+                        <div class="package-img fullhome-pkg essentials" aria-hidden="true"></div>
+                        <ul class="package-points">
+                            <li>Affordable pricing</li>
+                            <li>Convenient designs</li>
+                            <li>Basic accessories</li>
+                        </ul>
+                    </label>
+
+                    <label class="package-card">
+                        <input type="radio" name="package" value="Premium">
+                        <div class="package-pill">Premium</div>
+                        <div class="package-img fullhome-pkg premium" aria-hidden="true"></div>
+                        <ul class="package-points">
+                            <li>Mid-range pricing</li>
+                            <li>Premium designs</li>
+                            <li>Wide range of accessories</li>
+                        </ul>
+                    </label>
+
+                    <label class="package-card">
+                        <input type="radio" name="package" value="Luxe">
+                        <div class="package-pill">Luxe</div>
+                        <div class="package-img fullhome-pkg luxe" aria-hidden="true"></div>
+                        <ul class="package-points">
+                            <li>Elite pricing</li>
+                            <li>Lavish designs</li>
+                            <li>Exclusive accessories</li>
+                        </ul>
+                    </label>
+                </div>
+            </section>
+
+            <!-- Step 4 -->
+            <section class="step-card" data-step="3" aria-label="Get your quote">
+                <div class="card-head">
+                    <h1>Almost there! Review and get your quote</h1>
+                    <p>We’ll prepare an approximate costing based on your selection.</p>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-row">
+                        <span>BHK Type</span>
+                        <strong id="summaryBhk">2 BHK · Small</strong>
+                    </div>
+                    <div class="summary-row">
+                        <span>Rooms</span>
+                        <strong id="summaryRooms">Living Room ×1, Kitchen ×1, Bedroom ×2, Bathroom ×2, Dining ×1</strong>
+                    </div>
+                    <div class="summary-row">
+                        <span>Package</span>
+                        <strong id="summaryPackage">Essentials</strong>
+                    </div>
+                    <div class="summary-cta">
+                        <p>Share your contact details and we’ll send the estimate plus a design consult slot.</p>
+                        <div class="inline-inputs">
+                            <input type="text" placeholder="Full name" id="quoteName" required>
+                            <input type="tel" placeholder="Mobile number" id="quotePhone" required>
+                            <input type="email" placeholder="Email" id="quoteEmail" required>
+                        </div>
+                        <button class="btn-primary" id="btnQuote">Get My Quote</button>
+                        <p class="tiny">By continuing, you agree to be contacted via call/WhatsApp.</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="wizard-footer">
+            <button class="ghost" id="btnBack">Back</button>
+            <button class="solid" id="btnNext">Next</button>
+        </footer>
+    </div>
+
+
+    <script>
+        const steps = Array.from(document.querySelectorAll('.step-card'));
+        const progressSteps = Array.from(document.querySelectorAll('.progress-step'));
+        const bar = document.querySelector('.progress-meter .bar');
+        const stepIndexEl = document.getElementById('stepIndex');
+        const btnNext = document.getElementById('btnNext');
+        const btnBack = document.getElementById('btnBack');
+        let current = 0;
+
+        const roomCounters = {};
+        document.querySelectorAll('.counter-row').forEach(row => {
+            const room = row.dataset.room;
+            const countEl = row.querySelector('.count');
+            roomCounters[room] = Number(countEl.textContent);
+            row.addEventListener('click', e => {
+                if (e.target.classList.contains('minus')) {
+                    roomCounters[room] = Math.max(0, roomCounters[room] - 1);
+                }
+                if (e.target.classList.contains('plus')) {
+                    roomCounters[room] = roomCounters[room] + 1;
+                }
+                countEl.textContent = roomCounters[room];
+                renderSummary();
+            });
+        });
+
+        document.querySelectorAll('input[name="bhk"]').forEach(input => {
+            input.addEventListener('change', (e) => {
+                document.querySelectorAll('.size-stack').forEach(el => el.classList.add('hidden'));
+                e.target.closest('.bhk-group').querySelector('.size-stack').classList.remove('hidden');
+                renderSummary();
+            });
+        });
+
+        document.querySelectorAll('input[name^="bhkSize"]').forEach(input => {
+            input.addEventListener('change', renderSummary);
+        });
+
+        document.querySelector('.bhk-group input[name="bhk"]:checked').closest('.bhk-group').querySelector('.size-stack').classList.remove('hidden');
+
+        document.querySelectorAll('.package-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.package-card').forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                card.querySelector('input').checked = true;
+                renderSummary();
+            });
+        });
+
+        function setStep(index) {
+            current = Math.min(Math.max(index, 0), steps.length - 1);
+            steps.forEach((section, i) => {
+                section.classList.toggle('active', i === current);
+            });
+            progressSteps.forEach((step, i) => {
+                step.classList.toggle('active', i <= current);
+            });
+            const percent = (current) / (steps.length - 1) * 100;
+            bar.style.width = `${percent}%`;
+            stepIndexEl.textContent = current + 1;
+            btnBack.disabled = current === 0;
+            btnNext.textContent = current === steps.length - 1 ? 'Finish' : 'Next';
+        }
+
+        btnNext.addEventListener('click', () => {
+            if (current === steps.length - 1) {
+                document.getElementById('btnQuote').click();
+                return;
+            }
+            setStep(current + 1);
+        });
+
+        btnBack.addEventListener('click', () => {
+            if(current === 0){
+                window.location.href = 'user-dashboard.html';
+            } else {
+                setStep(current - 1);
+            }
+        });
+
+        document.getElementById('btnQuote').addEventListener('click', () => {
+            const name = document.getElementById('quoteName').value.trim();
+            const phone = document.getElementById('quotePhone').value.trim();
+            const email = document.getElementById('quoteEmail').value.trim();
+            if (!name || !phone || !email) {
+                alert('Please share your contact details to receive the quote.');
+                return;
+            }
+            
+            // Save estimate before redirecting
+            saveEstimateToMyEstimates(name, phone, email);
+            saveToAdminDashboard(name, phone, email);
+            
+            const params = new URLSearchParams({ name, phone, email, type: 'full-home' });
+            window.location.href = `thankyou.html?${params.toString()}`;
+        });
+        
+        // Save estimate to localStorage for My Estimates page
+        function saveEstimateToMyEstimates(name, phone, email) {
+            const bhk = document.querySelector('input[name="bhk"]:checked')?.value || '2 BHK';
+            const bhkSize = document.querySelector('input[name="bhkSize"]:checked')?.value || 'Small';
+            const packageType = document.querySelector('input[name="package"]:checked')?.value || 'Essentials';
+            
+            // Get selected rooms
+            const selectedRooms = Object.entries(roomCounters)
+                .filter(([, count]) => count > 0)
+                .map(([room, count]) => `${room} ×${count}`)
+                .join(', ');
+            
+            // Calculate estimated cost based on BHK, size, and package
+            const bhkValue = parseInt(bhk);
+            const sizeFactor = bhkSize === 'Large' ? 1.5 : 1;
+            const packageMultiplier = { 'Essentials': 1, 'Premium': 1.8, 'Luxury': 2.5 };
+            const basePrice = 500000;
+            const totalCost = Math.round(basePrice * bhkValue * sizeFactor * (packageMultiplier[packageType] || 1));
+            
+            const estimateData = {
+                type: 'fullhome',
+                typeName: 'Full Home',
+                totalCost: totalCost,
+                details: {
+                    'BHK Type': `${bhk} · ${bhkSize}`,
+                    'Rooms Designed': selectedRooms || 'Standard rooms',
+                    'Package Type': packageType
+                }
+            };
+            
+            // Get existing estimates
+            const stored = localStorage.getItem('bharatHomeEstimates');
+            const estimates = stored ? JSON.parse(stored) : [];
+            
+            // Add new estimate
+            const newEstimate = {
+                id: Date.now(),
+                type: estimateData.type,
+                typeName: estimateData.typeName,
+                date: new Date().toISOString().split('T')[0],
+                totalCost: estimateData.totalCost,
+                details: estimateData.details
+            };
+            
+            estimates.push(newEstimate);
+            localStorage.setItem('bharatHomeEstimates', JSON.stringify(estimates));
+        }
+        
+        // Save to Admin Dashboard
+        function saveToAdminDashboard(name, phone, email) {
+            const bhk = document.querySelector('input[name="bhk"]:checked')?.value || '2 BHK';
+            const bhkSize = document.querySelector('input[name="bhkSize"]:checked')?.value || 'Small';
+            const packageType = document.querySelector('input[name="package"]:checked')?.value || 'Essentials';
+            
+            // Get selected rooms
+            const selectedRooms = Object.entries(roomCounters)
+                .filter(([, count]) => count > 0)
+                .map(([room, count]) => `${room} ×${count}`)
+                .join(', ');
+            
+            // Calculate estimated cost
+            const bhkValue = parseInt(bhk);
+            const sizeFactor = bhkSize === 'Large' ? 1.5 : 1;
+            const packageMultiplier = { 'Essentials': 1, 'Premium': 1.8, 'Luxury': 2.5 };
+            const basePrice = 500000;
+            const totalCost = Math.round(basePrice * bhkValue * sizeFactor * (packageMultiplier[packageType] || 1));
+            
+            // Get existing admin requests
+            const stored = localStorage.getItem('allAdminRequests');
+            const requests = stored ? JSON.parse(stored) : [];
+            
+            // Generate request ID
+            const requestId = 'EST-' + String(requests.length + 1).padStart(3, '0');
+            
+            // Create new admin request
+            const newRequest = {
+                id: requestId,
+                customerName: name,
+                customerEmail: email,
+                customerPhone: phone,
+                type: 'Full Home Estimator',
+                status: 'pending',
+                dateSubmitted: new Date().toISOString().split('T')[0],
+                bhk: bhk,
+                bhkSize: bhkSize,
+                rooms: selectedRooms || 'Standard rooms',
+                package: packageType,
+                estimatedCost: totalCost,
+                description: `${bhk} (${bhkSize}) interior design - ${selectedRooms}`,
+                budget: `₹${(totalCost * 0.8).toLocaleString('en-IN')} - ₹${(totalCost * 1.2).toLocaleString('en-IN')}`,
+                responded: false
+            };
+            
+            requests.push(newRequest);
+            localStorage.setItem('allAdminRequests', JSON.stringify(requests));
+        }
+
+        function renderSummary() {
+            const bhk = document.querySelector('input[name="bhk"]:checked')?.value || '2 BHK';
+            const bhkSize = document.querySelector('input[name="bhkSize"]:checked')?.value;
+            const packageSel = document.querySelector('input[name="package"]:checked')?.value || 'Essentials';
+            const roomText = Object.entries(roomCounters)
+                .filter(([, count]) => count > 0)
+                .map(([room, count]) => `${room} ×${count}`)
+                .join(', ');
+            document.getElementById('summaryBhk').textContent = bhkSize ? `${bhk} · ${bhkSize}` : bhk;
+            document.getElementById('summaryRooms').textContent = roomText || 'No rooms selected yet';
+            document.getElementById('summaryPackage').textContent = packageSel;
+        }
+
+        renderSummary();
+    </script>
+<!-- END -->
+</body>
+</html>

@@ -1,0 +1,2323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard | BharatHome Value</title>
+    <link rel="stylesheet" href="user-dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                    <polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+            </div>
+            <h2 class="sidebar-brand">BharatHome Value</h2>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="#" class="sidebar-link active" id="dashboard-link" onclick="backToDashboard(); return false;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7"/>
+                    <rect x="14" y="3" width="7" height="7"/>
+                    <rect x="14" y="14" width="7" height="7"/>
+                    <rect x="3" y="14" width="7" height="7"/>
+                </svg>
+                <span>Dashboard</span>
+            </a>
+            <a href="#" class="sidebar-link" id="estimator-link" onclick="showMyEstimator(event); return false;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+                </svg>
+                <span>My Estimator</span>
+            </a>
+            <a href="#" class="sidebar-link" id="new-estimator-link" onclick="showNewEstimator(event); return false;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                    <polyline points="10 9 9 9 8 9"/>
+                </svg>
+                <span>New Estimate</span>
+            </a>
+            <a href="#" class="sidebar-link" id="recommendations-link" onclick="scrollToRecommendations(event); return false;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M12 16v-4M12 8h.01"/>
+                </svg>
+                <span>Recommendations</span>
+            </a>
+            <a href="#saved" class="sidebar-link" id="saved-ideas-link" onclick="showSavedIdeas(event); return false;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>
+                </svg>
+                <span>Saved Ideas</span>
+                <span class="saved-badge" id="saved-badge" style="display: none;">0</span>
+            </a>
+            <a href="#profile" class="sidebar-link" onclick="editProfile(); return false;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                </svg>
+                <span>Profile</span>
+            </a>
+            <a href="#" class="sidebar-link" id="submit-property-link" onclick="showSubmitProperty(event); return false;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="12" y1="11" x2="12" y2="17"/>
+                    <polyline points="9 14 12 11 15 14"/>
+                </svg>
+                <span>Submit New Property</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="index.html" class="sidebar-back">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="19" y1="12" x2="5" y2="12"/>
+                    <polyline points="12 19 5 12 12 5"/>
+                </svg>
+                <span>Back to Home</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="dashboard-wrapper">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="header-container">
+                <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="3" y1="12" x2="21" y2="12"/>
+                        <line x1="3" y1="6" x2="21" y2="6"/>
+                        <line x1="3" y1="18" x2="21" y2="18"/>
+                    </svg>
+                </button>
+                <h1 class="page-title-header">Dashboard</h1>
+                <div class="header-actions">
+                    <div class="user-menu">
+                        <button class="user-btn">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="8" r="4"/>
+                                <path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/>
+                            </svg>
+                            <span id="user-name-header">My Account</span>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"/>
+                            </svg>
+                        </button>
+                        <div class="user-dropdown">
+                            <a href="#" onclick="editProfile()">Profile</a>
+                            <a href="#" onclick="showMyEstimator(event); return false;">My Estimates</a>
+                            <a href="index.html" class="logout" onclick="logout()">Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Dashboard Content -->
+        <main class="dashboard-main">
+            <div class="container">
+                <!-- Welcome Section -->
+                <div class="welcome-section" id="welcome-section">
+                    <h1 class="welcome-title">Welcome back, <span id="user-name">Priya</span>! 👋</h1>
+                    <p class="welcome-subtitle">Here's an overview of your property improvement journey</p>
+                </div>
+
+                <!-- Your Property Card -->
+                <div class="card property-card-new" id="property-card">
+                    <div class="property-header">
+                        <h2 class="property-title">Your Property</h2>
+                        <div class="property-value-section">
+                            <span class="value-label">Current Market Value</span>
+                            <span class="value-amount" id="current-value">₹50,00,000</span>
+                        </div>
+                    </div>
+                    
+                    <p class="property-address"><span id="property-type">2BHK Apartment</span>, <span id="property-location">Sector 62, Noida</span></p>
+                    
+                    <!-- Property Stats Row -->
+                    <div class="property-stats-row">
+                        <div class="stat-box">
+                            <span class="stat-label-new">Property Size</span>
+                            <span class="stat-value-new" id="property-size">1,250 sq ft</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-label-new">Property Age</span>
+                            <span class="stat-value-new" id="property-age">8 years</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-label-new">Location Rating</span>
+                            <span class="stat-value-new" id="location-rating">4.2/5.0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Key Metrics Cards Row -->
+                <div class="metrics-cards-row" id="metrics-section">
+                    <div class="metric-card metric-card-blue">
+                        <div class="metric-top-row">
+                            <div class="metric-icon-wrapper blue-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M4 15l6-6 4 4 6-6"/>
+                                    <path d="M16 7h4v4"/>
+                                </svg>
+                            </div>
+                            <span class="metric-title">Potential Value Increase</span>
+                        </div>
+                        <span class="metric-amount" id="potential-increase">+₹13,50,000</span>
+                        <span class="metric-subtitle">With all recommendations</span>
+                    </div>
+
+                    <div class="metric-card metric-card-white">
+                        <div class="metric-top-row">
+                            <div class="metric-icon-wrapper orange-icon">
+                                <span class="metric-icon-text">₹</span>
+                            </div>
+                            <span class="metric-title">Total Investment</span>
+                        </div>
+                        <span class="metric-amount" id="total-investment">₹7,10,000</span>
+                        <span class="metric-subtitle">Estimated renovation cost</span>
+                    </div>
+
+                    <div class="metric-card metric-card-white">
+                        <div class="metric-top-row">
+                            <div class="metric-icon-wrapper green-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M9 18h6"/>
+                                    <path d="M10 21h4"/>
+                                    <path d="M12 3a6 6 0 0 0-3.8 10.6c.9.8 1.5 1.9 1.8 3.1h4c.3-1.2.9-2.3 1.8-3.1A6 6 0 0 0 12 3z"/>
+                                    <path d="M11 11h2"/>
+                                </svg>
+                            </div>
+                            <span class="metric-title">Active Recommendations</span>
+                        </div>
+                        <span class="metric-amount-number" id="active-recommendations">4</span>
+                        <span class="metric-subtitle">Personalized for you</span>
+                    </div>
+                </div>
+            <!-- Dashboard Grid -->
+            <div class="dashboard-grid" id="dashboard-grid">
+                <!-- Left Column - Property Info & Chart -->
+                <div class="left-column">
+                    <!-- Projected Value Growth Chart -->
+                    <div class="card chart-card">
+                        <div class="card-header">
+                            <h2 class="card-title">Projected Value Growth</h2>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="valueGrowthChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <!-- Right Column - Recommendations & Quick Actions -->
+                <div class="right-column">
+                    <!-- Quick Actions -->
+                    <div class="card quick-actions-card">
+                        <h2 class="card-title">Quick Actions</h2>
+                        <div class="quick-actions">
+                            <a href="#" onclick="showNewEstimator(event); return false;" class="action-btn primary">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+                                </svg>
+                                <div>
+                                    <span class="action-title">New Estimate</span>
+                                    <span class="action-subtitle">Calculate interior costs</span>
+                                </div>
+                            </a>
+                            <a href="#" onclick="showMyEstimator(event); return false;" class="action-btn">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M9 11H3v2h6m-6 0h6m2 0h6M3 13h6m-6 0h6m11 0h-6m6 0h-6m-2-2V9m0 2v2m0-2h2m-2 0H9m0-2V7m0 2v2m0 0h2M3 3h18v18H3z"/>
+                                </svg>
+                                <div>
+                                    <span class="action-title">View Estimates</span>
+                                    <span class="action-subtitle">See saved estimates</span>
+                                </div>
+                            </a>
+                            <a href="#" onclick="requestConsultation()" class="action-btn">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                    <circle cx="9" cy="7" r="4"/>
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+                                </svg>
+                                <div>
+                                    <span class="action-title">Expert Consultation</span>
+                                    <span class="action-subtitle">Talk to our experts</span>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    <!-- ROI Calculator CTA -->
+                    <div class="card cta-card">
+                        <div class="cta-content">
+                            <h3 class="cta-title">Calculate Your ROI</h3>
+                            <p class="cta-description">Use our Interior Price Estimator to get accurate cost calculations for each renovation.</p>
+                            <a href="#" class="cta-btn" onclick="showNewEstimator(event); return false;">
+                                Start Calculating
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Top Recommendations -->
+            <div class="card recommendations-card" id="recommendations" style="margin-top: 2rem;">
+                <div class="recommendations-back-btn" id="back-to-dashboard" style="display: none;" onclick="backToDashboard()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="19" y1="12" x2="5" y2="12"/>
+                        <polyline points="12 19 5 12 12 5"/>
+                    </svg>
+                    <span>Back to Dashboard</span>
+                </div>
+                <div class="recommendations-header">
+                    <h2 class="recommendations-title" id="rec-main-title">Top Recommendations</h2>
+                    <a href="#" class="view-all-link" id="toggle-view-link" onclick="scrollToRecommendations(event); return false;">View All</a>
+                </div>
+                <p class="recommendations-subtitle" id="rec-subtitle" style="display: none;">AI-powered suggestions to maximize your property value</p>
+                <div class="recommendations-list" id="recommendations-list">
+                    <!-- Kitchen Renovation -->
+                    <div class="recommendation-item">
+                        <div class="rec-top">
+                            <div class="rec-header-content">
+                                <h3 class="rec-title">Kitchen Renovation</h3>
+                                <p class="rec-description">Modern modular kitchen with granite countertops and chimney</p>
+                            </div>
+                            <span class="rec-priority high">High Priority</span>
+                        </div>
+                        <div class="rec-stats">
+                            <div class="rec-stat">
+                                <span class="rec-stat-label">Estimated Cost</span>
+                                <span class="rec-stat-value">₹250K</span>
+                            </div>
+                            <div class="rec-stat">
+                                <span class="rec-stat-label">Value Increase</span>
+                                <span class="rec-stat-value success">₹400K</span>
+                            </div>
+                            <div class="rec-stat">
+                                <span class="rec-stat-label">ROI</span>
+                                <span class="rec-stat-value roi">60%</span>
+                            </div>
+                            <div class="rec-stat">
+                                <span class="rec-stat-label">Property Impact</span>
+                                <span class="rec-stat-value impact">+8%</span>
+                            </div>
+                        </div>
+                        <div class="rec-actions">
+                            <button class="rec-primary-btn" onclick="window.location.href='kitchen-estimator.html'">
+                                Get Detailed Plan
+                            </button>
+                            <button class="rec-secondary-btn" onclick="saveRecommendation('Kitchen Renovation', 'Modern modular kitchen with granite countertops and chimney', '250K', '400K', '60%', '+8%', 'High Priority')">
+                                Save for Later
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Bathroom Upgrade -->
+                    <div class="recommendation-item">
+                        <div class="rec-top">
+                            <div class="rec-header-content">
+                                <h3 class="rec-title">Bathroom Upgrade</h3>
+                                <p class="rec-description">Premium fittings, new tiles, and modern sanitary ware</p>
+                            </div>
+                            <span class="rec-priority high">High Priority</span>
+                        </div>
+                        <div class="rec-stats">
+                            <div class="rec-stat">
+                                <span class="rec-stat-label">Estimated Cost</span>
+                                <span class="rec-stat-value">₹180K</span>
+                            </div>
+                            <div class="rec-stat">
+                                <span class="rec-stat-label">Value Increase</span>
+                                <span class="rec-stat-value success">₹350K</span>
+                            </div>
+                            <div class="rec-stat">
+                                <span class="rec-stat-label">ROI</span>
+                                <span class="rec-stat-value roi">94%</span>
+                            </div>
+                            <div class="rec-stat">
+                                <span class="rec-stat-label">Property Impact</span>
+                                <span class="rec-stat-value impact">+7%</span>
+                            </div>
+                        </div>
+                        <div class="rec-actions">
+                            <button class="rec-primary-btn" onclick="window.location.href='full-home-estimator.html'">
+                                Get Detailed Plan
+                            </button>
+                            <button class="rec-secondary-btn" onclick="saveRecommendation('Bathroom Upgrade', 'Premium fittings, new tiles, and modern sanitary ware', '180K', '350K', '94%', '+7%', 'High Priority')">
+                                Save for Later
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Additional recommendations (hidden by default) -->
+                    <div class="recommendation-item additional-rec" style="display: none;">
+                        <div class="rec-top">
+                            <div class="rec-header-content">
+                                <h3 class="rec-title">Fresh Paint & Texture</h3>
+                                <p class="rec-description">Interior walls with premium Asian Paints and designer textures</p>
+                            </div>
+                            <span class="rec-priority medium">Medium Priority</span>
+                        </div>
+                        <div class="rec-stats">
+                            <div class="rec-stat">
+                                <span class="rec-stat-label">Estimated Cost</span>
+                                <span class="rec-stat-value">₹80K</span>
+                            </div>
+                            <div class="rec-stat">
+                                <span class="rec-stat-label">Value Increase</span>
+                                <span class="rec-stat-value success">₹250K</span>
+                            </div>
+                            <div class="rec-stat">
+                                <span class="rec-stat-label">ROI</span>
+                                <span class="rec-stat-value roi">100%</span>
+                            </div>
+                            <div class="rec-stat">
+                                <span class="rec-stat-label">Property Impact</span>
+                                <span class="rec-stat-value impact">+5%</span>
+                            </div>
+                        </div>
+                        <div class="rec-actions">
+                            <button class="rec-primary-btn" onclick="window.location.href='full-home-estimator.html'">
+                                Get Detailed Plan
+                            </button>
+                            <button class="rec-secondary-btn" onclick="saveRecommendation('Fresh Paint & Texture', 'Interior walls with premium Asian Paints and designer textures', '80K', '250K', '100%', '+5%', 'Medium Priority')">
+                                Save for Later
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="recommendation-item additional-rec" style="display: none;">
+                        <div class="rec-top">
+                            <div class="rec-header-content">
+                                <h3 class="rec-title">Flooring Replacement</h3>
+                                <p class="rec-description">Vitrified tiles or hardwood flooring for living areas</p>
+                            </div>
+                            <span class="rec-priority medium">Medium Priority</span>
+                        </div>
+                        <div class="rec-stats">
+                            <div class="rec-stat">
+                                <span class="rec-stat-label">Estimated Cost</span>
+                                <span class="rec-stat-value">₹200K</span>
+                            </div>
+                            <div class="rec-stat">
+                                <span class="rec-stat-label">Value Increase</span>
+                                <span class="rec-stat-value success">₹350K</span>
+                            </div>
+                            <div class="rec-stat">
+                                <span class="rec-stat-label">ROI</span>
+                                <span class="rec-stat-value roi">75%</span>
+                            </div>
+                            <div class="rec-stat">
+                                <span class="rec-stat-label">Property Impact</span>
+                                <span class="rec-stat-value impact">+7%</span>
+                            </div>
+                        </div>
+                        <div class="rec-actions">
+                            <button class="rec-primary-btn" onclick="window.location.href='full-home-estimator.html'">
+                                Get Detailed Plan
+                            </button>
+                            <button class="rec-secondary-btn" onclick="saveRecommendation('Flooring Replacement', 'Vitrified tiles or hardwood flooring for living areas', '200K', '350K', '75%', '+7%', 'Medium Priority')">
+                                Save for Later
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Saved Ideas Section (hidden by default) -->
+            <div class="card recommendations-card" id="saved-ideas" style="display: none; margin-top: 2rem;">
+                <div class="recommendations-back-btn" onclick="backToDashboard()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="19" y1="12" x2="5" y2="12"/>
+                        <polyline points="12 19 5 12 12 5"/>
+                    </svg>
+                    <span>Back to Dashboard</span>
+                </div>
+                <div class="recommendations-header">
+                    <h2 class="recommendations-title">Your Saved Ideas</h2>
+                    <span class="saved-count" id="saved-count">0 saved</span>
+                </div>
+                <p class="recommendations-subtitle" style="display: block;">Renovation ideas you've saved for future reference</p>
+                <div class="recommendations-list" id="saved-ideas-list">
+                    <div class="empty-saved" id="empty-saved">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>
+                        </svg>
+                        <h3>No Saved Ideas Yet</h3>
+                        <p>Click "Save for Later" on any recommendation to add it here</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- My Estimator Section (hidden by default) -->
+            <div id="my-estimator-section" style="display: none; margin-top: 2rem;">
+                <div class="my-estimates-container">
+                    <div class="estimates-back-btn" onclick="backToDashboard()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="19" y1="12" x2="5" y2="12"/>
+                            <polyline points="12 19 5 12 12 5"/>
+                        </svg>
+                        <span>Back to Dashboard</span>
+                    </div>
+                    
+                    <div class="estimates-header-section">
+                        <div class="estimates-header-content">
+                            <h1 class="estimates-page-title">My Estimates</h1>
+                            <p class="estimates-page-subtitle">View and manage all your interior cost estimates</p>
+                        </div>
+                        <a href="#" onclick="showNewEstimator(event); return false;" class="estimates-new-btn">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <line x1="12" y1="8" x2="12" y2="16"/>
+                                <line x1="8" y1="12" x2="16" y2="12"/>
+                            </svg>
+                            <span>New Estimate</span>
+                        </a>
+                    </div>
+
+                    <!-- Filter Tabs -->
+                    <div class="estimates-filter-tabs">
+                        <button class="estimates-tab-btn active" data-filter="all" onclick="filterMyEstimates('all')">
+                            All Estimates <span class="estimates-tab-count" id="my-count-all">0</span>
+                        </button>
+                        <button class="estimates-tab-btn" data-filter="kitchen" onclick="filterMyEstimates('kitchen')">
+                            Kitchen <span class="estimates-tab-count" id="my-count-kitchen">0</span>
+                        </button>
+                        <button class="estimates-tab-btn" data-filter="wardrobe" onclick="filterMyEstimates('wardrobe')">
+                            Wardrobe <span class="estimates-tab-count" id="my-count-wardrobe">0</span>
+                        </button>
+                        <button class="estimates-tab-btn" data-filter="fullhome" onclick="filterMyEstimates('fullhome')">
+                            Full Home <span class="estimates-tab-count" id="my-count-fullhome">0</span>
+                        </button>
+                    </div>
+
+                    <!-- Estimates Grid -->
+                    <div id="my-estimates-grid" class="estimates-display-grid">
+                        <!-- Estimates will be dynamically loaded here -->
+                    </div>
+
+                    <!-- Empty State -->
+                    <div id="my-empty-state" class="estimates-empty-state" style="display: none;">
+                        <div class="empty-state-icon">
+                            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                                <path d="M9 9h.01M15 9h.01M9 15h.01M15 15h.01"/>
+                            </svg>
+                        </div>
+                        <h3>No Estimates Yet</h3>
+                        <p>Start creating your first interior cost estimate</p>
+                        <a href="#" onclick="showNewEstimator(event); return false;" class="empty-state-btn">Get Started</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit New Property Section (hidden by default) -->
+            <div id="submit-property-section" style="display: none; margin-top: 0.5rem;">
+                <div class="submit-property-container">
+                    <div class="submit-property-back-btn" onclick="backToDashboard()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="19" y1="12" x2="5" y2="12"/>
+                            <polyline points="12 19 5 12 12 5"/>
+                        </svg>
+                        <span>Back to Dashboard</span>
+                    </div>
+                    
+                    <div class="submit-property-header">
+                        <h1 class="submit-property-title">Submit New Property</h1>
+                        <p class="submit-property-subtitle">Tell us about your property to get personalized recommendations</p>
+                    </div>
+                    
+                    <div class="submit-property-card">
+                        <form class="submit-property-form" onsubmit="submitPropertyForm(event)">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="first-name">First Name</label>
+                                    <input type="text" id="first-name" class="form-input" placeholder="e.g., Thomas" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="last-name">Last Name</label>
+                                    <input type="text" id="last-name" class="form-input" placeholder="e.g., Hardison" required>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input type="email" id="email" class="form-input" placeholder="e.g., thomasdhardison@dayrep.com" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="contact-number">Contact Number</label>
+                                <input type="tel" id="contact-number" class="form-input" placeholder="e.g., 661-724-7734" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="address">Address</label>
+                                <input type="text" id="address" class="form-input" placeholder="e.g., 1368 Hayhurst Lane" required>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="city">City</label>
+                                    <input type="text" id="city" class="form-input" placeholder="e.g., Mcallen" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="state">State</label>
+                                    <input type="text" id="state" class="form-input" placeholder="e.g., New York" required>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="zip-code">Zip Code</label>
+                                    <input type="text" id="zip-code" class="form-input" placeholder="e.g., 11357" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="country">Country</label>
+                                    <input type="text" id="country" class="form-input" placeholder="e.g., United States" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="property-type">Property Type</label>
+                                <select id="property-type" class="form-input" required>
+                                    <option value="">Select Property Type</option>
+                                    <option value="Residential">Residential</option>
+                                    <option value="Commercial">Commercial</option>
+                                    <option value="Apartment">Apartment</option>
+                                    <option value="Villa">Villa</option>
+                                    <option value="Bungalow">Bungalow</option>
+                                    <option value="Townhouse">Townhouse</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="property-size">Property Size (Sq Ft)</label>
+                                    <input type="number" id="property-size" class="form-input" placeholder="e.g., 2500" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="year-built">Year Built</label>
+                                    <input type="number" id="year-built" class="form-input" placeholder="e.g., 2015" min="1900" max="2099" required>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="current-market-value">Current Market Value (₹)</label>
+                                    <input type="number" id="current-market-value" class="form-input" placeholder="e.g., 5000000" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="improvement-budget">Improvement Budget (₹)</label>
+                                    <input type="number" id="improvement-budget" class="form-input" placeholder="e.g., 500000" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="property-description">Property Description</label>
+                                <textarea id="property-description" class="form-input" placeholder="Describe your property, any special features, or specific requirements..." style="resize: vertical; min-height: 100px;"></textarea>
+                            </div>
+                            
+                            <button type="submit" class="submit-property-btn">
+                                Submit Property
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- New Estimator Section (hidden by default) -->
+            <div id="new-estimator-section" style="display: none; margin-top: 2rem;">
+                <div class="new-estimator-container">
+                    <div class="new-estimator-back-btn" onclick="backToDashboard()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="19" y1="12" x2="5" y2="12"/>
+                            <polyline points="12 19 5 12 12 5"/>
+                        </svg>
+                        <span>Back to Dashboard</span>
+                    </div>
+                    
+                    <div class="new-estimator-hero">
+                        <h1 class="new-estimator-main-title">Interior Price Estimator</h1>
+                        <p class="new-estimator-subtitle">Get instant, accurate cost estimates for your dream interior. Choose your project type below and start planning your perfect space.</p>
+                        <div class="new-estimator-features">
+                            <div class="new-estimator-feature">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M9 11l3 3L22 4"/>
+                                    <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+                                </svg>
+                                <span>Instant Estimates</span>
+                            </div>
+                            <div class="new-estimator-feature">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <path d="M12 6v6l4 2"/>
+                                </svg>
+                                <span>Save Time</span>
+                            </div>
+                            <div class="new-estimator-feature">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+                                </svg>
+                                <span>Budget Planning</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="new-estimator-grid">
+                        <!-- Full Home Card -->
+                        <div class="new-estimator-card">
+                            <div class="new-estimator-badge">Most Popular</div>
+                            <div class="new-estimator-icon">
+                                <svg width="36" height="36" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                                    <polyline points="9 22 9 12 15 12 15 22" fill="none" stroke="#fff" stroke-width="2"/>
+                                </svg>
+                            </div>
+                            <h2>Full Home</h2>
+                            <p>Complete interior solutions for your entire home. Get comprehensive costing for all rooms and spaces.</p>
+                            <div class="new-estimator-card-features">
+                                <span>✓ All Rooms</span>
+                                <span>✓ Detailed Breakdown</span>
+                                <span>✓ Best Value</span>
+                            </div>
+                            <a class="new-estimator-btn" href="full-home-estimator.html">
+                                <span>Calculate Now</span>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                                </svg>
+                            </a>
+                        </div>
+                        
+                        <!-- Kitchen Card -->
+                        <div class="new-estimator-card">
+                            <div class="new-estimator-badge kitchen">Kitchen Special</div>
+                            <div class="new-estimator-icon">
+                                <svg width="36" height="36" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M3 3h18v18H3z"/>
+                                    <path d="M7 8h10M7 12h10M7 16h10" stroke="#fff" stroke-width="2"/>
+                                </svg>
+                            </div>
+                            <h2>Kitchen</h2>
+                            <p>Transform your cooking space with our kitchen interior estimator. Modern designs and practical solutions.</p>
+                            <div class="new-estimator-card-features">
+                                <span>✓ Modular Options</span>
+                                <span>✓ Appliance Cost</span>
+                                <span>✓ Quick Setup</span>
+                            </div>
+                            <a class="new-estimator-btn" href="kitchen-estimator.html">
+                                <span>Calculate Now</span>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                                </svg>
+                            </a>
+                        </div>
+                        
+                        <!-- Wardrobe Card -->
+                        <div class="new-estimator-card">
+                            <div class="new-estimator-badge wardrobe">Customizable</div>
+                            <div class="new-estimator-icon">
+                                <svg width="36" height="36" viewBox="0 0 24 24" fill="currentColor">
+                                    <rect x="4" y="2" width="16" height="20" rx="2"/>
+                                    <path d="M9 6h6M9 10h6M9 14h6" stroke="#fff" stroke-width="2"/>
+                                </svg>
+                            </div>
+                            <h2>Wardrobe</h2>
+                            <p>Custom wardrobe solutions tailored to your space. Get precise estimates for your storage needs.</p>
+                            <div class="new-estimator-card-features">
+                                <span>✓ Custom Sizes</span>
+                                <span>✓ Material Choice</span>
+                                <span>✓ Smart Storage</span>
+                            </div>
+                            <a class="new-estimator-btn" href="wardrobe-estimator.html">
+                                <span>Calculate Now</span>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Settings Section (hidden by default) -->
+            <div id="profile-settings" style="display: none; margin-top: 2rem;">
+                <div class="profile-settings-container">
+                    <div class="profile-wrapper">
+                        <!-- Left Sidebar Navigation -->
+                        <div class="profile-sidebar hidden" id="profile-sidebar">
+                            <button class="profile-sidebar-toggle" onclick="toggleProfileSidebar()" title="Close menu">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"/>
+                                    <line x1="6" y1="6" x2="18" y2="18"/>
+                                </svg>
+                            </button>
+                            <div class="profile-sidebar-header">
+                                <h3>My Profile</h3>
+                            </div>
+                            <nav class="profile-sidebar-menu">
+                                <a href="#" class="profile-menu-item active" onclick="switchProfileTab('edit', this); return false;">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                    </svg>
+                                    <span>Edit Profile</span>
+                                </a>
+                                <a href="#" class="profile-menu-item" onclick="switchProfileTab('theme', this); return false;">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M12 3a9 9 0 1 0 9 9"/>
+                                        <path d="M17 3v5h5"/>
+                                    </svg>
+                                    <span>Theme</span>
+                                </a>
+                                <a href="#" class="profile-menu-item disabled" title="Coming Soon">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                                    </svg>
+                                    <span>Security & Privacy</span>
+                                </a>
+                            </nav>
+                        </div>
+
+                        <!-- Right Content Area -->
+                        <div class="profile-content">
+                            <!-- Edit Profile Tab -->
+                            <div id="profile-tab-edit" class="profile-tab active">
+                                <div class="profile-content-header">
+                                    <button class="profile-menu-toggle" onclick="toggleProfileSidebar()" title="Open menu">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <line x1="8" y1="6" x2="21" y2="6"/>
+                                            <line x1="8" y1="12" x2="21" y2="12"/>
+                                            <line x1="8" y1="18" x2="21" y2="18"/>
+                                        </svg>
+                                    </button>
+                                    <h2 class="profile-content-title">Edit Profile</h2>
+                                </div>
+
+                                <div class="profile-main-card">
+                                    <!-- Avatar Section -->
+                                    <div class="profile-avatar-section">
+                                        <div class="profile-avatar-large" id="profile-avatar-large"></div>
+                                        <button type="button" class="avatar-edit-btn">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z"/>
+                                                <path d="M20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+
+                                    <!-- Profile Form -->
+                                    <form class="profile-form" onsubmit="saveProfile(event)">
+                                        <div class="form-row">
+                                            <div class="form-group">
+                                                <label for="profile-firstname">First Name</label>
+                                                <input type="text" id="profile-firstname" class="form-input" required>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="profile-lastname">Last Name</label>
+                                                <input type="text" id="profile-lastname" class="form-input" required>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="profile-email">Email Address</label>
+                                            <input type="email" id="profile-email" class="form-input" required>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="profile-phone">Contact Number</label>
+                                            <input type="tel" id="profile-phone" class="form-input" required>
+                                        </div>
+
+                                        <div class="profile-form-actions">
+                                            <button type="button" class="btn-secondary" onclick="backToDashboard()">Cancel</button>
+                                            <button type="submit" class="btn-primary">Save Changes</button>
+                                        </div>
+                                    </form>
+
+                                    <!-- Property Information Section -->
+                                    <div id="property-info-section" class="property-info-section">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Theme Tab -->
+                            <div id="profile-tab-theme" class="profile-tab">
+                                <div class="profile-content-header">
+                                    <button class="profile-menu-toggle" onclick="toggleProfileSidebar()" title="Open menu">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <line x1="8" y1="6" x2="21" y2="6"/>
+                                            <line x1="8" y1="12" x2="21" y2="12"/>
+                                            <line x1="8" y1="18" x2="21" y2="18"/>
+                                        </svg>
+                                    </button>
+                                    <h2 class="profile-content-title">Theme Preferences</h2>
+                                </div>
+
+                                <div class="profile-main-card">
+                                    <div class="theme-section-header">
+                                        <h3>Choose your dashboard theme</h3>
+                                        <p>Select a professional color style. Your preference is saved automatically.</p>
+                                    </div>
+
+                                    <div class="theme-options-grid">
+                                        <button type="button" class="theme-option" id="theme-option-orange" onclick="setDashboardTheme('orange')" aria-label="Select Orange Theme">
+                                            <span class="theme-swatch orange"></span>
+                                            <span class="theme-option-details">
+                                                <span class="theme-option-title">Orange Theme</span>
+                                                <span class="theme-option-subtitle">Warm and vibrant look</span>
+                                            </span>
+                                            <span class="theme-selected-badge">Active</span>
+                                        </button>
+
+                                        <button type="button" class="theme-option" id="theme-option-blue" onclick="setDashboardTheme('blue')" aria-label="Select Blue Theme">
+                                            <span class="theme-swatch blue"></span>
+                                            <span class="theme-option-details">
+                                                <span class="theme-option-title">Blue Theme</span>
+                                                <span class="theme-option-subtitle">Clean and corporate look</span>
+                                            </span>
+                                            <span class="theme-selected-badge">Active</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Edit Property Modal -->
+    <div id="editPropertyModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Property Details</h2>
+                <button class="modal-close" onclick="closePropertyModal()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            <form class="property-form" onsubmit="saveProperty(event)">
+                <div class="form-group">
+                    <label>Property Type</label>
+                    <input type="text" id="edit-property-type" placeholder="e.g., 2BHK Apartment" required>
+                </div>
+                <div class="form-group">
+                    <label>Location</label>
+                    <input type="text" id="edit-property-location" placeholder="e.g., Sector 62, Noida" required>
+                </div>
+                <div class="form-group">
+                    <label>Current Market Value (₹)</label>
+                    <input type="number" id="edit-current-value" placeholder="5000000" required>
+                </div>
+                <div class="form-group">
+                    <label>Property Size (sq ft)</label>
+                    <input type="number" id="edit-property-size" placeholder="1250" required>
+                </div>
+                <div class="form-group">
+                    <label>Property Age (years)</label>
+                    <input type="number" id="edit-property-age" placeholder="8" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="closePropertyModal()">Cancel</button>
+                    <button type="submit" class="btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // User Management
+        let userData = {
+            name: 'Priya Sharma',
+            email: 'priya.sharma@email.com',
+            phone: '+91 98765 43210',
+            property: {
+                type: '2BHK Apartment',
+                location: 'Sector 62, Noida',
+                currentValue: 5000000,
+                size: 1250,
+                age: 8,
+                locationRating: 4.2
+            }
+        };
+
+        // Load user data from localStorage if available
+        function loadUserData() {
+            const savedData = localStorage.getItem('userData');
+            if (savedData) {
+                userData = JSON.parse(savedData);
+            }
+            updateDashboard();
+        }
+
+        // Update dashboard with user data
+        function updateDashboard() {
+            document.getElementById('user-name').textContent = userData.name;
+            document.getElementById('user-name-header').textContent = userData.name;
+            document.getElementById('property-type').textContent = userData.property.type;
+            document.getElementById('property-location').textContent = userData.property.location;
+            document.getElementById('current-value').textContent = `₹${formatNumber(userData.property.currentValue)}`;
+            document.getElementById('property-size').textContent = `${formatNumber(userData.property.size)} sq ft`;
+            document.getElementById('property-age').textContent = `${userData.property.age} years`;
+
+            updateRecommendationDrivenMetrics();
+        }
+
+        function parseCompactCurrency(valueText) {
+            if (!valueText) return 0;
+
+            const normalized = valueText
+                .replace(/[₹,\s]/g, '')
+                .toUpperCase();
+
+            const numberValue = parseFloat(normalized);
+            if (Number.isNaN(numberValue)) return 0;
+
+            if (normalized.endsWith('K')) return Math.round(numberValue * 1000);
+            if (normalized.endsWith('M')) return Math.round(numberValue * 1000000);
+
+            return Math.round(numberValue);
+        }
+
+        function clampRoi(roiValue) {
+            const numericRoi = Number(roiValue);
+            if (Number.isNaN(numericRoi)) return 0;
+            return Math.min(100, Math.max(0, numericRoi));
+        }
+
+        function parseRoiPercent(roiText) {
+            if (!roiText) return 0;
+            const numericRoi = parseFloat(String(roiText).replace('%', ''));
+            return clampRoi(numericRoi || 0);
+        }
+
+        function formatRoiPercent(roiValue) {
+            return `${clampRoi(roiValue)}%`;
+        }
+
+        function normalizeVisibleRecommendationRoi() {
+            const roiElements = document.querySelectorAll('#recommendations-list .rec-stat-value.roi');
+            roiElements.forEach(roiElement => {
+                roiElement.textContent = formatRoiPercent(parseRoiPercent(roiElement.textContent));
+            });
+        }
+
+        function getRecommendationData() {
+            const recommendationItems = document.querySelectorAll('#recommendations-list .recommendation-item');
+
+            return Array.from(recommendationItems).map(item => {
+                const title = item.querySelector('.rec-title')?.textContent?.trim() || 'Recommendation';
+                const statValues = item.querySelectorAll('.rec-stat-value');
+
+                const investmentText = statValues[0]?.textContent?.trim() || '₹0';
+                const valueIncreaseText = statValues[1]?.textContent?.trim() || '₹0';
+                const roiText = statValues[2]?.textContent?.trim() || '0%';
+
+                const investment = parseCompactCurrency(investmentText);
+                const valueIncrease = parseCompactCurrency(valueIncreaseText);
+                const roi = parseRoiPercent(roiText);
+
+                return {
+                    title,
+                    investment,
+                    valueIncrease,
+                    roi
+                };
+            });
+        }
+
+        function updateRecommendationDrivenMetrics() {
+            normalizeVisibleRecommendationRoi();
+
+            const recommendations = getRecommendationData();
+            if (!recommendations.length) return;
+
+            const totalValueIncrease = recommendations.reduce((sum, rec) => sum + rec.valueIncrease, 0);
+            const totalInvestment = recommendations.reduce((sum, rec) => sum + rec.investment, 0);
+
+            const potentialIncreaseElement = document.getElementById('potential-increase');
+            const totalInvestmentElement = document.getElementById('total-investment');
+            const activeRecommendationsElement = document.getElementById('active-recommendations');
+
+            if (potentialIncreaseElement) {
+                potentialIncreaseElement.textContent = `+₹${formatNumber(totalValueIncrease)}`;
+            }
+
+            if (totalInvestmentElement) {
+                totalInvestmentElement.textContent = `₹${formatNumber(totalInvestment)}`;
+            }
+
+            if (activeRecommendationsElement) {
+                activeRecommendationsElement.textContent = String(recommendations.length);
+            }
+        }
+
+        // Format number with Indian numbering system
+        function formatNumber(num) {
+            return num.toLocaleString('en-IN');
+        }
+
+        // Edit Property
+        function editProperty() {
+            document.getElementById('edit-property-type').value = userData.property.type;
+            document.getElementById('edit-property-location').value = userData.property.location;
+            document.getElementById('edit-current-value').value = userData.property.currentValue;
+            document.getElementById('edit-property-size').value = userData.property.size;
+            document.getElementById('edit-property-age').value = userData.property.age;
+            document.getElementById('editPropertyModal').style.display = 'flex';
+        }
+
+        function closePropertyModal() {
+            document.getElementById('editPropertyModal').style.display = 'none';
+        }
+
+        function saveProperty(event) {
+            event.preventDefault();
+            userData.property.type = document.getElementById('edit-property-type').value;
+            userData.property.location = document.getElementById('edit-property-location').value;
+            userData.property.currentValue = parseInt(document.getElementById('edit-current-value').value);
+            userData.property.size = parseInt(document.getElementById('edit-property-size').value);
+            userData.property.age = parseInt(document.getElementById('edit-property-age').value);
+            
+            localStorage.setItem('userData', JSON.stringify(userData));
+            updateDashboard();
+            initChart();
+            closePropertyModal();
+            
+            // Show success message
+            alert('Property details updated successfully!');
+        }
+
+        // Edit Profile
+        function editProfile() {
+            // Update sidebar active state - remove from all links first
+            document.querySelectorAll('.sidebar-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            // Add active to profile link
+            setTimeout(() => {
+                const profileLinks = document.querySelectorAll('.sidebar-link');
+                profileLinks.forEach(link => {
+                    if (link.textContent.includes('Profile')) {
+                        link.classList.add('active');
+                    }
+                });
+            }, 10);
+
+            // Hide all dashboard sections
+            const sections = [
+                'welcome-section',
+                'property-card',
+                'metrics-section',
+                'dashboard-grid',
+                'recommendations',
+                'saved-ideas',
+                'my-estimator-section',
+                'submit-property-section',
+                'new-estimator-section'
+            ];
+            
+            sections.forEach(id => {
+                const elem = document.getElementById(id);
+                if (elem) elem.style.display = 'none';
+            });
+            
+            // Show profile settings
+            document.getElementById('profile-settings').style.display = 'block';
+            
+            // Show back button
+            const backBtn = document.getElementById('back-to-dashboard');
+            if (backBtn) backBtn.style.display = 'flex';
+            
+            // Populate form with current data
+            const nameParts = userData.name.split(' ');
+            const firstName = nameParts[0] || '';
+            const lastName = nameParts.slice(1).join(' ') || '';
+            
+            const firstNameInput = document.getElementById('profile-firstname');
+            const lastNameInput = document.getElementById('profile-lastname');
+            const emailInput = document.getElementById('profile-email');
+            const phoneInput = document.getElementById('profile-phone');
+            const avatarLarge = document.getElementById('profile-avatar-large');
+            
+            if (firstNameInput) firstNameInput.value = firstName;
+            if (lastNameInput) lastNameInput.value = lastName;
+            if (emailInput) emailInput.value = userData.email || 'priya.sharma@email.com';
+            if (phoneInput) phoneInput.value = userData.phone || '+91 98765 43210';
+            
+            // Update avatar with first letter of name
+            if (avatarLarge) {
+                const firstLetter = userData.name.charAt(0).toUpperCase();
+                avatarLarge.textContent = firstLetter;
+            }
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Save Profile
+        function saveProfile(event) {
+            event.preventDefault();
+            
+            try {
+                // Get form values
+                const firstName = document.getElementById('profile-firstname')?.value.trim() || '';
+                const lastName = document.getElementById('profile-lastname')?.value.trim() || '';
+                const email = document.getElementById('profile-email')?.value.trim() || '';
+                const phone = document.getElementById('profile-phone')?.value.trim() || '';
+                
+                // Combine first and last name
+                const fullName = (firstName + ' ' + lastName).trim();
+                
+                // Update userData
+                userData.name = fullName;
+                userData.email = email;
+                userData.phone = phone;
+                
+                // Save to localStorage
+                localStorage.setItem('userData', JSON.stringify(userData));
+                
+                // Update dashboard
+                updateDashboard();
+                
+                // Show success feedback
+                const submitBtn = event.target.querySelector('button[type="submit"]');
+                const originalText = submitBtn.textContent;
+                submitBtn.textContent = '✓ Saved Successfully!';
+                submitBtn.style.background = 'var(--success)';
+                
+                setTimeout(() => {
+                    submitBtn.textContent = originalText;
+                    submitBtn.style.background = '';
+                }, 2000);
+                
+            } catch (error) {
+                console.error('Error saving profile:', error);
+                alert('Error saving profile. Please try again.');
+            }
+        }
+
+        // Switch Profile Tabs
+        function switchProfileTab(tabName, triggerElement = null) {
+            // Hide all tabs
+            document.querySelectorAll('.profile-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active from all menu items
+            document.querySelectorAll('.profile-menu-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Show selected tab
+            const selectedTab = document.getElementById(`profile-tab-${tabName}`);
+            if (selectedTab) {
+                selectedTab.classList.add('active');
+            }
+            
+            // Mark menu item as active
+            const menuItem = triggerElement || document.querySelector(`[onclick*="switchProfileTab('${tabName}'"]`);
+            menuItem?.classList.add('active');
+        }
+
+        function setDashboardTheme(themeName) {
+            const body = document.body;
+            if (!body) return;
+
+            const nextTheme = themeName === 'blue' ? 'blue' : 'orange';
+            body.classList.remove('theme-orange', 'theme-blue');
+            body.classList.add(`theme-${nextTheme}`);
+
+            localStorage.setItem('dashboardTheme', nextTheme);
+            updateThemeButtons(nextTheme);
+        }
+
+        function updateThemeButtons(activeTheme) {
+            const orangeOption = document.getElementById('theme-option-orange');
+            const blueOption = document.getElementById('theme-option-blue');
+
+            if (!orangeOption || !blueOption) return;
+
+            orangeOption.classList.toggle('active', activeTheme === 'orange');
+            blueOption.classList.toggle('active', activeTheme === 'blue');
+        }
+
+        function applySavedTheme() {
+            const savedTheme = localStorage.getItem('dashboardTheme') || 'orange';
+            setDashboardTheme(savedTheme);
+        }
+
+        // Toggle Profile Sidebar
+        function toggleProfileSidebar() {
+            const sidebar = document.getElementById('profile-sidebar');
+            if (sidebar) {
+                sidebar.classList.toggle('hidden');
+            }
+        }
+
+        // Close profile sidebar when clicking outside
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('profile-sidebar');
+            const clickedProfileToggle = event.target.closest('.profile-menu-toggle');
+            const clickedSidebarToggle = event.target.closest('.profile-sidebar-toggle');
+            
+            if (sidebar && !sidebar.classList.contains('hidden')) {
+                if (!sidebar.contains(event.target) && 
+                    !clickedProfileToggle &&
+                    !clickedSidebarToggle) {
+                    sidebar.classList.add('hidden');
+                }
+            }
+        });
+
+        // Logout
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('userData');
+                window.location.href = 'index.html';
+            }
+        }
+
+        // Request Consultation
+        function requestConsultation() {
+            alert('Expert consultation feature coming soon! We will contact you shortly.');
+        }
+
+        // Start Kitchen Estimate
+        function startKitchenEstimate() {
+            window.location.href = 'kitchen-estimator.html';
+        }
+
+        // Start Full Home Estimate
+        function startFullHomeEstimate() {
+            window.location.href = 'full-home-estimator.html';
+        }
+
+        // Toggle Recommendations View
+        function toggleRecommendationsView() {
+            const additionalRecs = document.querySelectorAll('.additional-rec');
+            const toggleLink = document.getElementById('toggle-view-link');
+            const mainTitle = document.getElementById('rec-main-title');
+            const subtitle = document.getElementById('rec-subtitle');
+            const recCard = document.querySelector('.recommendations-card');
+            const allRecs = document.querySelectorAll('.recommendation-item');
+            
+            // Check if we're currently showing all
+            const isShowingAll = additionalRecs[0].style.display !== 'none';
+            
+            if (isShowingAll) {
+                // Switch back to compact view
+                additionalRecs.forEach(rec => rec.style.display = 'none');
+                toggleLink.textContent = 'View All';
+                mainTitle.textContent = 'Top Recommendations';
+                subtitle.style.display = 'none';
+                recCard.style.background = 'var(--white)';
+                
+                // Update to compact view: hide ROI column and action buttons, change label
+                allRecs.forEach(rec => {
+                    const actions = rec.querySelector('.rec-actions');
+                    if (actions) actions.style.display = 'none';
+                    
+                    const stats = rec.querySelector('.rec-stats');
+                    if (stats) {
+                        stats.style.gridTemplateColumns = 'repeat(3, 1fr)';
+                        // Hide ROI column (3rd child)
+                        if (stats.children[2]) {
+                            stats.children[2].style.display = 'none';
+                        }
+                        // Change "Estimated Cost" to "Investment" in compact view
+                        const firstLabel = stats.children[0]?.querySelector('.rec-stat-label');
+                        if (firstLabel && firstLabel.textContent === 'Estimated Cost') {
+                            firstLabel.textContent = 'Investment';
+                        }
+                        // Move Property Impact to position 3
+                        if (stats.children[3]) {
+                            stats.children[3].style.display = 'block';
+                        }
+                    }
+                });
+                
+            } else {
+                // Switch to full view
+                additionalRecs.forEach(rec => rec.style.display = 'flex');
+                toggleLink.textContent = 'Show Less';
+                mainTitle.textContent = 'Your Personalized Recommendations';
+                subtitle.style.display = 'block';
+                recCard.style.background = 'var(--gray-50)';
+                
+                // Update to full view: show all 4 columns and action buttons
+                allRecs.forEach(rec => {
+                    const actions = rec.querySelector('.rec-actions');
+                    if (actions) actions.style.display = 'flex';
+                    
+                    const stats = rec.querySelector('.rec-stats');
+                    if (stats) {
+                        stats.style.gridTemplateColumns = 'repeat(4, 1fr)';
+                        // Show ROI column
+                        if (stats.children[2]) {
+                            stats.children[2].style.display = 'flex';
+                        }
+                        // Change "Investment" to "Estimated Cost" in full view
+                        const firstLabel = stats.children[0]?.querySelector('.rec-stat-label');
+                        if (firstLabel && firstLabel.textContent === 'Investment') {
+                            firstLabel.textContent = 'Estimated Cost';
+                        }
+                    }
+                });
+            }
+            
+            // Scroll to recommendations section
+            document.getElementById('recommendations').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // User Dropdown Toggle
+        document.querySelector('.user-btn').addEventListener('click', function() {
+            const dropdown = document.querySelector('.user-dropdown');
+            dropdown.classList.toggle('show');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.user-menu')) {
+                document.querySelector('.user-dropdown').classList.remove('show');
+            }
+        });
+
+        // Chart.js Configuration
+        let valueChart;
+
+        function initChart() {
+            const ctx = document.getElementById('valueGrowthChart').getContext('2d');
+
+            const recommendations = getRecommendationData();
+            const currentValue = userData.property.currentValue;
+
+            const labels = recommendations.map(rec => rec.title);
+            const roiPercentages = recommendations.map(rec => rec.roi);
+            
+            if (valueChart) {
+                valueChart.destroy();
+            }
+            
+            valueChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: 'ROI (%)',
+                        data: roiPercentages,
+                        backgroundColor: '#e85b68',
+                        borderRadius: 8,
+                        borderSkipped: false,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'bottom',
+                            labels: {
+                                color: '#e85b68',
+                                usePointStyle: true,
+                                pointStyle: 'rect',
+                                padding: 15,
+                                font: {
+                                    size: 12,
+                                    family: 'Inter',
+                                    weight: '500'
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: '#1f2937',
+                            padding: 12,
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            borderColor: '#374151',
+                            borderWidth: 1,
+                            displayColors: true,
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${context.parsed.y}%`;
+                                },
+                                afterLabel: function(context) {
+                                    const rec = recommendations[context.dataIndex];
+                                    if (!rec) return '';
+
+                                    const roiBasedIncrease = Math.round((rec.investment * rec.roi) / 100);
+                                    const projectedValue = currentValue + roiBasedIncrease;
+
+                                    return [
+                                        `Investment: ₹${formatNumber(rec.investment)}`,
+                                        `ROI-based Increase: ₹${formatNumber(roiBasedIncrease)}`,
+                                        `Projected Value: ₹${formatNumber(projectedValue)}`
+                                    ];
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            min: 0,
+                            max: 100,
+                            ticks: {
+                                callback: function(value) {
+                                    return `${value}%`;
+                                },
+                                color: '#6b7280',
+                                font: {
+                                    size: 11
+                                }
+                            },
+                            grid: {
+                                color: '#e5e7eb',
+                                drawBorder: false
+                            },
+                            border: {
+                                display: false
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: '#6b7280',
+                                font: {
+                                    size: 12,
+                                    family: 'Inter'
+                                }
+                            },
+                            grid: {
+                                display: false
+                            },
+                            border: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Chart Period Toggle
+        document.querySelectorAll('.toggle-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                // In a real app, this would load different time period data
+            });
+        });
+
+        // Initialize on page load
+        // Initialize dashboard
+        function initializeDashboard() {
+            try {
+                console.log('Initializing dashboard...');
+                if (document.readyState === 'loading') {
+                    // DOM is still loading
+                    window.addEventListener('DOMContentLoaded', initDashboardContent);
+                } else {
+                    // DOM is already loaded
+                    initDashboardContent();
+                }
+            } catch (error) {
+                console.error('Error in initialization setup:', error);
+            }
+        }
+        
+        function initDashboardContent() {
+            try {
+                console.log('Loading user data...');
+                applySavedTheme();
+                loadUserData();
+                loadPropertyInfoToProfile();
+                console.log('User data loaded, initializing chart...');
+                initChart();
+                console.log('Chart initialized, setting up dashboard view...');
+                // Initialize dashboard view - show only dashboard sections
+                setTimeout(() => {
+                    console.log('Calling backToDashboard...');
+                    backToDashboard();
+                    console.log('Dashboard initialized successfully');
+                }, 100);
+            } catch (error) {
+                console.error('Error initializing dashboard content:', error);
+            }
+        }
+        
+        // Start initialization
+        initializeDashboard();
+        
+        // Also keep the DOMContentLoaded listener as fallback
+        window.addEventListener('DOMContentLoaded', function() {
+            try {
+                if (document.readyState === 'complete' || document.readyState === 'interactive') {
+                    console.log('DOMContentLoaded fallback fired');
+                    initDashboardContent();
+                }
+            } catch (error) {
+                console.error('Error in DOMContentLoaded fallback:', error);
+            }
+        });
+
+        // Scroll to Recommendations and Show Full View (Recommendations Only)
+        function scrollToRecommendations(event) {
+            event.preventDefault();
+            
+            // Update sidebar active state - remove from all links first
+            document.querySelectorAll('.sidebar-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            // Add active to recommendations link with a small delay to ensure it applies
+            setTimeout(() => {
+                const recLink = document.getElementById('recommendations-link');
+                if (recLink) {
+                    recLink.classList.add('active');
+                    console.log('Active class added to recommendations link');
+                }
+            }, 10);
+            
+            // Hide all dashboard sections
+            document.getElementById('welcome-section').style.display = 'none';
+            document.getElementById('property-card').style.display = 'none';
+            document.getElementById('metrics-section').style.display = 'none';
+            document.getElementById('dashboard-grid').style.display = 'none';
+            
+            // Hide saved ideas, estimator and show recommendations
+            document.getElementById('saved-ideas').style.display = 'none';
+            document.getElementById('my-estimator-section').style.display = 'none';
+            document.getElementById('profile-settings').style.display = 'none';
+            document.getElementById('submit-property-section').style.display = 'none';
+            document.getElementById('new-estimator-section').style.display = 'none';
+            document.getElementById('recommendations').style.display = 'block';
+            
+            // Show back button
+            document.getElementById('back-to-dashboard').style.display = 'flex';
+            
+            // Hide the toggle link (View All)
+            document.getElementById('toggle-view-link').style.display = 'none';
+            
+            // Expand recommendations to full view
+            const additionalRecs = document.querySelectorAll('.additional-rec');
+            const mainTitle = document.getElementById('rec-main-title');
+            const subtitle = document.getElementById('rec-subtitle');
+            const recCard = document.getElementById('recommendations'); // Use ID instead of querySelector
+            const allRecs = document.querySelectorAll('#recommendations .recommendation-item'); // Only get items from recommendations section
+            
+            // Switch to full view
+            additionalRecs.forEach(rec => rec.style.display = 'flex');
+            mainTitle.textContent = 'Your Personalized Recommendations';
+            subtitle.style.display = 'block';
+            recCard.style.background = 'var(--gray-50)';
+            recCard.style.marginTop = '0';
+            
+            // Update to full view: show all 4 columns and action buttons
+            allRecs.forEach(rec => {
+                const actions = rec.querySelector('.rec-actions');
+                if (actions) actions.style.display = 'flex';
+                
+                const stats = rec.querySelector('.rec-stats');
+                if (stats) {
+                    stats.style.gridTemplateColumns = 'repeat(4, 1fr)';
+                    // Show ROI column
+                    if (stats.children[2]) {
+                        stats.children[2].style.display = 'flex';
+                    }
+                    // Change "Investment" to "Estimated Cost" in full view
+                    const firstLabel = stats.children[0]?.querySelector('.rec-stat-label');
+                    if (firstLabel && firstLabel.textContent === 'Investment') {
+                        firstLabel.textContent = 'Estimated Cost';
+                    }
+                }
+            });
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Back to Dashboard View
+        function backToDashboard() {
+            // Update sidebar active state - remove from all links first
+            document.querySelectorAll('.sidebar-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            // Add active to dashboard link with a small delay to ensure it applies
+            setTimeout(() => {
+                const dashLink = document.getElementById('dashboard-link');
+                if (dashLink) {
+                    dashLink.classList.add('active');
+                    console.log('Active class added to dashboard link');
+                }
+            }, 10);
+            
+            // Show all dashboard sections
+            const welcomeSection = document.getElementById('welcome-section');
+            const propertyCard = document.getElementById('property-card');
+            const metricsSection = document.getElementById('metrics-section');
+            const dashboardGrid = document.getElementById('dashboard-grid');
+            const recommendations = document.getElementById('recommendations');
+            const savedIdeas = document.getElementById('saved-ideas');
+            const profileSettings = document.getElementById('profile-settings');
+            const myEstimator = document.getElementById('my-estimator-section');
+            const submitProperty = document.getElementById('submit-property-section');
+            const newEstimator = document.getElementById('new-estimator-section');
+            const backBtn = document.getElementById('back-to-dashboard');
+            const toggleLink = document.getElementById('toggle-view-link');
+            
+            if (welcomeSection) welcomeSection.style.display = 'block';
+            if (propertyCard) propertyCard.style.display = 'block';
+            if (metricsSection) metricsSection.style.display = 'grid';
+            if (dashboardGrid) dashboardGrid.style.display = 'grid';
+            
+            // Show recommendations and hide other sections
+            if (recommendations) recommendations.style.display = 'block';
+            if (savedIdeas) savedIdeas.style.display = 'none';
+            if (profileSettings) profileSettings.style.display = 'none';
+            if (myEstimator) myEstimator.style.display = 'none';
+            if (submitProperty) submitProperty.style.display = 'none';
+            if (newEstimator) newEstimator.style.display = 'none';
+            
+            // Hide back button
+            if (backBtn) backBtn.style.display = 'none';
+            
+            // Show the toggle link (View All)
+            if (toggleLink) toggleLink.style.display = 'inline';
+            
+            // Revert to compact view
+            const additionalRecs = document.querySelectorAll('.additional-rec');
+            const mainTitle = document.getElementById('rec-main-title');
+            const subtitle = document.getElementById('rec-subtitle');
+            const recCard = document.getElementById('recommendations');
+            const allRecs = document.querySelectorAll('#recommendations .recommendation-item');
+            
+            additionalRecs.forEach(rec => rec.style.display = 'none');
+            if (toggleLink) toggleLink.textContent = 'View All';
+            if (mainTitle) mainTitle.textContent = 'Top Recommendations';
+            if (subtitle) subtitle.style.display = 'none';
+            if (recCard) {
+                recCard.style.background = 'var(--white)';
+                recCard.style.marginTop = '2rem';
+            }
+            
+            // Update to compact view: hide ROI column and action buttons
+            allRecs.forEach(rec => {
+                const actions = rec.querySelector('.rec-actions');
+                if (actions) actions.style.display = 'none';
+                
+                const stats = rec.querySelector('.rec-stats');
+                if (stats) {
+                    stats.style.gridTemplateColumns = 'repeat(3, 1fr)';
+                    // Hide ROI column
+                    if (stats.children[2]) {
+                        stats.children[2].style.display = 'none';
+                    }
+                    // Change "Estimated Cost" back to "Investment"
+                    const firstLabel = stats.children[0]?.querySelector('.rec-stat-label');
+                    if (firstLabel && firstLabel.textContent === 'Estimated Cost') {
+                        firstLabel.textContent = 'Investment';
+                    }
+                }
+            });
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Save Recommendation
+        function saveRecommendation(title, description, cost, value, roi, impact, priority) {
+            // Get existing saved items from localStorage
+            let savedItems = JSON.parse(localStorage.getItem('savedRecommendations') || '[]');
+            
+            // Check if already saved
+            const exists = savedItems.some(item => item.title === title);
+            if (exists) {
+                alert('This recommendation is already saved!');
+                return;
+            }
+            
+            // Add new item
+            const normalizedRoi = formatRoiPercent(parseRoiPercent(roi));
+            const newItem = {
+                id: Date.now(),
+                title,
+                description,
+                cost,
+                value,
+                roi: normalizedRoi,
+                impact,
+                priority,
+                savedDate: new Date().toISOString()
+            };
+            
+            savedItems.push(newItem);
+            localStorage.setItem('savedRecommendations', JSON.stringify(savedItems));
+            
+            // Update badge
+            updateSavedBadge();
+            
+            // Show confirmation
+            alert(`${title} has been saved to your Saved Ideas!`);
+        }
+
+        // Show My Estimator View
+        function showMyEstimator(event) {
+            event.preventDefault();
+            
+            // Update sidebar active state
+            document.querySelectorAll('.sidebar-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            setTimeout(() => {
+                const estimatorLink = document.getElementById('estimator-link');
+                if (estimatorLink) {
+                    estimatorLink.classList.add('active');
+                }
+            }, 10);
+            
+            // Hide all dashboard sections
+            document.getElementById('welcome-section').style.display = 'none';
+            document.getElementById('property-card').style.display = 'none';
+            document.getElementById('metrics-section').style.display = 'none';
+            document.getElementById('dashboard-grid').style.display = 'none';
+            document.getElementById('recommendations').style.display = 'none';
+            document.getElementById('saved-ideas').style.display = 'none';
+            document.getElementById('profile-settings').style.display = 'none';
+            
+            // Show estimator section
+            document.getElementById('my-estimator-section').style.display = 'block';
+            document.getElementById('submit-property-section').style.display = 'none';
+            document.getElementById('new-estimator-section').style.display = 'none';
+            
+            // Load and display estimates
+            loadMyEstimates();
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Show Submit Property View
+        function showSubmitProperty(event) {
+            event.preventDefault();
+            
+            // Update sidebar active state
+            document.querySelectorAll('.sidebar-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            setTimeout(() => {
+                const submitLink = document.getElementById('submit-property-link');
+                if (submitLink) {
+                    submitLink.classList.add('active');
+                }
+            }, 10);
+            
+            // Hide all dashboard sections
+            document.getElementById('welcome-section').style.display = 'none';
+            document.getElementById('property-card').style.display = 'none';
+            document.getElementById('metrics-section').style.display = 'none';
+            document.getElementById('dashboard-grid').style.display = 'none';
+            document.getElementById('recommendations').style.display = 'none';
+            document.getElementById('saved-ideas').style.display = 'none';
+            document.getElementById('profile-settings').style.display = 'none';
+            document.getElementById('my-estimator-section').style.display = 'none';
+            document.getElementById('new-estimator-section').style.display = 'none';
+            
+            // Show submit property section
+            document.getElementById('submit-property-section').style.display = 'block';
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Submit Property Form
+        function submitPropertyForm(event) {
+            event.preventDefault();
+            
+            // Get form values
+            const propertyData = {
+                firstName: document.getElementById('first-name').value,
+                lastName: document.getElementById('last-name').value,
+                email: document.getElementById('email').value,
+                contactNumber: document.getElementById('contact-number').value,
+                address: document.getElementById('address').value,
+                city: document.getElementById('city').value,
+                state: document.getElementById('state').value,
+                zipCode: document.getElementById('zip-code').value,
+                country: document.getElementById('country').value,
+                propertyType: document.getElementById('property-type').value,
+                propertySize: document.getElementById('property-size').value,
+                yearBuilt: document.getElementById('year-built').value,
+                currentMarketValue: document.getElementById('current-market-value').value,
+                improvementBudget: document.getElementById('improvement-budget').value,
+                propertyDescription: document.getElementById('property-description').value,
+                submittedDate: new Date().toISOString()
+            };
+            
+            // Save to localStorage
+            localStorage.setItem('submittedProperty', JSON.stringify(propertyData));
+            localStorage.setItem('userPropertyInfo', JSON.stringify({
+                propertyType: propertyData.propertyType,
+                propertySize: propertyData.propertySize,
+                yearBuilt: propertyData.yearBuilt,
+                currentMarketValue: document.getElementById('current-market-value').value,
+                improvementBudget: document.getElementById('improvement-budget').value,
+                address: propertyData.address,
+                city: propertyData.city,
+                state: propertyData.state
+            }));
+            
+            // Show success message
+            alert('Property submitted successfully! Our team will review and get back to you shortly.');
+            
+            // Clear form
+            event.target.reset();
+            
+            // Refresh profile to show new property info
+            loadPropertyInfoToProfile();
+            
+            // Go back to dashboard
+            backToDashboard();
+        }
+
+        // Load Property Info to Profile
+        function loadPropertyInfoToProfile() {
+            const propertyInfo = localStorage.getItem('userPropertyInfo');
+            if (propertyInfo) {
+                const data = JSON.parse(propertyInfo);
+                const propertySection = document.getElementById('property-info-section');
+                if (propertySection) {
+                    propertySection.innerHTML = `
+                        <div class="property-info-card">
+                            <h3 class="property-info-title">Property Information</h3>
+                            <div class="property-info-grid">
+                                <div class="property-info-item">
+                                    <span class="property-info-label">Property Type</span>
+                                    <span class="property-info-value">${data.propertyType || '-'}</span>
+                                </div>
+                                <div class="property-info-item">
+                                    <span class="property-info-label">Size</span>
+                                    <span class="property-info-value">${data.propertySize || '-'} Sq Ft</span>
+                                </div>
+                                <div class="property-info-item">
+                                    <span class="property-info-label">Year Built</span>
+                                    <span class="property-info-value">${data.yearBuilt || '-'}</span>
+                                </div>
+                                <div class="property-info-item">
+                                    <span class="property-info-label">Location</span>
+                                    <span class="property-info-value">${data.city}, ${data.state}</span>
+                                </div>
+                                <div class="property-info-item">
+                                    <span class="property-info-label">Market Value</span>
+                                    <span class="property-info-value">₹${parseInt(data.currentMarketValue || 0).toLocaleString('en-IN')}</span>
+                                </div>
+                                <div class="property-info-item">
+                                    <span class="property-info-label">Budget</span>
+                                    <span class="property-info-value">₹${parseInt(data.improvementBudget || 0).toLocaleString('en-IN')}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        // Show New Estimator View
+        function showNewEstimator(event) {
+            event.preventDefault();
+            
+            try {
+                // Update sidebar active state
+                document.querySelectorAll('.sidebar-link').forEach(link => {
+                    link.classList.remove('active');
+                });
+                setTimeout(() => {
+                    const estimatorLink = document.getElementById('new-estimator-link');
+                    if (estimatorLink) {
+                        estimatorLink.classList.add('active');
+                    }
+                }, 10);
+                
+                // Hide all dashboard sections - with null checks
+                const sections = [
+                    'welcome-section',
+                    'property-card',
+                    'metrics-section',
+                    'dashboard-grid',
+                    'recommendations',
+                    'saved-ideas',
+                    'profile-settings',
+                    'my-estimator-section',
+                    'submit-property-section'
+                ];
+                
+                sections.forEach(sectionId => {
+                    const element = document.getElementById(sectionId);
+                    if (element) {
+                        element.style.display = 'none';
+                    }
+                });
+                
+                // Show new estimator section
+                const estimatorSection = document.getElementById('new-estimator-section');
+                if (estimatorSection) {
+                    estimatorSection.style.display = 'block';
+                }
+                
+                // Hide back button
+                const backBtn = document.getElementById('back-to-dashboard');
+                if (backBtn) {
+                    backBtn.style.display = 'none';
+                }
+                
+                // Scroll to top
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } catch (error) {
+                console.error('Error in showNewEstimator:', error);
+            }
+        }
+
+        // Load My Estimates
+        function loadMyEstimates(filter = 'all') {
+            const estimates = getMyEstimatesFromStorage();
+            displayMyEstimates(estimates, filter);
+            updateMyEstimatesCounts(estimates);
+        }
+
+        // Get estimates from localStorage
+        function getMyEstimatesFromStorage() {
+            const stored = localStorage.getItem('bharatHomeEstimates');
+            if (stored) {
+                return JSON.parse(stored);
+            }
+            return [];
+        }
+
+        // Display estimates
+        function displayMyEstimates(estimates, filter = 'all') {
+            const container = document.getElementById('my-estimates-grid');
+            const emptyState = document.getElementById('my-empty-state');
+            
+            // Filter estimates
+            let filteredEstimates = estimates;
+            if (filter !== 'all') {
+                filteredEstimates = estimates.filter(est => est.type === filter);
+            }
+            
+            // Show/hide empty state
+            if (filteredEstimates.length === 0) {
+                container.style.display = 'none';
+                emptyState.style.display = 'flex';
+                return;
+            }
+            
+            container.style.display = 'grid';
+            emptyState.style.display = 'none';
+            
+            // Generate cards
+            container.innerHTML = filteredEstimates.map(estimate => createMyEstimateCard(estimate)).join('');
+        }
+
+        // Create estimate card HTML
+        function createMyEstimateCard(estimate) {
+            const iconSVG = getEstimateIconSVG(estimate.type);
+            const formattedDate = formatEstimateDate(estimate.date);
+            const formattedCost = formatEstimateCurrency(estimate.totalCost);
+            
+            // Get first 3 details for preview
+            const detailEntries = Object.entries(estimate.details).slice(0, 3);
+            const detailsHTML = detailEntries.map(([key, value]) => `
+                <div class="estimate-detail-row">
+                    <span class="estimate-detail-label">${key}:</span>
+                    <span class="estimate-detail-value">${value}</span>
+                </div>
+            `).join('');
+            
+            return `
+                <div class="my-estimate-card">
+                    <div class="my-estimate-card-header">
+                        <div class="my-estimate-type-section">
+                            <div class="my-estimate-type-icon">
+                                ${iconSVG}
+                            </div>
+                            <div class="my-estimate-type-info">
+                                <h3>${estimate.typeName} Interior</h3>
+                                <div class="my-estimate-date">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                        <line x1="16" y1="2" x2="16" y2="6"/>
+                                        <line x1="8" y1="2" x2="8" y2="6"/>
+                                        <line x1="3" y1="10" x2="21" y2="10"/>
+                                    </svg>
+                                    ${formattedDate}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="my-estimate-card-details">
+                        ${detailsHTML}
+                    </div>
+                    
+                    <div class="my-estimate-total-cost">
+                        <div class="my-estimate-cost-label">Total Estimated Cost</div>
+                        <div class="my-estimate-cost-amount">${formattedCost}</div>
+                    </div>
+                    
+                    <div class="my-estimate-card-footer">
+                        <button class="my-estimate-view-btn" onclick="showMyEstimator(event)">View Full Details</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Get icon SVG based on type
+        function getEstimateIconSVG(type) {
+            const icons = {
+                kitchen: `<svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M3 3h18v18H3z"/>
+                    <path d="M7 8h10M7 12h10M7 16h10" stroke="#fff" stroke-width="2"/>
+                </svg>`,
+                wardrobe: `<svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+                    <rect x="4" y="2" width="16" height="20" rx="2"/>
+                    <path d="M9 6h6M9 10h6M9 14h6" stroke="#fff" stroke-width="2"/>
+                </svg>`,
+                fullhome: `<svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                    <polyline points="9 22 9 12 15 12 15 22" fill="none" stroke="#fff" stroke-width="2"/>
+                </svg>`
+            };
+            return icons[type] || icons.kitchen;
+        }
+
+        // Format date
+        function formatEstimateDate(dateString) {
+            const date = new Date(dateString);
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            return date.toLocaleDateString('en-US', options);
+        }
+
+        // Format currency
+        function formatEstimateCurrency(amount) {
+            return '₹' + amount.toLocaleString('en-IN');
+        }
+
+        // Update counts
+        function updateMyEstimatesCounts(estimates) {
+            const allCount = estimates.length;
+            const kitchenCount = estimates.filter(e => e.type === 'kitchen').length;
+            const wardrobeCount = estimates.filter(e => e.type === 'wardrobe').length;
+            const fullhomeCount = estimates.filter(e => e.type === 'fullhome').length;
+            
+            document.getElementById('my-count-all').textContent = allCount;
+            document.getElementById('my-count-kitchen').textContent = kitchenCount;
+            document.getElementById('my-count-wardrobe').textContent = wardrobeCount;
+            document.getElementById('my-count-fullhome').textContent = fullhomeCount;
+        }
+
+        // Filter my estimates
+        function filterMyEstimates(filter) {
+            // Update active tab
+            document.querySelectorAll('.estimates-tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.filter === filter) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Load filtered estimates
+            const estimates = getMyEstimatesFromStorage();
+            displayMyEstimates(estimates, filter);
+        }
+
+        // Show Saved Ideas View
+        function showSavedIdeas(event) {
+            event.preventDefault();
+            
+            // Update sidebar active state - remove from all links first
+            document.querySelectorAll('.sidebar-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            // Add active to saved ideas link
+            setTimeout(() => {
+                const savedLink = document.getElementById('saved-ideas-link');
+                if (savedLink) {
+                    savedLink.classList.add('active');
+                }
+            }, 10);
+            
+            // Hide all dashboard sections and recommendations
+            document.getElementById('welcome-section').style.display = 'none';
+            document.getElementById('property-card').style.display = 'none';
+            document.getElementById('metrics-section').style.display = 'none';
+            document.getElementById('dashboard-grid').style.display = 'none';
+            document.getElementById('recommendations').style.display = 'none';
+            document.getElementById('profile-settings').style.display = 'none';
+            document.getElementById('my-estimator-section').style.display = 'none';
+            document.getElementById('submit-property-section').style.display = 'none';
+            document.getElementById('new-estimator-section').style.display = 'none';
+            
+            // Show saved ideas section
+            document.getElementById('saved-ideas').style.display = 'block';
+            
+            // Load and display saved items
+            loadSavedIdeas();
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Load Saved Ideas
+        function loadSavedIdeas() {
+            const savedItems = JSON.parse(localStorage.getItem('savedRecommendations') || '[]');
+            const savedList = document.getElementById('saved-ideas-list');
+            const emptyState = document.getElementById('empty-saved');
+            const savedCount = document.getElementById('saved-count');
+            
+            // Update count
+            savedCount.textContent = `${savedItems.length} saved`;
+            
+            if (savedItems.length === 0) {
+                emptyState.style.display = 'flex';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            
+            // Clear existing items (except empty state)
+            Array.from(savedList.children).forEach(child => {
+                if (child.id !== 'empty-saved') {
+                    child.remove();
+                }
+            });
+            
+            // Add saved items
+            savedItems.forEach(item => {
+                const normalizedRoi = formatRoiPercent(parseRoiPercent(item.roi));
+                const itemHTML = `
+                    <div class="recommendation-item" data-id="${item.id}">
+                        <div class="rec-top">
+                            <div class="rec-header-content">
+                                <h3 class="rec-title">${item.title}</h3>
+                                <p class="rec-description">${item.description}</p>
+                            </div>
+                            <span class="rec-priority ${item.priority.toLowerCase().includes('high') ? 'high' : 'medium'}">${item.priority}</span>
+                        </div>
+                        <div class="rec-stats" style="grid-template-columns: repeat(4, 1fr);">
+                            <div class="rec-stat">
+                                <span class="rec-stat-label">Estimated Cost</span>
+                                <span class="rec-stat-value">₹${item.cost}</span>
+                            </div>
+                            <div class="rec-stat">
+                                <span class="rec-stat-label">Value Increase</span>
+                                <span class="rec-stat-value success">₹${item.value}</span>
+                            </div>
+                            <div class="rec-stat">
+                                <span class="rec-stat-label">ROI</span>
+                                <span class="rec-stat-value roi">${normalizedRoi}</span>
+                            </div>
+                            <div class="rec-stat">
+                                <span class="rec-stat-label">Property Impact</span>
+                                <span class="rec-stat-value impact">${item.impact}</span>
+                            </div>
+                        </div>
+                        <div class="rec-actions" style="display: flex;">
+                            <button class="rec-primary-btn" onclick="showNewEstimator(event)">
+                                Get Detailed Plan
+                            </button>
+                            <button class="rec-remove-btn" onclick="removeSavedItem(${item.id})">
+                                Remove
+                            </button>
+                        </div>
+                    </div>
+                `;
+                savedList.insertAdjacentHTML('beforeend', itemHTML);
+            });
+
+            const normalizedSavedItems = savedItems.map(item => ({
+                ...item,
+                roi: formatRoiPercent(parseRoiPercent(item.roi))
+            }));
+            localStorage.setItem('savedRecommendations', JSON.stringify(normalizedSavedItems));
+        }
+
+        // Remove Saved Item
+        function removeSavedItem(itemId) {
+            if (!confirm('Remove this recommendation from saved ideas?')) {
+                return;
+            }
+            
+            let savedItems = JSON.parse(localStorage.getItem('savedRecommendations') || '[]');
+            savedItems = savedItems.filter(item => item.id !== itemId);
+            localStorage.setItem('savedRecommendations', JSON.stringify(savedItems));
+            
+            // Update badge
+            updateSavedBadge();
+            
+            // Reload saved ideas
+            loadSavedIdeas();
+        }
+
+        // Update Saved Badge
+        function updateSavedBadge() {
+            const savedItems = JSON.parse(localStorage.getItem('savedRecommendations') || '[]');
+            const badge = document.getElementById('saved-badge');
+            
+            if (savedItems.length > 0) {
+                badge.textContent = savedItems.length;
+                badge.style.display = 'inline-flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        // Initialize saved badge on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            updateSavedBadge();
+        });
+
+        // Toggle Sidebar for Mobile
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            sidebar.classList.toggle('active');
+        }
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(event) {
+            const sidebar = document.querySelector('.sidebar');
+            const toggle = document.querySelector('.mobile-menu-toggle');
+            
+            if (window.innerWidth <= 768 && 
+                !sidebar.contains(event.target) && 
+                !toggle.contains(event.target) &&
+                sidebar.classList.contains('active')) {
+                sidebar.classList.remove('active');
+            }
+        });
+    </script>
+
+    </main>
+    </div>
+
+</body>
+</html>

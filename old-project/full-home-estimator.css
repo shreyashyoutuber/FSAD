@@ -1,0 +1,669 @@
+/* Full Home Estimator specific enhancements */
+
+.bhk-group {
+    margin-bottom: 20px;
+    animation: fadeIn 0.6s ease;
+}
+
+.radio-tile {
+    position: relative;
+    display: block;
+    width: 100%;
+    padding: 20px;
+    background: var(--card);
+    border: 2px solid #f0dede;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-bottom: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.radio-tile input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.radio-tile input:checked + .tile-body {
+    color: #e85b68;
+}
+
+.radio-tile input:checked ~ .size-stack {
+    display: block;
+    animation: slideDown 0.3s ease;
+}
+
+.radio-tile:hover {
+    border-color: rgba(232, 91, 104, 0.3);
+    box-shadow: 0 8px 24px rgba(232, 91, 104, 0.1);
+    transform: translateY(-2px);
+}
+
+.radio-tile input:checked {
+    background: linear-gradient(135deg, var(--card) 0%, rgba(232, 91, 104, 0.05) 100%);
+}
+
+.tile-body {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: all 0.3s ease;
+    z-index: 2;
+    position: relative;
+}
+
+.tile-body .title {
+    font-weight: 700;
+    font-size: 1.1em;
+    color: var(--ink);
+    transition: all 0.3s ease;
+}
+
+.tile-body .hint {
+    font-size: 0.9em;
+    color: #888;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.radio-tile input:checked ~ .tile-body .title {
+    font-size: 1.15em;
+    color: #e85b68;
+}
+
+.radio-tile input:checked ~ .tile-body .hint {
+    color: #e85b68;
+    font-weight: 600;
+}
+
+.size-stack {
+    display: none;
+    padding: 16px;
+    background: linear-gradient(135deg, rgba(245, 213, 221, 0.4), rgba(255, 255, 255, 0.6));
+    border-radius: 12px;
+    margin-top: 12px;
+    border: 1px solid rgba(232, 91, 104, 0.2);
+    animation: slideDown 0.3s ease;
+}
+
+.size-stack.hidden {
+    display: none;
+}
+
+.size-title {
+    font-weight: 600;
+    color: #5a1d26;
+    margin: 0 0 12px 0;
+    font-size: 0.95em;
+}
+
+.size-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.size-options .pill-option {
+    position: relative;
+}
+
+/* Room selection styling */
+.rooms-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 16px;
+    animation: fadeIn 0.6s ease;
+}
+
+.room-tile {
+    background: var(--card);
+    border: 2px solid #f0dede;
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.room-tile:hover {
+    border-color: #e85b68;
+    box-shadow: 0 8px 24px rgba(232, 91, 104, 0.12);
+    transform: translateY(-3px);
+}
+
+.room-tile.selected {
+    background: linear-gradient(135deg, var(--card) 0%, rgba(232, 91, 104, 0.08) 100%);
+    border-color: #e85b68;
+    box-shadow: 0 12px 36px rgba(232, 91, 104, 0.2);
+    transform: scale(1.02);
+}
+
+.room-name {
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 8px;
+    font-size: 1em;
+    transition: all 0.3s ease;
+}
+
+.room-tile.selected .room-name {
+    color: #e85b68;
+    font-size: 1.05em;
+}
+
+.room-count {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 10px;
+    animation: fadeIn 0.4s ease;
+}
+
+.room-count button {
+    width: 32px;
+    height: 32px;
+    border: 1.5px solid #f0dede;
+    background: linear-gradient(135deg, #fff, #f9f5f5);
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 700;
+    color: #5a1d26;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.room-count button:hover {
+    border-color: #e85b68;
+    background: linear-gradient(135deg, #ffe8ec, #f9e8e0);
+    box-shadow: 0 4px 12px rgba(232, 91, 104, 0.15);
+    transform: scale(1.08);
+}
+
+.room-count button:active {
+    transform: scale(0.95);
+}
+
+.room-count span {
+    font-weight: 700;
+    color: #5a1d26;
+    min-width: 24px;
+    text-align: center;
+}
+
+.counter-row {
+    background: linear-gradient(135deg, rgba(232, 91, 104, 0.05), rgba(255, 255, 255, 0.5));
+    border: 1.5px solid #f0dede;
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.counter-row:hover {
+    border-color: #e85b68;
+    box-shadow: 0 6px 20px rgba(232, 91, 104, 0.12);
+}
+
+.counter-label {
+    font-weight: 600;
+    color: #5a1d26;
+    flex: 1;
+}
+
+.counter-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.counter-controls button {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, #e85b68, #d74a57);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px rgba(232, 91, 104, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.counter-controls button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(232, 91, 104, 0.3);
+}
+
+.counter-controls button:active {
+    transform: scale(0.95);
+}
+
+.counter-value {
+    font-weight: 700;
+    color: #e85b68;
+    min-width: 28px;
+    text-align: center;
+    font-size: 1.1em;
+}
+
+/* Package selection in full home */
+.package-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+    animation: fadeIn 0.6s ease;
+}
+
+.package-card {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.package-card input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.package-card input:checked ~ .package-pill {
+    color: #fff;
+    text-shadow: 0 2px 4px rgba(232, 91, 104, 0.4);
+}
+
+.package-card input:checked ~ .package-img {
+    filter: brightness(1.1);
+}
+
+.package-card:hover {
+    transform: translateY(-4px);
+}
+
+.package-card.selected {
+    box-shadow: 0 16px 48px rgba(232, 91, 104, 0.25);
+}
+
+.package-img {
+    width: 100%;
+    height: 180px;
+    background-size: cover;
+    background-position: center;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 14px;
+    position: relative;
+}
+
+.package-pill {
+    font-weight: 700;
+    color: #e85b68;
+    font-size: 1.05em;
+    transition: all 0.3s ease;
+    margin-top: 12px;
+    margin-bottom: 8px;
+}
+
+.package-points {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.package-points li {
+    padding: 8px 0;
+    color: #666;
+    font-size: 0.9em;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.package-points li:last-child {
+    border-bottom: none;
+}
+
+.package-points li::before {
+    content: '✓';
+    color: #e85b68;
+    font-weight: 700;
+    opacity: 0;
+    transform: scale(0);
+    transition: all 0.3s ease;
+}
+
+.package-card.selected .package-points li::before {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.package-card.selected .package-points li {
+    color: #333;
+    font-weight: 600;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .bhk-group {
+        margin-bottom: 12px;
+    }
+    
+    .radio-tile {
+        padding: 14px;
+        margin-bottom: 8px;
+        border-radius: 12px;
+    }
+    
+    .tile-body .title {
+        font-size: 1em;
+    }
+    
+    .tile-body .hint {
+        font-size: 0.85em;
+    }
+    
+    .size-stack {
+        padding: 12px;
+        margin-top: 8px;
+        border-radius: 10px;
+    }
+    
+    .size-title {
+        font-size: 0.9em;
+        margin-bottom: 10px;
+    }
+    
+    .size-options {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .rooms-grid {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 12px;
+    }
+    
+    .room-tile {
+        padding: 12px;
+        border-radius: 10px;
+    }
+    
+    .room-name {
+        font-size: 0.9em;
+    }
+    
+    .room-count {
+        margin-top: 8px;
+        gap: 6px;
+    }
+    
+    .room-count button {
+        width: 30px;
+        height: 30px;
+        border-radius: 4px;
+    }
+    
+    .counter-row {
+        padding: 12px;
+        gap: 8px;
+    }
+    
+    .counter-label {
+        font-size: 0.9em;
+    }
+    
+    .counter-controls button {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .package-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .package-img {
+        height: 140px;
+    }
+    
+    .package-pill {
+        font-size: 0.95em;
+    }
+    
+    .package-points li {
+        padding: 6px 0;
+        font-size: 0.85em;
+    }
+}
+
+@media (max-width: 640px) {
+    .radio-tile {
+        padding: 12px;
+    }
+    
+    .tile-body .title {
+        font-size: 0.95em;
+    }
+    
+    .tile-body .hint {
+        font-size: 0.8em;
+    }
+    
+    .size-stack {
+        padding: 10px;
+    }
+    
+    .size-title {
+        font-size: 0.85em;
+    }
+    
+    .size-options {
+        gap: 8px;
+    }
+    
+    .rooms-grid {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 10px;
+    }
+    
+    .room-tile {
+        padding: 10px;
+        border-radius: 8px;
+        border-width: 1.5px;
+    }
+    
+    .room-name {
+        font-size: 0.85em;
+    }
+    
+    .room-count {
+        margin-top: 6px;
+        gap: 4px;
+    }
+    
+    .room-count button {
+        width: 28px;
+        height: 28px;
+        font-size: 14px;
+    }
+    
+    .room-count span {
+        font-size: 0.9em;
+    }
+    
+    .counter-row {
+        padding: 10px;
+        margin-bottom: 8px;
+    }
+    
+    .counter-label {
+        font-size: 0.85em;
+    }
+    
+    .counter-controls {
+        gap: 10px;
+    }
+    
+    .counter-controls button {
+        width: 30px;
+        height: 30px;
+        font-size: 14px;
+    }
+    
+    .counter-value {
+        font-size: 0.95em;
+    }
+    
+    .package-grid {
+        gap: 10px;
+    }
+    
+    .package-img {
+        height: 120px;
+    }
+    
+    .package-pill {
+        font-size: 0.9em;
+        margin-bottom: 4px;
+    }
+    
+    .package-points {
+        max-height: 80px;
+        overflow-y: auto;
+    }
+    
+    .package-points li {
+        padding: 4px 0;
+        font-size: 0.8em;
+    }
+}
+
+@media (max-width: 480px) {
+    .bhk-group {
+        margin-bottom: 10px;
+    }
+    
+    .radio-tile {
+        padding: 10px;
+        border-radius: 10px;
+    }
+    
+    .tile-body {
+        gap: 3px;
+    }
+    
+    .tile-body .title {
+        font-size: 0.9em;
+    }
+    
+    .tile-body .hint {
+        font-size: 0.75em;
+    }
+    
+    .size-stack {
+        padding: 8px;
+        border-radius: 8px;
+    }
+    
+    .size-title {
+        font-size: 0.8em;
+        margin-bottom: 8px;
+    }
+    
+    .size-options {
+        gap: 6px;
+    }
+    
+    .rooms-grid {
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        gap: 8px;
+    }
+    
+    .room-tile {
+        padding: 8px;
+        border-radius: 8px;
+        border-width: 1.5px;
+    }
+    
+    .room-name {
+        font-size: 0.8em;
+    }
+    
+    .room-count {
+        margin-top: 4px;
+        gap: 3px;
+    }
+    
+    .room-count button {
+        width: 26px;
+        height: 26px;
+        font-size: 12px;
+    }
+    
+    .room-count span {
+        font-size: 0.85em;
+    }
+    
+    .counter-row {
+        padding: 8px;
+        margin-bottom: 6px;
+    }
+    
+    .counter-label {
+        font-size: 0.8em;
+    }
+    
+    .counter-controls {
+        gap: 8px;
+    }
+    
+    .counter-controls button {
+        width: 28px;
+        height: 28px;
+        font-size: 12px;
+    }
+    
+    .counter-value {
+        font-size: 0.9em;
+    }
+    
+    .package-grid {
+        gap: 8px;
+    }
+    
+    .package-img {
+        height: 100px;
+    }
+    
+    .package-pill {
+        font-size: 0.85em;
+    }
+    
+    .package-points {
+        display: none;
+    }
+}
+
+/* Slide down animation for size options */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

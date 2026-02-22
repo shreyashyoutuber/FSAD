@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kitchen Estimator | BharatHome Value</title>
+  <link rel="stylesheet" href="estimator.css">
+  <link rel="stylesheet" href="kitchen-estimator.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="wizard-frame">
+    <header class="wizard-header">
+      <a href="index.html" class="brand">Bharat<span>Home</span> Value</a>
+      <a href="user-dashboard.html" class="dashboard-link" title="Back to Dashboard">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7"/>
+          <rect x="14" y="3" width="7" height="7"/>
+          <rect x="14" y="14" width="7" height="7"/>
+          <rect x="3" y="14" width="7" height="7"/>
+        </svg>
+        Dashboard
+      </a>
+      <div class="progress-wrap">
+        <ol class="progress-track" aria-label="Estimator steps">
+          <li class="progress-step active" data-step="0"><span class="dot"></span><span class="label">Kitchen Layout</span></li>
+          <li class="progress-step" data-step="1"><span class="dot"></span><span class="label">Measurements</span></li>
+          <li class="progress-step" data-step="2"><span class="dot"></span><span class="label">Package</span></li>
+          <li class="progress-step" data-step="3"><span class="dot"></span><span class="label">Get Quote</span></li>
+        </ol>
+        <div class="progress-meter"><span class="bar"></span></div>
+        <div class="step-count">Step <span id="stepIndex">1</span>/4</div>
+      </div>
+    </header>
+
+    <main class="wizard-body">
+      <!-- Step 1: Layout -->
+      <section class="step-card active" data-step="0" aria-label="Select kitchen layout">
+        <div class="card-head">
+          <h1>Select the layout of your kitchen</h1>
+          <p>Want to know more. <a class="inline-link" href="#" onclick="alert('More info coming soon!')">Check here</a></p>
+        </div>
+        <div class="layout-grid">
+          <label class="layout-card">
+            <input type="radio" name="layout" value="L-shaped">
+            <div class="layout-img l">
+              <span class="seg seg-a h"></span>
+              <span class="seg seg-b v"></span>
+            </div>
+            <div class="layout-name">L-shaped</div>
+          </label>
+          <label class="layout-card">
+            <input type="radio" name="layout" value="Straight">
+            <div class="layout-img s">
+              <span class="seg seg-a h"></span>
+            </div>
+            <div class="layout-name">Straight</div>
+          </label>
+          <label class="layout-card">
+            <input type="radio" name="layout" value="U-shaped">
+            <div class="layout-img u">
+              <span class="seg seg-a h"></span>
+              <span class="seg seg-b v"></span>
+              <span class="seg seg-c v"></span>
+            </div>
+            <div class="layout-name">U-shaped</div>
+          </label>
+          <label class="layout-card">
+            <input type="radio" name="layout" value="Parallel">
+            <div class="layout-img p">
+              <span class="seg seg-a h"></span>
+              <span class="seg seg-b h"></span>
+            </div>
+            <div class="layout-name">Parallel</div>
+          </label>
+        </div>
+      </section>
+
+      <!-- Step 2: Measurements -->
+      <section class="step-card" data-step="1" aria-label="Enter measurements">
+        <div class="card-head">
+          <h1>Now review the measurements for accuracy</h1>
+        </div>
+        <div class="measure-card">
+          <div class="measure-guide">
+            <div class="measure-preview" aria-label="Layout measurement preview"></div>
+            <p class="measure-guide-title">Segments for selected layout</p>
+            <div class="measure-pill-list"></div>
+          </div>
+          <div class="measure-note">Standard size has been set for your convenience</div>
+          <div class="measure-inputs" id="measureInputs"></div>
+        </div>
+      </section>
+
+      <!-- Step 3: Package -->
+      <section class="step-card" data-step="2" aria-label="Pick package">
+        <div class="card-head">
+          <h1>Pick your package</h1>
+        </div>
+        <div class="package-grid">
+          <label class="package-card selected">
+            <input type="radio" name="package" value="Essentials" checked>
+            <div class="package-pill">Essentials (₹₹)</div>
+            <div class="package-img kitchen-pkg essentials" aria-hidden="true"></div>
+            <ul class="package-points"><li>Affordable pricing</li><li>Convenient designs</li><li>Basic accessories</li></ul>
+          </label>
+          <label class="package-card">
+            <input type="radio" name="package" value="Premium">
+            <div class="package-pill">Premium (₹₹₹)</div>
+            <div class="package-img kitchen-pkg premium" aria-hidden="true"></div>
+            <ul class="package-points"><li>Mid-range pricing</li><li>Premium designs</li><li>Wide range of accessories</li></ul>
+          </label>
+          <label class="package-card">
+            <input type="radio" name="package" value="Luxe">
+            <div class="package-pill">Luxe (₹₹₹₹)</div>
+            <div class="package-img kitchen-pkg luxe" aria-hidden="true"></div>
+            <ul class="package-points"><li>Elite pricing</li><li>Lavish designs</li><li>Exclusive accessories</li></ul>
+          </label>
+        </div>
+      </section>
+
+      <!-- Step 4: Quote -->
+      <section class="step-card" data-step="3" aria-label="Get quote">
+        <div class="card-head">
+          <h1>Almost there! Review and get your quote</h1>
+          <p>We’ll prepare an approximate costing based on your selection.</p>
+        </div>
+        <div class="summary-card">
+          <div class="summary-row"><span>Layout</span><strong id="summaryLayout">—</strong></div>
+          <div class="summary-row"><span>Measurements</span><strong id="summaryMeasures">A: 8 ft, B: 8 ft</strong></div>
+          <div class="summary-row"><span>Package</span><strong id="summaryPackage">Essentials</strong></div>
+          <div class="summary-cta">
+            <p>Share your contact details and we’ll send the estimate plus a design consult slot.</p>
+            <div class="inline-inputs">
+              <input type="text" placeholder="Full name" id="quoteName" required>
+              <input type="tel" placeholder="Mobile number" id="quotePhone" required>
+              <input type="email" placeholder="Email" id="quoteEmail" required>
+            </div>
+            <button class="btn-primary" id="btnQuote">Get My Quote</button>
+            <p class="tiny">By continuing, you agree to be contacted via call/WhatsApp.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="wizard-footer">
+      <button class="ghost" id="btnBack">Back</button>
+      <button class="solid" id="btnNext">Next</button>
+    </footer>
+  </div>
+
+  <script>
+    const steps = Array.from(document.querySelectorAll('.step-card'));
+    const progressSteps = Array.from(document.querySelectorAll('.progress-step'));
+    const bar = document.querySelector('.progress-meter .bar');
+    const stepIndexEl = document.getElementById('stepIndex');
+    const btnNext = document.getElementById('btnNext');
+    const btnBack = document.getElementById('btnBack');
+    let current = 0;
+
+    function setStep(index){
+      current = Math.min(Math.max(index,0), steps.length-1);
+      steps.forEach((s,i)=>s.classList.toggle('active', i===current));
+      progressSteps.forEach((p,i)=>p.classList.toggle('active', i<=current));
+      const percent = (current)/(steps.length-1)*100; bar.style.width = `${percent}%`;
+      stepIndexEl.textContent = current+1;
+      btnBack.disabled = current===0;
+      btnNext.textContent = current===steps.length-1 ? 'Finish' : 'Next';
+      renderSummary();
+    }
+
+    btnNext.addEventListener('click', ()=>{
+      if(current===steps.length-1){ document.getElementById('btnQuote').click(); return; }
+      setStep(current+1);
+    });
+    btnBack.addEventListener('click', ()=>{
+      if(current===0){
+        window.location.href = 'user-dashboard.html';
+      } else {
+        setStep(current-1);
+      }
+    });
+
+    // Layout selection
+    document.querySelectorAll('.layout-card input').forEach(inp=>{
+      inp.addEventListener('change', ()=> { buildMeasurementsForLayout(); renderMeasurementPreview(); renderSummary(); });
+    });
+
+    // Package selection
+    document.querySelectorAll('.package-card').forEach(card=>{
+      card.addEventListener('click', ()=>{
+        document.querySelectorAll('.package-card').forEach(c=>c.classList.remove('selected'));
+        card.classList.add('selected');
+        card.querySelector('input').checked = true;
+        renderSummary();
+      });
+    });
+
+    function renderSummary(){
+      const layout = document.querySelector('input[name="layout"]:checked')?.value || '—';
+      const pkg = document.querySelector('input[name="package"]:checked')?.value || 'Essentials';
+      const selects = Array.from(document.querySelectorAll('#measureInputs select'));
+      const measureText = selects.map(sel=>`${sel.dataset.label}: ${sel.value} ft`).join(', ');
+      document.getElementById('summaryLayout').textContent = layout;
+      document.getElementById('summaryMeasures').textContent = measureText || '—';
+      document.getElementById('summaryPackage').textContent = pkg;
+    }
+
+    function buildMeasurementsForLayout(){
+      const layout = document.querySelector('input[name="layout"]:checked')?.value || 'Straight';
+      const map = { 'Straight': ['A'], 'L-shaped': ['A','B'], 'U-shaped': ['A','B','C'], 'Parallel': ['A','B'] };
+      const labels = map[layout] || ['A'];
+      const pillList = document.querySelector('.measure-pill-list');
+      const inputs = document.getElementById('measureInputs');
+      pillList.innerHTML = '';
+      inputs.innerHTML = '';
+      labels.forEach(lbl=>{
+        const pill = document.createElement('div');
+        pill.className = 'measure-pill';
+        pill.textContent = lbl;
+        pillList.appendChild(pill);
+
+        const row = document.createElement('label');
+        row.className = 'measure-row';
+        row.innerHTML = `${lbl} `;
+        const sel = document.createElement('select');
+        sel.id = `measure${lbl}`;
+        sel.dataset.label = lbl;
+        [6,8,10,12].forEach(v=>{
+          const opt = document.createElement('option'); opt.value = v; opt.textContent = v; if(v===8) opt.selected = true; sel.appendChild(opt);
+        });
+        sel.addEventListener('change', renderSummary);
+        row.appendChild(sel);
+        const ft = document.createTextNode(' ft.');
+        row.appendChild(ft);
+        inputs.appendChild(row);
+      });
+    }
+
+    function renderMeasurementPreview(){
+      const layout = document.querySelector('input[name="layout"]:checked')?.value || 'Straight';
+      const preview = document.querySelector('.measure-preview');
+      if(!preview) return;
+      preview.innerHTML = '';
+      const segs = [];
+      if(layout === 'Straight'){
+        segs.push({ label:'A', style:{ width:'70%', height:'22px', top:'50%', left:'15%', transform:'translateY(-50%)' } });
+      } else if(layout === 'L-shaped'){
+        segs.push({ label:'A', style:{ width:'70%', height:'22px', bottom:'20px', left:'15%' } });
+        segs.push({ label:'B', style:{ width:'22px', height:'70%', top:'20px', left:'15%' } });
+      } else if(layout === 'U-shaped'){
+        segs.push({ label:'B', style:{ width:'22px', height:'62%', top:'22px', left:'18%' } });
+        segs.push({ label:'C', style:{ width:'22px', height:'62%', top:'22px', right:'18%' } });
+        segs.push({ label:'A', style:{ width:'70%', height:'22px', bottom:'20px', left:'15%' } });
+      } else if(layout === 'Parallel'){
+        segs.push({ label:'A', style:{ width:'70%', height:'22px', top:'26px', left:'15%' } });
+        segs.push({ label:'B', style:{ width:'70%', height:'22px', bottom:'20px', left:'15%' } });
+      }
+      segs.forEach(seg=>{
+        const el = document.createElement('div');
+        el.className = 'mp-seg';
+        el.textContent = seg.label;
+        Object.assign(el.style, seg.style);
+        preview.appendChild(el);
+      });
+    }
+
+    document.getElementById('btnQuote').addEventListener('click', ()=>{
+      const name = document.getElementById('quoteName').value.trim();
+      const phone = document.getElementById('quotePhone').value.trim();
+      const email = document.getElementById('quoteEmail').value.trim();
+      if(!name||!phone||!email){ alert('Please share your contact details to receive the quote.'); return; }
+      
+      // Save estimate to My Estimates and Admin Dashboard
+      saveEstimateToMyEstimates(name, phone, email);
+      saveToAdminDashboard(name, phone, email);
+      
+      const params = new URLSearchParams({ name, phone, email, type: 'kitchen' });
+      window.location.href = `thankyou.html?${params.toString()}`;
+    });
+
+    // Save estimate to localStorage for My Estimates page
+    function saveEstimateToMyEstimates(name, phone, email) {
+      const layout = document.querySelector('input[name="layout"]:checked')?.value || '';
+      const packageType = document.querySelector('input[name="package"]:checked')?.value || 'Essentials';
+      
+      // Get measurements
+      const measurements = {};
+      document.querySelectorAll('[id^="measure"]').forEach(select => {
+        const label = select.dataset.label;
+        measurements[label] = select.value + ' ft';
+      });
+      
+      // Calculate cost based on layout and package
+      const layoutPrices = {
+        'Straight': { 'Essentials': 150000, 'Premium': 250000, 'Luxe': 350000 },
+        'L-shaped': { 'Essentials': 200000, 'Premium': 320000, 'Luxe': 450000 },
+        'U-shaped': { 'Essentials': 280000, 'Premium': 420000, 'Luxe': 580000 },
+        'Parallel': { 'Essentials': 220000, 'Premium': 350000, 'Luxe': 480000 }
+      };
+      
+      const totalCost = layoutPrices[layout]?.[packageType] || 150000;
+      
+      const estimateData = {
+        type: 'kitchen',
+        typeName: 'Kitchen',
+        totalCost: totalCost,
+        details: {
+          'Layout Type': layout,
+          'Package Type': packageType,
+          ...measurements
+        }
+      };
+      
+      // Get existing estimates
+      const stored = localStorage.getItem('bharatHomeEstimates');
+      const estimates = stored ? JSON.parse(stored) : [];
+      
+      // Add new estimate
+      const newEstimate = {
+        id: Date.now(),
+        type: estimateData.type,
+        typeName: estimateData.typeName,
+        date: new Date().toISOString().split('T')[0],
+        totalCost: estimateData.totalCost,
+        details: estimateData.details
+      };
+      
+      estimates.push(newEstimate);
+      localStorage.setItem('bharatHomeEstimates', JSON.stringify(estimates));
+    }
+    
+    // Save to Admin Dashboard
+    function saveToAdminDashboard(name, phone, email) {
+      const layout = document.querySelector('input[name="layout"]:checked')?.value || '';
+      const packageType = document.querySelector('input[name="package"]:checked')?.value || 'Essentials';
+      
+      // Get measurements
+      const measurements = [];
+      document.querySelectorAll('[id^="measure"]').forEach(select => {
+        const label = select.dataset.label;
+        measurements.push(`${label}: ${select.value} ft`);
+      });
+      const measurementText = measurements.join(', ');
+      
+      // Calculate cost
+      const layoutPrices = {
+        'Straight': { 'Essentials': 150000, 'Premium': 250000, 'Luxe': 350000 },
+        'L-shaped': { 'Essentials': 200000, 'Premium': 320000, 'Luxe': 450000 },
+        'U-shaped': { 'Essentials': 280000, 'Premium': 420000, 'Luxe': 580000 },
+        'Parallel': { 'Essentials': 220000, 'Premium': 350000, 'Luxe': 480000 }
+      };
+      
+      const totalCost = layoutPrices[layout]?.[packageType] || 150000;
+      
+      // Get existing admin requests
+      const stored = localStorage.getItem('allAdminRequests');
+      const requests = stored ? JSON.parse(stored) : [];
+      
+      // Generate request ID
+      const requestId = 'EST-' + String(requests.length + 1).padStart(3, '0');
+      
+      // Create new admin request
+      const newRequest = {
+        id: requestId,
+        customerName: name,
+        customerEmail: email,
+        customerPhone: phone,
+        type: 'Kitchen Estimator',
+        status: 'pending',
+        dateSubmitted: new Date().toISOString().split('T')[0],
+        layout: layout,
+        measurements: measurementText,
+        package: packageType,
+        estimatedCost: totalCost,
+        description: `${layout} kitchen with ${packageType} package - ${measurementText}`,
+        budget: `₹${(totalCost * 0.8).toLocaleString('en-IN')} - ₹${(totalCost * 1.2).toLocaleString('en-IN')}`,
+        responded: false
+      };
+      
+      requests.push(newRequest);
+      localStorage.setItem('allAdminRequests', JSON.stringify(requests));
+    }
+
+    // Init
+    document.querySelector('input[name="layout"]').checked = true; // default first
+    buildMeasurementsForLayout();
+    renderMeasurementPreview();
+    renderSummary();
+  </script>
+</body>
+</html>

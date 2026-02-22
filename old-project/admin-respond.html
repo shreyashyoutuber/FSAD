@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Respond to Request - Admin Panel</title>
+    <link rel="stylesheet" href="admin-respond.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="admin-header">
+        <div class="admin-header-content">
+            <a href="admin-dashboard.html" class="admin-logo">Bharat<span>Home</span> Value</a>
+            <div class="header-title" id="headerTitle">Respond to Request</div>
+            <button class="btn-back" onclick="window.history.back()">← Back</button>
+        </div>
+    </header>
+
+    <main class="admin-main">
+        <div class="admin-container">
+            <div class="response-section">
+                <h2>Estimator Request Details</h2>
+                <div class="request-info" id="requestInfo"></div>
+            </div>
+
+            <form id="responseForm" class="admin-response-form">
+                <div class="form-section">
+                    <h3>Admin Response</h3>
+                    
+                    <div class="form-group">
+                        <label for="quoteAmount">Quote Amount (₹)</label>
+                        <input type="number" id="quoteAmount" placeholder="Enter the quote amount" required>
+                        <small>The amount customer will see</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="detailedDescription">Detailed Description</label>
+                        <textarea id="detailedDescription" placeholder="Provide detailed description of what you'll do, materials, timeline, etc." rows="6" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="timeline">Estimated Timeline</label>
+                        <input type="text" id="timeline" placeholder="e.g., 30-45 days" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="warranty">Warranty/Guarantee</label>
+                        <input type="text" id="warranty" placeholder="e.g., 1 year warranty on labor" required>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>Upload Images</h3>
+                    <p class="section-desc">Upload reference images for this estimate (up to 5 images)</p>
+                    
+                    <div class="image-upload-area" id="uploadArea">
+                        <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="17 8 12 3 7 8"/>
+                            <line x1="12" y1="3" x2="12" y2="15"/>
+                        </svg>
+                        <p>Drag and drop images here or click to browse</p>
+                        <input type="file" id="imageInput" multiple accept="image/*" style="display: none;">
+                    </div>
+
+                    <div id="imagePreview" class="image-preview"></div>
+                    <div id="imageCount" class="image-count"></div>
+                </div>
+
+                <div class="form-section">
+                    <h3>Additional Notes</h3>
+                    <div class="form-group">
+                        <label for="adminNotes">Internal Admin Notes (Not shown to customer)</label>
+                        <textarea id="adminNotes" placeholder="Add any internal notes about this request..." rows="4"></textarea>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-submit" id="submitBtn">Send Response to Customer</button>
+                    <button type="button" class="btn-draft" onclick="saveDraft()">Save as Draft</button>
+                    <a href="admin-dashboard.html" class="btn-cancel">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        // Check if admin is logged in
+        window.addEventListener('DOMContentLoaded', function() {
+            const isAdminLoggedIn = localStorage.getItem('adminLoggedIn');
+            if (!isAdminLoggedIn) {
+                window.location.href = 'admin-login.html';
+            }
+            
+            loadRequestDetails();
+            setupImageUpload();
+            checkEditMode();
+        });
+
+        // Check if in edit mode
+        function checkEditMode() {
+            const requestId = localStorage.getItem('currentRequestId');
+            const responses = JSON.parse(localStorage.getItem('adminResponses') || '{}');
+            const existingResponse = responses[requestId];
+            
+            if (existingResponse) {
+                loadExistingResponse(existingResponse);
+                document.getElementById('submitBtn').textContent = 'Update Response';
+                
+                // Update header title
+                document.getElementById('headerTitle').textContent = 'Edit Response - ' + currentRequest.id;
+                document.getElementById('headerTitle').style.color = '#2196F3';
+                
+                // Add edit indicator
+                const editBadge = document.createElement('span');
+                editBadge.style.cssText = `
+                    background: #2196F3;
+                    color: white;
+                    padding: 4px 12px;
+                    border-radius: 20px;
+                    font-size: 11px;
+                    font-weight: 600;
+                    margin-left: 10px;
+                    display: inline-block;
+                `;
+                editBadge.textContent = 'EDITING';
+                document.getElementById('headerTitle').appendChild(editBadge);
+            }
+        }
+
+        function loadExistingResponse(response) {
+            document.getElementById('quoteAmount').value = response.quote;
+            document.getElementById('detailedDescription').value = response.description;
+            document.getElementById('timeline').value = response.timeline;
+            document.getElementById('warranty').value = response.warranty;
+            document.getElementById('adminNotes').value = response.notes || '';
+            uploadedImages = response.images || [];
+            displayImagePreview();
+        }
+
+        let currentRequest = null;
+        let uploadedImages = [];
+
+        function loadRequestDetails() {
+            const requestId = localStorage.getItem('currentRequestId');
+            
+            // Load requests from localStorage
+            const storedRequests = localStorage.getItem('allAdminRequests');
+            const allRequests = storedRequests ? JSON.parse(storedRequests) : [];
+            
+            currentRequest = allRequests.find(r => r.id === requestId);
+            
+            if (!currentRequest) {
+                alert('Request not found');
+                window.location.href = 'admin-dashboard.html';
+                return;
+            }
+
+            let detailsHTML = `
+                <div class="detail-item">
+                    <span class="detail-label">Request ID:</span>
+                    <span class="detail-value">${currentRequest.id}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Customer Name:</span>
+                    <span class="detail-value">${currentRequest.customerName}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Email:</span>
+                    <span class="detail-value">${currentRequest.customerEmail}</span>
+                </div>
+                ${currentRequest.customerPhone ? `
+                <div class="detail-item">
+                    <span class="detail-label">Phone:</span>
+                    <span class="detail-value">${currentRequest.customerPhone}</span>
+                </div>
+                ` : ''}
+                <div class="detail-item">
+                    <span class="detail-label">Type:</span>
+                    <span class="detail-value">${currentRequest.type}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Date Submitted:</span>
+                    <span class="detail-value">${currentRequest.dateSubmitted}</span>
+                </div>
+            `;
+            
+            // Add type-specific details
+            if (currentRequest.type === 'Full Home Estimator') {
+                detailsHTML += `
+                    ${currentRequest.bhk ? `
+                    <div class="detail-item">
+                        <span class="detail-label">BHK Type:</span>
+                        <span class="detail-value">${currentRequest.bhk} (${currentRequest.bhkSize || 'N/A'})</span>
+                    </div>
+                    ` : ''}
+                    ${currentRequest.rooms ? `
+                    <div class="detail-item">
+                        <span class="detail-label">Rooms to Design:</span>
+                        <span class="detail-value">${currentRequest.rooms}</span>
+                    </div>
+                    ` : ''}
+                `;
+            } else if (currentRequest.type === 'Kitchen Estimator') {
+                detailsHTML += `
+                    ${currentRequest.layout ? `
+                    <div class="detail-item">
+                        <span class="detail-label">Layout:</span>
+                        <span class="detail-value">${currentRequest.layout}</span>
+                    </div>
+                    ` : ''}
+                    ${currentRequest.measurements ? `
+                    <div class="detail-item">
+                        <span class="detail-label">Measurements:</span>
+                        <span class="detail-value">${currentRequest.measurements}</span>
+                    </div>
+                    ` : ''}
+                `;
+            } else if (currentRequest.type === 'Wardrobe Estimator') {
+                detailsHTML += `
+                    ${currentRequest.wardrobeType ? `
+                    <div class="detail-item">
+                        <span class="detail-label">Wardrobe Type:</span>
+                        <span class="detail-value">${currentRequest.wardrobeType}</span>
+                    </div>
+                    ` : ''}
+                `;
+            }
+            
+            // Add common details
+            detailsHTML += `
+                ${currentRequest.package ? `
+                <div class="detail-item">
+                    <span class="detail-label">Package:</span>
+                    <span class="detail-value">${currentRequest.package}</span>
+                </div>
+                ` : ''}
+                ${currentRequest.estimatedCost ? `
+                <div class="detail-item">
+                    <span class="detail-label">Estimated Cost:</span>
+                    <span class="detail-value">₹${currentRequest.estimatedCost.toLocaleString('en-IN')}</span>
+                </div>
+                ` : ''}
+                <div class="detail-item">
+                    <span class="detail-label">Description:</span>
+                    <span class="detail-value">${currentRequest.description}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Budget Range:</span>
+                    <span class="detail-value">${currentRequest.budget}</span>
+                </div>
+            `;
+
+            document.getElementById('requestInfo').innerHTML = detailsHTML;
+        }
+
+        function setupImageUpload() {
+            const uploadArea = document.getElementById('uploadArea');
+            const imageInput = document.getElementById('imageInput');
+
+            uploadArea.addEventListener('click', () => imageInput.click());
+
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.style.background = '#f0f8ff';
+                uploadArea.style.borderColor = '#2196F3';
+            });
+
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.style.background = '';
+                uploadArea.style.borderColor = '';
+            });
+
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.style.background = '';
+                uploadArea.style.borderColor = '';
+                handleFiles(e.dataTransfer.files);
+            });
+
+            imageInput.addEventListener('change', (e) => {
+                handleFiles(e.target.files);
+            });
+        }
+
+        function handleFiles(files) {
+            const maxImages = 5;
+            const remainingSlots = maxImages - uploadedImages.length;
+
+            if (files.length > remainingSlots) {
+                alert(`You can only upload ${maxImages} images total. You have ${remainingSlots} slots remaining.`);
+                return;
+            }
+
+            Array.from(files).forEach(file => {
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        uploadedImages.push({
+                            name: file.name,
+                            data: e.target.result
+                        });
+                        displayImagePreview();
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    alert('Only image files are allowed');
+                }
+            });
+        }
+
+        function displayImagePreview() {
+            const preview = document.getElementById('imagePreview');
+            const count = document.getElementById('imageCount');
+
+            preview.innerHTML = uploadedImages.map((img, index) => `
+                <div class="image-preview-item">
+                    <img src="${img.data}" alt="Preview ${index + 1}">
+                    <button type="button" class="btn-remove" onclick="removeImage(${index})">Remove</button>
+                    <p class="image-name">${img.name}</p>
+                </div>
+            `).join('');
+
+            count.innerHTML = `<span class="count-text">${uploadedImages.length} of 5 images uploaded</span>`;
+        }
+
+        function removeImage(index) {
+            uploadedImages.splice(index, 1);
+            displayImagePreview();
+        }
+
+        document.getElementById('responseForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // Validate form
+            if (!document.getElementById('quoteAmount').value) {
+                alert('Please enter a quote amount');
+                return;
+            }
+
+            if (!document.getElementById('detailedDescription').value) {
+                alert('Please enter a detailed description');
+                return;
+            }
+
+            // Prepare response data
+            const responseData = {
+                requestId: currentRequest.id,
+                quote: document.getElementById('quoteAmount').value,
+                description: document.getElementById('detailedDescription').value,
+                timeline: document.getElementById('timeline').value,
+                warranty: document.getElementById('warranty').value,
+                notes: document.getElementById('adminNotes').value,
+                images: uploadedImages,
+                responseDate: new Date().toISOString().split('T')[0]
+            };
+
+            // Save response to localStorage (In real app, send to backend)
+            const responses = JSON.parse(localStorage.getItem('adminResponses') || '{}');
+            const isEditing = responses[currentRequest.id] ? true : false;
+            responses[currentRequest.id] = responseData;
+            localStorage.setItem('adminResponses', JSON.stringify(responses));
+
+            // Update the request status to "responded"
+            const storedRequests = localStorage.getItem('allAdminRequests');
+            let allRequests = storedRequests ? JSON.parse(storedRequests) : [];
+            allRequests = allRequests.map(req => {
+                if (req.id === currentRequest.id) {
+                    return { ...req, responded: true };
+                }
+                return req;
+            });
+            localStorage.setItem('allAdminRequests', JSON.stringify(allRequests));
+
+            // Show success message
+            const message = isEditing ? 'Response updated successfully!' : 'Response sent successfully! Customer will be notified.';
+            alert(message);
+            
+            // Redirect back to dashboard
+            window.location.href = 'admin-dashboard.html';
+        });
+
+        function saveDraft() {
+            const draftData = {
+                requestId: currentRequest.id,
+                quote: document.getElementById('quoteAmount').value,
+                description: document.getElementById('detailedDescription').value,
+                timeline: document.getElementById('timeline').value,
+                warranty: document.getElementById('warranty').value,
+                notes: document.getElementById('adminNotes').value,
+                images: uploadedImages
+            };
+
+            const drafts = JSON.parse(localStorage.getItem('adminDrafts') || '{}');
+            drafts[currentRequest.id] = draftData;
+            localStorage.setItem('adminDrafts', JSON.stringify(drafts));
+
+            alert('Draft saved successfully!');
+        }
+    </script>
+</body>
+</html>
