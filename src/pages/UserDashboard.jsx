@@ -221,9 +221,6 @@ export default function UserDashboard() {
 
     const estimates = JSON.parse(localStorage.getItem('userEstimates') || '[]')
 
-    if (!userData) return <div style={{ padding: '40px', textAlign: 'center' }}>Loading...</div>
-
-    // Count unread admin messages across all chats
     const getUnreadCount = () => {
         const allReqs = JSON.parse(localStorage.getItem('allAdminRequests') || '[]')
         const readCounts = JSON.parse(localStorage.getItem('chatReadCounts') || '{}')
@@ -236,7 +233,9 @@ export default function UserDashboard() {
         })
         return total
     }
-    const unreadChatsValue = unreadChats // legacy unreadChats was a const, now it's state
+
+    if (!userData) return <div style={{ padding: '40px', textAlign: 'center' }}>Loading...</div>
+
 
     const navLinks = [
         { icon: '📊', label: 'Dashboard', key: 'dashboard' },
