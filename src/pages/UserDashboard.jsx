@@ -12,6 +12,22 @@ const RECS = [
     { title: 'Flooring Replacement', desc: 'Vitrified tiles or hardwood flooring for living areas', cost: '₹200K', value: '₹350K', roi: '75%', impact: '+7%', priority: 'medium', link: '/full-home-estimator' },
 ]
 
+// ---- ANIMATIONS & UTILS ----
+const animations = `
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes slideInRight { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+.animate-fadeIn { animation: fadeIn 0.5s ease forwards; }
+.animate-slideUp { animation: slideUp 0.5s ease forwards; }
+.animate-scaleIn { animation: scaleIn 0.4s ease forwards; }
+.stagger-1 { animation-delay: 0.1s; }
+.stagger-2 { animation-delay: 0.2s; }
+.stagger-3 { animation-delay: 0.3s; }
+.stagger-4 { animation-delay: 0.4s; }
+.stagger-5 { animation-delay: 0.5s; }
+`
+
 const SidebarLink = ({ icon, label, active, onClick, badge }) => (
     <div className={`sidebar-link ${active ? 'active' : ''}`} onClick={onClick}>
         <span style={{ fontSize: '20px' }}>{icon}</span>
@@ -232,6 +248,15 @@ export default function UserDashboard() {
     const [showExitConfirm, setShowExitConfirm] = useState(false)
 
     useEffect(() => {
+        const style = document.createElement('style')
+        style.innerText = animations
+        document.head.appendChild(style)
+        return () => {
+            if (document.head.contains(style)) document.head.removeChild(style)
+        }
+    }, [])
+
+    useEffect(() => {
         const user = sessionStorage.getItem('bhvUser')
         if (!user) { navigate('/login'); return }
         const data = JSON.parse(localStorage.getItem('userData') || '{}')
@@ -395,14 +420,14 @@ export default function UserDashboard() {
                 <main className="dashboard-main">
                     {/* ---- DASHBOARD VIEW ---- */}
                     {view === 'dashboard' && (
-                        <>
+                        <div className="animate-fadeIn">
                             <div style={{ marginBottom: '24px' }}>
                                 <h2 style={{ fontSize: '26px', fontWeight: 800 }}>Welcome back, {userData.name}! 👋</h2>
                                 <p style={{ color: 'var(--muted)' }}>Here's an overview of your property improvement journey</p>
                             </div>
 
                             {/* Property Card */}
-                            <div className="card" style={{ background: 'linear-gradient(135deg, #1a1a2e, #16213e)', color: 'white' }}>
+                            <div className="card animate-slideUp stagger-1" style={{ background: 'linear-gradient(135deg, #1a1a2e, #16213e)', color: 'white' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
                                     <div>
                                         <h3 style={{ fontSize: '14px', opacity: 0.7, marginBottom: '4px' }}>YOUR PROPERTY</h3>
@@ -431,7 +456,7 @@ export default function UserDashboard() {
                                     { label: 'Total Investment', value: '₹7,10,000', sub: 'Estimated renovation cost', color: '#f59e0b', icon: '₹' },
                                     { label: 'Active Recommendations', value: '4', sub: 'Personalized for you', color: '#10b981', icon: '💡' },
                                 ].map((m, i) => (
-                                    <div key={i} className="card" style={{ margin: 0 }}>
+                                    <div key={i} className={`card animate-slideUp stagger-${i + 2}`} style={{ margin: 0 }}>
                                         <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '12px' }}>
                                             <div style={{ width: '40px', height: '40px', background: `${m.color}20`, borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px' }}>{m.icon}</div>
                                             <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--muted)' }}>{m.label}</span>
@@ -444,7 +469,7 @@ export default function UserDashboard() {
 
                             {/* Chart + Quick Actions */}
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: '24px', marginBottom: '24px' }}>
-                                <div className="card" style={{ margin: 0 }}>
+                                <div className="card animate-slideUp stagger-5" style={{ margin: 0 }}>
                                     <h3 className="card-title">Projected Value Growth</h3>
                                     <Line data={chartData} options={chartOptions} />
                                 </div>
@@ -496,12 +521,12 @@ export default function UserDashboard() {
                                     ))}
                                 </div>
                             </div>
-                        </>
+                        </div>
                     )}
 
                     {/* ---- ESTIMATOR VIEW ---- */}
                     {view === 'estimator' && (
-                        <div>
+                        <div className="animate-fadeIn">
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
                                 <div><h2 style={{ fontSize: '24px', fontWeight: 800 }}>My Estimates</h2><p style={{ color: 'var(--muted)' }}>View and manage your interior cost estimates</p></div>
                                 <button onClick={() => setView('new-estimator')} className="btn-submit" style={{ width: 'auto', padding: '12px 24px' }}>+ New Estimate</button>
@@ -516,7 +541,7 @@ export default function UserDashboard() {
                             ) : (
                                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px,1fr))', gap: '20px' }}>
                                     {estimates.map((est, i) => (
-                                        <div key={i} className="card" style={{ margin: 0 }}>
+                                        <div key={i} className={`card animate-slideUp stagger-${(i % 5) + 1}`} style={{ margin: 0 }}>
                                             <h4 style={{ fontWeight: 700 }}>{est.type}</h4>
                                             <p style={{ color: 'var(--muted)', fontSize: '13px' }}>{est.date}</p>
                                             <p style={{ fontSize: '24px', fontWeight: 800, color: 'var(--primary)', margin: '12px 0' }}>₹{est.cost?.toLocaleString('en-IN')}</p>
@@ -530,7 +555,7 @@ export default function UserDashboard() {
 
                     {/* ---- NEW ESTIMATOR ---- */}
                     {view === 'new-estimator' && (
-                        <div>
+                        <div className="animate-fadeIn">
                             <h2 style={{ fontSize: '28px', fontWeight: 800, marginBottom: '8px' }}>Interior Price Estimator</h2>
                             <p style={{ color: 'var(--muted)', marginBottom: '32px' }}>Get instant, accurate cost estimates for your dream interior.</p>
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px,1fr))', gap: '24px' }}>
@@ -539,7 +564,7 @@ export default function UserDashboard() {
                                     { icon: '🍳', title: 'Kitchen', badge: 'Kitchen Special', sub: 'Transform your cooking space', features: ['Modular Options', 'Appliance Cost', 'Quick Setup'], link: '/kitchen-estimator' },
                                     { icon: '🚪', title: 'Wardrobe', badge: 'Customizable', sub: 'Custom wardrobe solutions', features: ['Custom Sizes', 'Material Choice', 'Smart Storage'], link: '/wardrobe-estimator' },
                                 ].map((c, i) => (
-                                    <div key={i} className="card" style={{ margin: 0, textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
+                                    <div key={i} className={`card animate-slideUp stagger-${(i % 5) + 1}`} style={{ margin: 0, textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
                                         <span style={{ position: 'absolute', top: '16px', right: '16px', background: i === 0 ? 'var(--primary)' : i === 1 ? '#3b82f6' : '#8b5cf6', color: 'white', padding: '4px 12px', borderRadius: '20px', fontSize: '11px', fontWeight: 700 }}>{c.badge}</span>
                                         <div style={{ fontSize: '48px', marginBottom: '16px' }}>{c.icon}</div>
                                         <h3 style={{ fontSize: '22px', fontWeight: 800, marginBottom: '8px' }}>{c.title}</h3>
@@ -562,7 +587,7 @@ export default function UserDashboard() {
                         // Get only this user's requests that have been responded to
                         const myResponded = allReqs.filter(r => r.customerEmail === userEmail && r.responded)
                         return (
-                            <div>
+                            <div className="animate-fadeIn">
                                 <div style={{ marginBottom: '28px' }}>
                                     <h2 style={{ fontSize: '24px', fontWeight: 800 }}>Admin Recommendations</h2>
                                     <p style={{ color: 'var(--muted)', marginTop: '6px' }}>Quotes and advice sent by our experts for your requests</p>
@@ -577,11 +602,11 @@ export default function UserDashboard() {
                                     </div>
                                 ) : (
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                                        {myResponded.map(req => {
+                                        {myResponded.map((req, i) => {
                                             const res = allResponses[req.id]
                                             if (!res) return null
                                             return (
-                                                <div key={req.id} className="card" style={{ margin: 0, borderLeft: '4px solid var(--primary)', borderRadius: '16px', padding: '28px' }}>
+                                                <div key={req.id} className={`card animate-slideUp stagger-${(i % 5) + 1}`} style={{ margin: 0, borderLeft: '4px solid var(--primary)', borderRadius: '16px', padding: '28px' }}>
                                                     {/* Header */}
                                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px', marginBottom: '24px' }}>
                                                         <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
@@ -671,7 +696,7 @@ export default function UserDashboard() {
 
                     {/* ---- SAVED IDEAS ---- */}
                     {view === 'saved' && (
-                        <div>
+                        <div className="animate-fadeIn">
                             <h2 style={{ fontSize: '24px', fontWeight: 800, marginBottom: '8px' }}>Your Saved Ideas</h2>
                             <p style={{ color: 'var(--muted)', marginBottom: '24px' }}>{savedIdeas.length} saved ideas</p>
                             {savedIdeas.length === 0 ? (
@@ -683,7 +708,7 @@ export default function UserDashboard() {
                             ) : (
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                                     {savedIdeas.map((idea, i) => (
-                                        <div key={i} className="card" style={{ margin: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+                                        <div key={i} className={`card animate-slideUp stagger-${(i % 5) + 1}`} style={{ margin: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
                                             <div>
                                                 <h4 style={{ fontWeight: 700, fontSize: '17px' }}>{idea.title}</h4>
                                                 <p style={{ color: 'var(--muted)', fontSize: '14px', marginTop: '4px' }}>{idea.desc}</p>
@@ -704,7 +729,7 @@ export default function UserDashboard() {
 
                     {/* ---- SUBMIT PROPERTY ---- */}
                     {view === 'submit' && (
-                        <div style={{ maxWidth: '700px' }}>
+                        <div className="animate-fadeIn" style={{ maxWidth: '700px' }}>
                             <h2 style={{ fontSize: '24px', fontWeight: 800, marginBottom: '8px' }}>Submit New Property</h2>
                             <p style={{ color: 'var(--muted)', marginBottom: '24px' }}>Tell us about your property to get personalized recommendations</p>
                             <div className="card" style={{ margin: 0 }}>
