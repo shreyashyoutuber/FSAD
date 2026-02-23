@@ -18,9 +18,21 @@ const animations = `
 @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes slideInRight { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
 @keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+@keyframes pulseGlow { 
+    0% { box-shadow: 0 0 0 0 rgba(230,126,34,0.4); } 
+    70% { box-shadow: 0 0 0 10px rgba(230,126,34,0); } 
+    100% { box-shadow: 0 0 0 0 rgba(230,126,34,0); } 
+}
+
 .animate-fadeIn { animation: fadeIn 0.5s ease forwards; }
 .animate-slideUp { animation: slideUp 0.5s ease forwards; }
 .animate-scaleIn { animation: scaleIn 0.4s ease forwards; }
+.animate-pulseGlow { animation: pulseGlow 2s infinite; }
+
+.hover-lift { transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
+.hover-lift:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 12px 24px -8px rgba(0,0,0,0.15); }
+.button-press:active { transform: scale(0.96); transition: transform 0.1s; }
+
 .stagger-1 { animation-delay: 0.1s; }
 .stagger-2 { animation-delay: 0.2s; }
 .stagger-3 { animation-delay: 0.3s; }
@@ -29,7 +41,7 @@ const animations = `
 `
 
 const SidebarLink = ({ icon, label, active, onClick, badge }) => (
-    <div className={`sidebar-link ${active ? 'active' : ''}`} onClick={onClick}>
+    <div className={`sidebar-link button-press ${active ? 'active' : ''}`} onClick={onClick} style={{ transition: 'all 0.3s' }}>
         <span style={{ fontSize: '20px' }}>{icon}</span>
         <span>{label}</span>
         {badge > 0 && <span style={{ background: 'var(--primary)', color: 'white', borderRadius: '12px', fontSize: '11px', padding: '2px 8px', marginLeft: 'auto' }}>{badge}</span>}
@@ -413,7 +425,7 @@ export default function UserDashboard() {
                             </div>
                             <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text)' }}>Profile</span>
                         </div>
-                        <button onClick={logout} style={{ padding: '8px 20px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, transition: '0.3s' }} onMouseEnter={e => e.target.style.background = '#fecaca'} onMouseLeave={e => e.target.style.background = '#fee2e2'}>Logout</button>
+                        <button onClick={logout} className="button-press" style={{ padding: '8px 20px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, transition: '0.3s' }} onMouseEnter={e => e.target.style.background = '#fecaca'} onMouseLeave={e => e.target.style.background = '#fee2e2'}>Logout</button>
                     </div>
                 </header>
 
@@ -481,7 +493,7 @@ export default function UserDashboard() {
                                             { icon: '📋', title: 'View Estimates', sub: 'See saved estimates', action: () => setView('estimator') },
                                             { icon: '💬', title: 'Expert Consultation', sub: 'Talk to our experts', action: () => alert('Booking consultation...') },
                                         ].map((a, i) => (
-                                            <div key={i} onClick={a.action} style={{ display: 'flex', gap: '14px', alignItems: 'center', padding: '14px', borderRadius: '10px', cursor: 'pointer', background: a.primary ? 'linear-gradient(135deg, var(--primary), var(--primary-dark))' : '#f8f9fa', color: a.primary ? 'white' : 'var(--text)', marginBottom: '10px', transition: 'all 0.2s' }}>
+                                            <div key={i} onClick={a.action} className={`button-press ${a.primary ? 'animate-pulseGlow' : ''}`} style={{ display: 'flex', gap: '14px', alignItems: 'center', padding: '14px', borderRadius: '10px', cursor: 'pointer', background: a.primary ? 'linear-gradient(135deg, var(--primary), var(--primary-dark))' : '#f8f9fa', color: a.primary ? 'white' : 'var(--text)', marginBottom: '10px', transition: 'all 0.2s', boxShadow: a.primary ? '0 4px 12px rgba(230,126,34,0.3)' : 'none' }} onMouseEnter={e => { if (!a.primary) e.currentTarget.style.background = '#f1f1f1'; e.currentTarget.style.transform = 'translateY(-2px)' }} onMouseLeave={e => { if (!a.primary) e.currentTarget.style.background = '#f8f9fa'; e.currentTarget.style.transform = 'translateY(0)' }}>
                                                 <span style={{ fontSize: '24px' }}>{a.icon}</span>
                                                 <div><p style={{ fontWeight: 700, fontSize: '15px' }}>{a.title}</p><p style={{ fontSize: '12px', opacity: 0.8 }}>{a.sub}</p></div>
                                             </div>
@@ -514,8 +526,8 @@ export default function UserDashboard() {
                                                 ))}
                                             </div>
                                             <div style={{ display: 'flex', gap: '12px' }}>
-                                                <button onClick={() => navigate(rec.link)} style={{ flex: 1, padding: '10px', background: 'linear-gradient(135deg, var(--primary), var(--primary-dark))', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 700, cursor: 'pointer' }}>Get Detailed Plan</button>
-                                                <button onClick={() => saveIdea(rec)} style={{ flex: 1, padding: '10px', background: '#f8f9fa', border: '2px solid #e9ecef', borderRadius: '8px', fontWeight: 700, cursor: 'pointer' }}>Save for Later</button>
+                                                <button onClick={() => navigate(rec.link)} className="button-press" style={{ flex: 1, padding: '10px', background: 'linear-gradient(135deg, var(--primary), var(--primary-dark))', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 12px rgba(230,126,34,0.2)' }}>Get Detailed Plan</button>
+                                                <button onClick={() => saveIdea(rec)} className="button-press" style={{ flex: 1, padding: '10px', background: '#f8f9fa', border: '2px solid #e9ecef', borderRadius: '8px', fontWeight: 700, cursor: 'pointer' }}>Save for Later</button>
                                             </div>
                                         </div>
                                     ))}
@@ -529,19 +541,19 @@ export default function UserDashboard() {
                         <div className="animate-fadeIn">
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
                                 <div><h2 style={{ fontSize: '24px', fontWeight: 800 }}>My Estimates</h2><p style={{ color: 'var(--muted)' }}>View and manage your interior cost estimates</p></div>
-                                <button onClick={() => setView('new-estimator')} className="btn-submit" style={{ width: 'auto', padding: '12px 24px' }}>+ New Estimate</button>
+                                <button onClick={() => setView('new-estimator')} className="btn-submit button-press animate-pulseGlow" style={{ width: 'auto', padding: '12px 24px' }}>+ New Estimate</button>
                             </div>
                             {estimates.length === 0 ? (
-                                <div className="card" style={{ textAlign: 'center', padding: '60px 40px' }}>
+                                <div className="card hover-lift" style={{ textAlign: 'center', padding: '60px 40px' }}>
                                     <div style={{ fontSize: '64px', marginBottom: '16px' }}>📋</div>
                                     <h3 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '8px' }}>No Estimates Yet</h3>
                                     <p style={{ color: 'var(--muted)', marginBottom: '24px' }}>Start creating your first interior cost estimate</p>
-                                    <button onClick={() => setView('new-estimator')} className="btn-submit" style={{ width: 'auto', padding: '12px 32px' }}>Get Started</button>
+                                    <button onClick={() => setView('new-estimator')} className="btn-submit button-press" style={{ width: 'auto', padding: '12px 32px' }}>Get Started</button>
                                 </div>
                             ) : (
                                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px,1fr))', gap: '20px' }}>
                                     {estimates.map((est, i) => (
-                                        <div key={i} className={`card animate-slideUp stagger-${(i % 5) + 1}`} style={{ margin: 0 }}>
+                                        <div key={i} className={`card animate-slideUp stagger-${(i % 5) + 1} hover-lift`} style={{ margin: 0 }}>
                                             <h4 style={{ fontWeight: 700 }}>{est.type}</h4>
                                             <p style={{ color: 'var(--muted)', fontSize: '13px' }}>{est.date}</p>
                                             <p style={{ fontSize: '24px', fontWeight: 800, color: 'var(--primary)', margin: '12px 0' }}>₹{est.cost?.toLocaleString('en-IN')}</p>
@@ -572,7 +584,7 @@ export default function UserDashboard() {
                                         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '24px' }}>
                                             {c.features.map(f => <span key={f} style={{ fontSize: '13px', color: 'var(--muted)' }}>✓ {f}</span>)}
                                         </div>
-                                        <button onClick={() => navigate(c.link)} className="btn-submit">Calculate Now →</button>
+                                        <button onClick={() => navigate(c.link)} className="btn-submit button-press">Calculate Now →</button>
                                     </div>
                                 ))}
                             </div>
@@ -594,11 +606,11 @@ export default function UserDashboard() {
                                 </div>
 
                                 {myResponded.length === 0 ? (
-                                    <div className="card" style={{ textAlign: 'center', padding: '70px 40px' }}>
+                                    <div className="card hover-lift" style={{ textAlign: 'center', padding: '70px 40px' }}>
                                         <div style={{ fontSize: '64px', marginBottom: '16px' }}>📬</div>
                                         <h3 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '8px' }}>No Recommendations Yet</h3>
                                         <p style={{ color: 'var(--muted)', marginBottom: '24px' }}>Our experts will review your submitted estimates and send personalised quotes here.</p>
-                                        <button onClick={() => setView('new-estimator')} className="btn-submit" style={{ width: 'auto', padding: '12px 28px' }}>Submit an Estimate →</button>
+                                        <button onClick={() => setView('new-estimator')} className="btn-submit button-press" style={{ width: 'auto', padding: '12px 28px' }}>Submit an Estimate →</button>
                                     </div>
                                 ) : (
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -672,6 +684,7 @@ export default function UserDashboard() {
                                                     <div style={{ display: 'flex', gap: '12px', marginTop: '8px', flexWrap: 'wrap' }}>
                                                         <button
                                                             onClick={() => setChatReq({ id: req.id, type: req.type })}
+                                                            className="button-press"
                                                             style={{ flex: 1, minWidth: '180px', padding: '13px 20px', background: 'linear-gradient(135deg, var(--primary), var(--primary-dark))', border: 'none', borderRadius: '10px', color: 'white', fontWeight: 800, fontSize: '15px', cursor: 'pointer', boxShadow: '0 6px 16px rgba(230,126,34,0.35)', transition: '0.3s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
                                                             onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
                                                             onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}>
@@ -679,6 +692,7 @@ export default function UserDashboard() {
                                                         </button>
                                                         <button
                                                             onClick={() => { navigator.clipboard?.writeText(`Quote: ₹${Number(res.quote || 0).toLocaleString('en-IN')} | Timeline: ${res.timeline} | Warranty: ${res.warranty}`); alert('Quote details copied!') }}
+                                                            className="button-press"
                                                             style={{ flex: 1, minWidth: '140px', padding: '13px 20px', background: 'white', border: '2px solid #e9ecef', borderRadius: '10px', cursor: 'pointer', fontWeight: 700, color: '#555', transition: '0.3s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
                                                             onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.color = 'var(--primary)' }}
                                                             onMouseLeave={e => { e.currentTarget.style.borderColor = '#e9ecef'; e.currentTarget.style.color = '#555' }}>
@@ -708,7 +722,7 @@ export default function UserDashboard() {
                             ) : (
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                                     {savedIdeas.map((idea, i) => (
-                                        <div key={i} className={`card animate-slideUp stagger-${(i % 5) + 1}`} style={{ margin: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+                                        <div key={i} className={`card animate-slideUp stagger-${(i % 5) + 1} hover-lift`} style={{ margin: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
                                             <div>
                                                 <h4 style={{ fontWeight: 700, fontSize: '17px' }}>{idea.title}</h4>
                                                 <p style={{ color: 'var(--muted)', fontSize: '14px', marginTop: '4px' }}>{idea.desc}</p>
@@ -718,7 +732,7 @@ export default function UserDashboard() {
                                                     <span>Impact: <strong style={{ color: '#3b82f6' }}>{idea.impact}</strong></span>
                                                 </div>
                                             </div>
-                                            <button onClick={() => removeIdea(idea.title)} style={{ padding: '8px 16px', border: '2px solid #fee2e2', borderRadius: '8px', background: '#fff', color: '#dc2626', cursor: 'pointer', fontWeight: 600 }}>Remove</button>
+                                            <button onClick={() => removeIdea(idea.title)} className="button-press" style={{ padding: '8px 16px', border: '2px solid #fee2e2', borderRadius: '8px', background: '#fff', color: '#dc2626', cursor: 'pointer', fontWeight: 600 }}>Remove</button>
                                         </div>
                                     ))}
                                 </div>
@@ -757,9 +771,9 @@ export default function UserDashboard() {
                                     </div>
                                     <div className="form-group">
                                         <label>Description</label>
-                                        <textarea placeholder="Describe your property..." rows={4} style={{ width: '100%', padding: '12px 16px', border: '2px solid #e9ecef', borderRadius: '8px', fontFamily: 'inherit', fontSize: '15px', resize: 'vertical', outline: 'none' }} />
+                                        <textarea placeholder="Describe your property..." rows={4} style={{ width: '100%', padding: '12px 16px', border: '2px solid #e9ecef', borderRadius: '8px', fontFamily: 'inherit', fontSize: '15px', resize: 'vertical', outline: 'none', transition: '0.3s' }} onFocus={e => e.target.style.borderColor = 'var(--primary)'} onBlur={e => e.target.style.borderColor = '#e9ecef'} />
                                     </div>
-                                    <button type="submit" className="btn-submit">Submit Property</button>
+                                    <button type="submit" className="btn-submit button-press">Submit Property</button>
                                 </form>
                             </div>
                         </div>
