@@ -243,7 +243,6 @@ export default function UserDashboard() {
         { icon: '📄', label: 'New Estimate', key: 'new-estimator' },
         { icon: '💡', label: 'Recommendations', key: 'recommendations', badge: unreadChats },
         { icon: '🔖', label: 'Saved Ideas', key: 'saved', badge: savedIdeas.length },
-        { icon: '👤', label: 'Profile', key: 'profile' },
         { icon: '🏠', label: 'Submit Property', key: 'submit' },
     ]
 
@@ -279,8 +278,40 @@ export default function UserDashboard() {
                             {view === 'dashboard' ? 'Dashboard' : view === 'estimator' ? 'My Estimates' : view === 'new-estimator' ? 'New Estimate' : view === 'recommendations' ? 'Recommendations' : view === 'saved' ? 'Saved Ideas' : view === 'profile' ? 'Profile' : view === 'submit' ? 'Submit Property' : 'Dashboard'}
                         </h1>
                     </div>
-                    <div style={{ position: 'relative' }}>
-                        <button onClick={logout} style={{ padding: '8px 20px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 700 }}>Logout</button>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div
+                            onClick={() => setView('profile')}
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                padding: '6px 12px',
+                                borderRadius: '8px',
+                                cursor: 'pointer',
+                                transition: '0.3s',
+                                background: view === 'profile' ? 'var(--primary-dark)' : 'transparent',
+                                border: `1.5px solid ${view === 'profile' ? 'var(--primary)' : '#e9ecef'}`,
+                            }}
+                            onMouseEnter={e => { if (view !== 'profile') e.currentTarget.style.background = '#f8f9fa' }}
+                            onMouseLeave={e => { if (view !== 'profile') e.currentTarget.style.background = 'transparent' }}
+                        >
+                            <div style={{
+                                width: '32px',
+                                height: '32px',
+                                background: 'linear-gradient(135deg, var(--primary), var(--primary-dark))',
+                                borderRadius: '50%',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontSize: '14px',
+                                fontWeight: 800,
+                                color: 'white'
+                            }}>
+                                {userData.name?.[0]?.toUpperCase()}
+                            </div>
+                            <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text)' }}>Profile</span>
+                        </div>
+                        <button onClick={logout} style={{ padding: '8px 20px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, transition: '0.3s' }} onMouseEnter={e => e.target.style.background = '#fecaca'} onMouseLeave={e => e.target.style.background = '#fee2e2'}>Logout</button>
                     </div>
                 </header>
 
