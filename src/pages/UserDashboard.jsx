@@ -20,6 +20,61 @@ const SidebarLink = ({ icon, label, active, onClick, badge }) => (
     </div>
 )
 
+// ---- PROFILE MODAL ----
+function ProfileModal({ userData, onClose, onSave }) {
+    const [form, setForm] = useState({ name: userData?.name || '', email: userData?.email || '', phone: userData?.phone || '' })
+
+    const handleSubmit = (e) => {
+        e.preventDefault()
+        onSave(form)
+    }
+
+    return (
+        <div onClick={e => e.target === e.currentTarget && onClose()}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2100, padding: '20px' }}>
+            <div style={{ background: 'white', borderRadius: '24px', width: '100%', maxWidth: '500px', overflow: 'hidden', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)', animation: 'slideUp 0.3s ease' }}>
+                <div style={{ background: 'linear-gradient(135deg, var(--primary), var(--primary-dark))', padding: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <h2 style={{ color: 'white', margin: 0, fontSize: '20px', fontWeight: 800 }}>Edit Profile</h2>
+                    <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white', width: '32px', height: '32px', borderRadius: '50%', cursor: 'pointer', fontSize: '18px', fontWeight: 700 }}>×</button>
+                </div>
+                <div style={{ padding: '32px' }}>
+                    <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+                        <div style={{ width: '80px', height: '80px', background: 'linear-gradient(135deg, var(--primary), var(--primary-dark))', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '32px', margin: '0 auto 12px', fontWeight: 800, color: 'white', boxShadow: '0 10px 20px rgba(230,126,34,0.3)' }}>
+                            {form.name?.[0]?.toUpperCase()}
+                        </div>
+                        <h3 style={{ fontWeight: 800, margin: '8px 0 4px', color: '#1a1a1a' }}>{form.name}</h3>
+                        <p style={{ color: 'var(--muted)', fontSize: '14px', margin: 0 }}>{form.email}</p>
+                    </div>
+                    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                        {[
+                            { label: 'Full Name', key: 'name', type: 'text', icon: '👤' },
+                            { label: 'Email Address', key: 'email', type: 'email', icon: '✉️' },
+                            { label: 'Phone Number', key: 'phone', type: 'tel', icon: '📞' }
+                        ].map(({ label, key, type, icon }) => (
+                            <div key={key}>
+                                <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>{label}</label>
+                                <div style={{ position: 'relative' }}>
+                                    <span style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', opacity: 0.5 }}>{icon}</span>
+                                    <input
+                                        type={type}
+                                        value={form[key]}
+                                        onChange={e => setForm({ ...form, [key]: e.target.value })}
+                                        style={{ width: '100%', padding: '12px 16px 12px 42px', borderRadius: '12px', border: '2px solid #f0ece6', fontSize: '15px', outline: 'none', transition: '0.3s', boxSizing: 'border-box' }}
+                                        onFocus={e => e.target.style.borderColor = 'var(--primary)'}
+                                        onBlur={e => e.target.style.borderColor = '#f0ece6'}
+                                        required
+                                    />
+                                </div>
+                            </div>
+                        ))}
+                        <button type="submit" className="btn-submit" style={{ marginTop: '12px', padding: '14px' }}>Save Changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    )
+}
+
 // ---- CHAT MODAL (outside component to avoid re-render focus bug) ----
 function ChatModal({ requestId, requestType, userName, onClose }) {
     const [msgs, setMsgs] = useState(() => JSON.parse(localStorage.getItem(`chat_${requestId}`) || '[]'))
@@ -153,6 +208,7 @@ export default function UserDashboard() {
     const [chatReq, setChatReq] = useState(null) // { id, type } of request to chat about
     const [lightbox, setLightbox] = useState(null) // { images: [], index: 0 }
     const [unreadChats, setUnreadChats] = useState(0)
+    const [showProfile, setShowProfile] = useState(false)
 
     useEffect(() => {
         const user = sessionStorage.getItem('bhvUser')
@@ -280,7 +336,7 @@ export default function UserDashboard() {
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                         <div
-                            onClick={() => setView('profile')}
+                            onClick={() => setShowProfile(true)}
                             style={{
                                 display: 'flex',
                                 alignItems: 'center',
@@ -289,11 +345,11 @@ export default function UserDashboard() {
                                 borderRadius: '8px',
                                 cursor: 'pointer',
                                 transition: '0.3s',
-                                background: view === 'profile' ? 'var(--primary-dark)' : 'transparent',
-                                border: `1.5px solid ${view === 'profile' ? 'var(--primary)' : '#e9ecef'}`,
+                                background: showProfile ? 'var(--primary-dark)' : 'transparent',
+                                border: `1.5px solid ${showProfile ? 'var(--primary)' : '#e9ecef'}`,
                             }}
-                            onMouseEnter={e => { if (view !== 'profile') e.currentTarget.style.background = '#f8f9fa' }}
-                            onMouseLeave={e => { if (view !== 'profile') e.currentTarget.style.background = 'transparent' }}
+                            onMouseEnter={e => { if (!showProfile) e.currentTarget.style.background = '#f8f9fa' }}
+                            onMouseLeave={e => { if (!showProfile) e.currentTarget.style.background = 'transparent' }}
                         >
                             <div style={{
                                 width: '32px',
@@ -624,30 +680,6 @@ export default function UserDashboard() {
                         </div>
                     )}
 
-                    {/* ---- PROFILE ---- */}
-                    {view === 'profile' && (
-                        <div style={{ maxWidth: '600px' }}>
-                            <h2 style={{ fontSize: '24px', fontWeight: 800, marginBottom: '24px' }}>Edit Profile</h2>
-                            <div className="card" style={{ margin: 0 }}>
-                                <div style={{ textAlign: 'center', marginBottom: '28px' }}>
-                                    <div style={{ width: '80px', height: '80px', background: 'linear-gradient(135deg, var(--primary), var(--primary-dark))', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '32px', margin: '0 auto 12px', fontWeight: 800, color: 'white' }}>
-                                        {userData.name?.[0]?.toUpperCase()}
-                                    </div>
-                                    <h3 style={{ fontWeight: 700 }}>{userData.name}</h3>
-                                    <p style={{ color: 'var(--muted)', fontSize: '14px' }}>{userData.email}</p>
-                                </div>
-                                <form onSubmit={(e) => { e.preventDefault(); const d = { ...userData, ...profileForm }; localStorage.setItem('userData', JSON.stringify(d)); setUserData(d); alert('Profile updated!') }}>
-                                    {[{ label: 'Full Name', key: 'name', type: 'text' }, { label: 'Email', key: 'email', type: 'email' }, { label: 'Phone', key: 'phone', type: 'tel' }].map(({ label, key, type }) => (
-                                        <div className="form-group" key={key}>
-                                            <label>{label}</label>
-                                            <input type={type} value={profileForm[key]} onChange={e => setProfileForm({ ...profileForm, [key]: e.target.value })} />
-                                        </div>
-                                    ))}
-                                    <button type="submit" className="btn-submit">Save Changes</button>
-                                </form>
-                            </div>
-                        </div>
-                    )}
 
                     {/* ---- SUBMIT PROPERTY ---- */}
                     {view === 'submit' && (
@@ -688,6 +720,22 @@ export default function UserDashboard() {
                     )}
                 </main>
             </div>
+
+            {/* Profile Modal */}
+            {showProfile && (
+                <ProfileModal
+                    userData={userData}
+                    onClose={() => setShowProfile(false)}
+                    onSave={(newVal) => {
+                        const updated = { ...userData, ...newVal }
+                        localStorage.setItem('userData', JSON.stringify(updated))
+                        setUserData(updated)
+                        setProfileForm(newVal)
+                        setShowProfile(false)
+                        alert('Profile updated successfully!')
+                    }}
+                />
+            )}
 
             {/* Chat Modal */}
             {chatReq && (
