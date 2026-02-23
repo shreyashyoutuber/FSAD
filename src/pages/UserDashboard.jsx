@@ -152,6 +152,7 @@ export default function UserDashboard() {
     const [showAllRecs, setShowAllRecs] = useState(false)
     const [chatReq, setChatReq] = useState(null) // { id, type } of request to chat about
     const [lightbox, setLightbox] = useState(null) // { images: [], index: 0 }
+    const [unreadChats, setUnreadChats] = useState(0)
 
     useEffect(() => {
         const user = sessionStorage.getItem('bhvUser')
@@ -161,6 +162,25 @@ export default function UserDashboard() {
         setProfileForm({ name: data.name || '', email: data.email || '', phone: data.phone || '' })
         setSavedIdeas(JSON.parse(localStorage.getItem('savedIdeas') || '[]'))
     }, [])
+
+    // Clear unread counts when recommendations view is opened
+    useEffect(() => {
+        const count = getUnreadCount()
+        if (view === 'recommendations' && count > 0) {
+            const allReqs = JSON.parse(localStorage.getItem('allAdminRequests') || '[]')
+            const readCounts = JSON.parse(localStorage.getItem('chatReadCounts') || '{}')
+            allReqs.forEach(req => {
+                if (req.responded) {
+                    const chatMsgs = JSON.parse(localStorage.getItem(`chat_${req.id}`) || '[]')
+                    readCounts[req.id] = chatMsgs.filter(m => m.sender === 'admin').length
+                }
+            })
+            localStorage.setItem('chatReadCounts', JSON.stringify(readCounts))
+            setUnreadChats(0)
+        } else {
+            setUnreadChats(count)
+        }
+    }, [view, chatReq])
 
     const saveIdea = (rec) => {
         const already = savedIdeas.find(s => s.title === rec.title)
@@ -216,7 +236,7 @@ export default function UserDashboard() {
         })
         return total
     }
-    const unreadChats = getUnreadCount()
+    const unreadChatsValue = unreadChats // legacy unreadChats was a const, now it's state
 
     const navLinks = [
         { icon: '📊', label: 'Dashboard', key: 'dashboard' },
