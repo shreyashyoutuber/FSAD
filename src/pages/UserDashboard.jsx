@@ -75,6 +75,26 @@ function ProfileModal({ userData, onClose, onSave }) {
     )
 }
 
+// ---- CONFIRM MODAL ----
+function ConfirmModal({ title, message, onConfirm, onCancel }) {
+    return (
+        <div onClick={e => e.target === e.currentTarget && onCancel()}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 3000, padding: '20px' }}>
+            <div style={{ background: 'white', borderRadius: '24px', width: '100%', maxWidth: '400px', overflow: 'hidden', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)', animation: 'slideUp 0.3s ease' }}>
+                <div style={{ padding: '32px', textAlign: 'center' }}>
+                    <div style={{ width: '60px', height: '60px', background: '#fee2e2', color: '#dc2626', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '30px', margin: '0 auto 20px' }}>⚠️</div>
+                    <h2 style={{ fontSize: '20px', fontWeight: 800, color: '#1a1a1a', marginBottom: '12px' }}>{title}</h2>
+                    <p style={{ color: 'var(--muted)', fontSize: '15px', lineHeight: 1.6, marginBottom: '28px' }}>{message}</p>
+                    <div style={{ display: 'flex', gap: '12px' }}>
+                        <button onClick={onCancel} style={{ flex: 1, padding: '12px', background: '#f8f9fa', border: '2px solid #e9ecef', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', color: '#555' }}>Cancel</button>
+                        <button onClick={onConfirm} style={{ flex: 1, padding: '12px', background: '#dc2626', border: 'none', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', color: 'white' }}>Yes, Exit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+}
+
 // ---- CHAT MODAL (outside component to avoid re-render focus bug) ----
 function ChatModal({ requestId, requestType, userName, onClose }) {
     const [msgs, setMsgs] = useState(() => JSON.parse(localStorage.getItem(`chat_${requestId}`) || '[]'))
@@ -209,6 +229,7 @@ export default function UserDashboard() {
     const [lightbox, setLightbox] = useState(null) // { images: [], index: 0 }
     const [unreadChats, setUnreadChats] = useState(0)
     const [showProfile, setShowProfile] = useState(false)
+    const [showExitConfirm, setShowExitConfirm] = useState(false)
 
     useEffect(() => {
         const user = sessionStorage.getItem('bhvUser')
@@ -321,7 +342,7 @@ export default function UserDashboard() {
                     ))}
                 </nav>
                 <div className="sidebar-footer">
-                    <div className="sidebar-link" onClick={() => navigate('/')}>← Back to Home</div>
+                    <div className="sidebar-link" onClick={() => setShowExitConfirm(true)}>← Back to Home</div>
                 </div>
             </aside>
 
@@ -720,6 +741,16 @@ export default function UserDashboard() {
                     )}
                 </main>
             </div>
+
+            {/* Exit Confirmation Modal */}
+            {showExitConfirm && (
+                <ConfirmModal
+                    title="Exit Dashboard?"
+                    message="Are you sure you want to go back to the home page? This will log you out of your current session."
+                    onConfirm={() => { logout(); navigate('/') }}
+                    onCancel={() => setShowExitConfirm(false)}
+                />
+            )}
 
             {/* Profile Modal */}
             {showProfile && (
