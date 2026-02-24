@@ -219,9 +219,8 @@ export default function AdminDashboard() {
             }}>
                 <div style={{ padding: '32px 28px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                     <div style={{ fontSize: '20px', fontWeight: 800, color: 'white', letterSpacing: '-0.5px' }}>
-                        BharatHome<span style={{ color: theme.primary }}>Admin</span>
+                        BharatHome<span style={{ color: theme.primary }}>Value</span>
                     </div>
-                    <p style={{ color: '#64748b', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1px', marginTop: '6px', fontWeight: 700 }}>Management Console</p>
                 </div>
 
                 <div style={{ padding: '24px 16px', flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -253,55 +252,46 @@ export default function AdminDashboard() {
             <main style={{ marginLeft: '280px', flex: 1, padding: '40px 60px', maxWidth: '1400px' }}>
 
                 {/* Header */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px', paddingBottom: '20px', borderBottom: `1px solid ${theme.border}` }}>
                     <div>
-                        <h1 style={{ fontSize: '28px', fontWeight: 800, color: theme.slate }}>
-                            {view === 'overview' ? 'Network Overview' : view === 'requests' ? 'Service Requests' : 'Client Relations'}
-                        </h1>
+                        <h1 style={{ fontSize: '24px', fontWeight: 600, color: theme.slate }}>Dashboard</h1>
                         <p style={{ color: theme.textMuted, marginTop: '4px' }}>Welcome back. Here is what is happening today.</p>
                     </div>
-                    <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
-                        <div style={{ position: 'relative' }}>
-                            <span style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }}>🔍</span>
-                            <input
-                                value={search} onChange={e => setSearch(e.target.value)}
-                                placeholder="Universal search..."
-                                style={{ padding: '12px 18px 12px 42px', borderRadius: '12px', border: `1px solid ${theme.border}`, width: '240px', outline: 'none', background: 'white', fontSize: '14px', transition: '0.2s' }}
-                                onFocus={e => e.target.style.borderColor = theme.primary}
-                                onBlur={e => e.target.style.borderColor = theme.border}
-                            />
-                        </div>
 
-                        <div style={{ height: '40px', width: '1px', background: theme.border }}></div>
-
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', background: 'white', padding: '6px 6px 6px 16px', borderRadius: '14px', border: `1px solid ${theme.border}`, boxShadow: '0 2px 4px rgba(0,0,0,0.02)', cursor: 'pointer' }} onClick={() => setShowProfileModal(true)}>
-                            <div style={{ textAlign: 'right' }}>
-                                <p style={{ color: theme.slate, fontSize: '13px', fontWeight: 800, lineHeight: 1 }}>{adminEmail.split('@')[0]}</p>
-                                <p style={{ color: theme.primary, fontSize: '10px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '4px' }}>System Admin</p>
-                            </div>
+                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                        {/* Profile Button */}
+                        <div
+                            onClick={() => setShowProfileModal(true)}
+                            style={{
+                                display: 'flex', alignItems: 'center', gap: '8px', background: 'white',
+                                padding: '6px 16px 6px 8px', borderRadius: '10px', border: `1px solid ${theme.border}`,
+                                cursor: 'pointer', transition: '0.2s'
+                            }}
+                            onMouseEnter={e => e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.05)'}
+                            onMouseLeave={e => e.currentTarget.style.boxShadow = 'none'}
+                        >
                             <div style={{
-                                width: '38px', height: '38px', borderRadius: '10px',
-                                background: `linear-gradient(135deg, ${theme.slate}, ${theme.slateLight})`,
-                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                color: 'white', fontWeight: 800, fontSize: '16px',
-                                boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
+                                width: '32px', height: '32px', borderRadius: '50%', background: theme.primary,
+                                display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 800, fontSize: '14px'
                             }}>
                                 {adminEmail[0].toUpperCase()}
                             </div>
-                            <button
-                                onClick={(e) => { e.stopPropagation(); setShowLogoutConfirm(true) }}
-                                className="button-premium"
-                                style={{
-                                    background: '#f1f5f9', color: '#64748b', border: '1px solid #e2e8f0',
-                                    padding: '10px 14px', fontSize: '12px', borderRadius: '10px',
-                                    transition: '0.2s all'
-                                }}
-                                onMouseEnter={e => { e.currentTarget.style.background = '#fee2e2'; e.currentTarget.style.color = '#dc2626'; e.currentTarget.style.borderColor = '#fecaca'; }}
-                                onMouseLeave={e => { e.currentTarget.style.background = '#f1f5f9'; e.currentTarget.style.color = '#64748b'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
-                            >
-                                <span style={{ marginRight: '6px' }}>🚪</span> Sign Out
-                            </button>
+                            <span style={{ fontSize: '14px', fontWeight: 500, color: theme.text }}>Profile</span>
                         </div>
+
+                        {/* Logout Button */}
+                        <button
+                            onClick={() => setShowLogoutConfirm(true)}
+                            style={{
+                                background: '#fee2e2', color: '#dc2626', border: 'none',
+                                padding: '10px 20px', borderRadius: '10px', fontSize: '14px',
+                                fontWeight: 700, cursor: 'pointer', transition: '0.2s'
+                            }}
+                            onMouseEnter={e => e.currentTarget.style.background = '#fecaca'}
+                            onMouseLeave={e => e.currentTarget.style.background = '#fee2e2'}
+                        >
+                            Logout
+                        </button>
                     </div>
                 </div>
 
