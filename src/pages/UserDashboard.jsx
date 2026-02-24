@@ -338,9 +338,9 @@ export default function UserDashboard() {
     const fallbackTotalCost = RECS.reduce((sum, r) => sum + parseMoney(r.cost), 0)
     const fallbackTotalValue = RECS.reduce((sum, r) => sum + parseMoney(r.value), 0)
 
-    const displayInvestment = totalInvestment > 0 ? totalInvestment : 0
-    const displayValueIncrease = potentialValueIncrease > 0 ? potentialValueIncrease : 0
-    const displayRecsCount = activeRecsCount
+    const displayInvestment = totalInvestment > 0 ? totalInvestment : (activeProperty ? fallbackTotalCost : 0)
+    const displayValueIncrease = potentialValueIncrease > 0 ? potentialValueIncrease : (activeProperty ? fallbackTotalValue : 0)
+    const displayRecsCount = activeRecsCount > 0 ? activeRecsCount : (activeProperty ? RECS.length : 0)
 
     const baseValue = parseInt(activeProperty?.details?.marketValue?.replace(/[^0-9]/g, '') || 5000000)
 
@@ -531,9 +531,9 @@ export default function UserDashboard() {
                                     {/* Metric Cards */}
                                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', marginBottom: '32px' }}>
                                         {[
-                                            { label: 'Potential Value Increase', value: `+₹${(displayValueIncrease / 100000).toFixed(2)}L`, sub: 'With all recommendations', color: '#3b82f6', icon: '📊' },
-                                            { label: 'Total Investment', value: `₹${(displayInvestment / 100000).toFixed(2)}L`, sub: 'Estimated renovation cost', color: '#f59e0b', icon: '₹' },
-                                            { label: 'Active Recommendations', value: displayRecsCount, sub: 'Personalized for you', color: '#10b981', icon: '💡' },
+                                            { label: 'Potential Value Increase', value: `+₹${(displayValueIncrease / 100000).toFixed(2)}L`, sub: activeRecsCount > 0 ? 'With all recommendations' : 'Initial AI Projection', color: '#3b82f6', icon: '📊' },
+                                            { label: 'Total Investment', value: `₹${(displayInvestment / 100000).toFixed(2)}L`, sub: activeRecsCount > 0 ? 'Estimated renovation cost' : 'Initial AI Estimate', color: '#f59e0b', icon: '₹' },
+                                            { label: 'Active Recommendations', value: displayRecsCount, sub: activeRecsCount > 0 ? 'Personalized for you' : 'Projected for your property', color: '#10b981', icon: '💡' },
                                         ].map((m, i) => (
                                             <div key={i} className={`card animate-slideUp stagger-${i + 2}`} style={{ margin: 0, padding: '24px', border: '1px solid #f0f0f0', borderRadius: '20px' }}>
                                                 <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '16px' }}>
@@ -583,11 +583,14 @@ export default function UserDashboard() {
                                     {/* Recommendations */}
                                     <div className="card" style={{ margin: 0, padding: '32px' }}>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                                            <h3 className="card-title" style={{ margin: 0 }}>Top Recommendations</h3>
-                                            {activeRecsCount > 0 && <button onClick={() => setShowAllRecs(!showAllRecs)} style={{ background: 'none', border: 'none', color: 'var(--primary)', fontWeight: 600, cursor: 'pointer' }}>{showAllRecs ? 'Show Less' : 'View All'}</button>}
+                                            <div>
+                                                <h3 className="card-title" style={{ margin: 0 }}>Top Recommendations</h3>
+                                                {activeRecsCount === 0 && <p style={{ fontSize: '12px', color: 'var(--primary)', fontWeight: 600, marginTop: '4px' }}>✨ AI-Projected Insights (Expert Review Pending)</p>}
+                                            </div>
+                                            {displayRecsCount > 0 && <button onClick={() => setShowAllRecs(!showAllRecs)} style={{ background: 'none', border: 'none', color: 'var(--primary)', fontWeight: 600, cursor: 'pointer' }}>{showAllRecs ? 'Show Less' : 'View All'}</button>}
                                         </div>
 
-                                        {activeRecsCount > 0 ? (
+                                        {displayRecsCount > 0 ? (
                                             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                                                 {(showAllRecs ? RECS : RECS.slice(0, 2)).map((rec, i) => (
                                                     <div key={i} style={{ border: '2px solid #f0f0f0', borderRadius: '12px', padding: '20px', transition: 'all 0.3s' }}>
