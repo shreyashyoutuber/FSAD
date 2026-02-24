@@ -316,29 +316,12 @@ export default function UserDashboard() {
         navigate('/')
     }
 
-    const prop = userData?.property || {}
-    const chartData = {
-        labels: ['Current', 'After Paint', 'After Bathroom', 'After Kitchen', 'After Flooring', 'Final'],
-        datasets: [
-            {
-                label: 'Property Value (₹)',
-                data: [prop.currentValue || 5000000, 5125000, 5475000, 5875000, 6225000, 6350000],
-                borderColor: '#e67e22', backgroundColor: 'rgba(230,126,34,0.1)',
-                fill: true, tension: 0.4,
-            }
-        ]
-    }
-    const chartOptions = {
-        responsive: true, plugins: { legend: { display: false } },
-        scales: { y: { ticks: { callback: v => `₹${(v / 100000).toFixed(0)}L` } } }
-    }
-
     const estimates = JSON.parse(localStorage.getItem('userEstimates') || '[]')
     const allAdminRequests = JSON.parse(localStorage.getItem('allAdminRequests') || '[]')
     const adminResponses = JSON.parse(localStorage.getItem('adminResponses') || '{}')
+    const userEmail = sessionStorage.getItem('bhvUser')
 
     // Find the primary property for this user (most recent submission)
-    const userEmail = sessionStorage.getItem('bhvUser')
     const myProperties = allAdminRequests.filter(r => r.customerEmail === userEmail && r.type.startsWith('Property:'))
     const activeProperty = myProperties.length > 0 ? myProperties[myProperties.length - 1] : null
 
@@ -349,8 +332,16 @@ export default function UserDashboard() {
         .reduce((sum, res) => sum + parseInt(res.quote || 0), 0)
 
     const potentialValueIncrease = totalInvestment > 0 ? Math.round(totalInvestment * 1.8) : 0 // Rough heuristic: 1.8x ROI
-
     const baseValue = parseInt(activeProperty?.details?.marketValue?.replace(/[^0-9]/g, '') || 5000000)
+
+    const prop = activeProperty ? {
+        type: activeProperty.type.replace('Property: ', ''),
+        location: activeProperty.customerAddress,
+        currentValue: baseValue,
+        size: activeProperty.details?.size,
+        age: activeProperty.details?.year ? (new Date().getFullYear() - activeProperty.details.year) : 10,
+        locationRating: 4.5
+    } : (userData?.property || {})
 
     // Chart Data Generation
     const chartLabels = ['Current', 'In Progress', 'Responded', 'Final Value']

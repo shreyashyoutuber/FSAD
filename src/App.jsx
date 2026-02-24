@@ -5,7 +5,6 @@ import Signup from './pages/Signup'
 import ForgotPassword from './pages/ForgotPassword'
 import AdminLogin from './pages/AdminLogin'
 import AdminDashboard from './pages/AdminDashboard'
-import AdminRespond from './pages/AdminRespond'
 import UserDashboard from './pages/UserDashboard'
 import KitchenEstimator from './pages/KitchenEstimator'
 import WardrobeEstimator from './pages/WardrobeEstimator'
@@ -22,7 +21,6 @@ function App() {
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/admin-login" element={<AdminLogin />} />
                 <Route path="/admin-dashboard" element={<AdminDashboard />} />
-                <Route path="/admin-respond" element={<AdminRespond />} />
                 <Route path="/user-dashboard" element={<UserDashboard />} />
                 <Route path="/kitchen-estimator" element={<KitchenEstimator />} />
                 <Route path="/wardrobe-estimator" element={<WardrobeEstimator />} />
