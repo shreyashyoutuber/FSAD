@@ -334,6 +334,66 @@ export default function UserDashboard() {
     }
 
     const estimates = JSON.parse(localStorage.getItem('userEstimates') || '[]')
+    const allAdminRequests = JSON.parse(localStorage.getItem('allAdminRequests') || '[]')
+    const adminResponses = JSON.parse(localStorage.getItem('adminResponses') || '{}')
+
+    // Find the primary property for this user (most recent submission)
+    const userEmail = sessionStorage.getItem('bhvUser')
+    const myProperties = allAdminRequests.filter(r => r.customerEmail === userEmail && r.type.startsWith('Property:'))
+    const activeProperty = myProperties.length > 0 ? myProperties[myProperties.length - 1] : null
+
+    // Dynamic Calculations
+    const activeRecsCount = allAdminRequests.filter(r => r.customerEmail === userEmail && r.responded).length
+    const totalInvestment = Object.values(adminResponses)
+        .filter(res => allAdminRequests.find(req => req.id === res.requestId && req.customerEmail === userEmail))
+        .reduce((sum, res) => sum + parseInt(res.quote || 0), 0)
+
+    const potentialValueIncrease = totalInvestment > 0 ? Math.round(totalInvestment * 1.8) : 0 // Rough heuristic: 1.8x ROI
+
+    const baseValue = parseInt(activeProperty?.details?.marketValue?.replace(/[^0-9]/g, '') || 5000000)
+
+    // Chart Data Generation
+    const chartLabels = ['Current', 'In Progress', 'Responded', 'Final Value']
+    const chartGrowthData = [
+        baseValue,
+        baseValue + (totalInvestment * 0.2),
+        baseValue + (totalInvestment * 0.8),
+        baseValue + potentialValueIncrease
+    ]
+
+    const chartData = {
+        labels: chartLabels,
+        datasets: [
+            {
+                label: 'Property Value (₹)',
+                data: chartGrowthData,
+                borderColor: '#e67e22', backgroundColor: 'rgba(230,126,34,0.1)',
+                fill: true, tension: 0.4,
+                pointRadius: 6,
+                pointHoverRadius: 8,
+                pointBackgroundColor: 'white',
+                pointBorderColor: '#e67e22',
+                pointBorderWidth: 2
+            }
+        ]
+    }
+    const chartOptions = {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+            y: {
+                grid: { color: '#f0f0f0' },
+                ticks: {
+                    callback: v => `₹${(v / 100000).toFixed(0)}L`,
+                    font: { size: 12, weight: '600' }
+                }
+            },
+            x: {
+                grid: { display: false },
+                ticks: { font: { size: 12, weight: '600' } }
+            }
+        }
+    }
 
     const getUnreadCount = () => {
         const allReqs = JSON.parse(localStorage.getItem('allAdminRequests') || '[]')
@@ -461,40 +521,51 @@ export default function UserDashboard() {
                             </div>
 
                             {/* Metric Cards */}
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px,1fr))', gap: '20px', marginBottom: '24px' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', marginBottom: '32px' }}>
                                 {[
-                                    { label: 'Potential Value Increase', value: '+₹13,50,000', sub: 'With all recommendations', color: '#3b82f6', icon: '📈' },
-                                    { label: 'Total Investment', value: '₹7,10,000', sub: 'Estimated renovation cost', color: '#f59e0b', icon: '₹' },
-                                    { label: 'Active Recommendations', value: '4', sub: 'Personalized for you', color: '#10b981', icon: '💡' },
+                                    { label: 'Potential Value Increase', value: `+₹${(potentialValueIncrease / 100000).toFixed(2)}L`, sub: 'With all recommendations', color: '#3b82f6', icon: '📊' },
+                                    { label: 'Total Investment', value: `₹${(totalInvestment / 100000).toFixed(2)}L`, sub: 'Estimated renovation cost', color: '#f59e0b', icon: '₹' },
+                                    { label: 'Active Recommendations', value: activeRecsCount, sub: 'Personalized for you', color: '#10b981', icon: '💡' },
                                 ].map((m, i) => (
-                                    <div key={i} className={`card animate-slideUp stagger-${i + 2}`} style={{ margin: 0 }}>
-                                        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '12px' }}>
-                                            <div style={{ width: '40px', height: '40px', background: `${m.color}20`, borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px' }}>{m.icon}</div>
-                                            <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--muted)' }}>{m.label}</span>
+                                    <div key={i} className={`card animate-slideUp stagger-${i + 2}`} style={{ margin: 0, padding: '24px', border: '1px solid #f0f0f0', borderRadius: '20px' }}>
+                                        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '16px' }}>
+                                            <div style={{ width: '40px', height: '40px', background: `${m.color}15`, borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', color: m.color }}>{m.icon}</div>
+                                            <span style={{ fontSize: '14px', fontWeight: 700, color: '#666' }}>{m.label}</span>
                                         </div>
-                                        <p style={{ fontSize: '26px', fontWeight: 800, color: m.color }}>{m.value}</p>
-                                        <p style={{ fontSize: '13px', color: 'var(--muted)', marginTop: '4px' }}>{m.sub}</p>
+                                        <p style={{ fontSize: '28px', fontWeight: 800, color: m.color, letterSpacing: '-0.5px' }}>{m.value}</p>
+                                        <p style={{ fontSize: '13px', color: '#999', marginTop: '6px' }}>{m.sub}</p>
                                     </div>
                                 ))}
                             </div>
 
                             {/* Chart + Quick Actions */}
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: '24px', marginBottom: '24px' }}>
-                                <div className="card animate-slideUp stagger-5" style={{ margin: 0 }}>
-                                    <h3 className="card-title">Projected Value Growth</h3>
-                                    <Line data={chartData} options={chartOptions} />
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: '24px', marginBottom: '24px' }}>
+                                <div className="card animate-slideUp stagger-5" style={{ margin: 0, padding: '32px' }}>
+                                    <h3 style={{ fontSize: '20px', fontWeight: 800, marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        Projected Value Growth
+                                        <span style={{ fontSize: '12px', fontWeight: 600, color: '#999', background: '#f8f9fa', padding: '4px 12px', borderRadius: '12px' }}>Based on Improvements</span>
+                                    </h3>
+                                    <div style={{ height: '300px' }}>
+                                        <Line data={chartData} options={{ ...chartOptions, maintainAspectRatio: false }} />
+                                    </div>
                                 </div>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                                    <div className="card" style={{ margin: 0 }}>
-                                        <h3 className="card-title">Quick Actions</h3>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                                    <div className="card" style={{ margin: 0, padding: '32px' }}>
+                                        <h3 style={{ fontSize: '20px', fontWeight: 800, marginBottom: '20px' }}>Quick Actions</h3>
                                         {[
                                             { icon: '📐', title: 'New Estimate', sub: 'Calculate interior costs', action: () => setView('new-estimator'), primary: true },
                                             { icon: '📋', title: 'View Estimates', sub: 'See saved estimates', action: () => setView('estimator') },
                                             { icon: '💬', title: 'Expert Consultation', sub: 'Talk to our experts', action: () => alert('Booking consultation...') },
                                         ].map((a, i) => (
-                                            <div key={i} onClick={a.action} className={`button-press ${a.primary ? 'animate-pulseGlow' : ''}`} style={{ display: 'flex', gap: '14px', alignItems: 'center', padding: '14px', borderRadius: '10px', cursor: 'pointer', background: a.primary ? 'linear-gradient(135deg, var(--primary), var(--primary-dark))' : '#f8f9fa', color: a.primary ? 'white' : 'var(--text)', marginBottom: '10px', transition: 'all 0.2s', boxShadow: a.primary ? '0 4px 12px rgba(230,126,34,0.3)' : 'none' }} onMouseEnter={e => { if (!a.primary) e.currentTarget.style.background = '#f1f1f1'; e.currentTarget.style.transform = 'translateY(-2px)' }} onMouseLeave={e => { if (!a.primary) e.currentTarget.style.background = '#f8f9fa'; e.currentTarget.style.transform = 'translateY(0)' }}>
-                                                <span style={{ fontSize: '24px' }}>{a.icon}</span>
-                                                <div><p style={{ fontWeight: 700, fontSize: '15px' }}>{a.title}</p><p style={{ fontSize: '12px', opacity: 0.8 }}>{a.sub}</p></div>
+                                            <div key={i} onClick={a.action} className={`button-press ${a.primary ? 'animate-pulseGlow' : ''}`} style={{
+                                                display: 'flex', gap: '14px', alignItems: 'center', padding: '16px', borderRadius: '16px', cursor: 'pointer',
+                                                background: a.primary ? 'linear-gradient(135deg, var(--primary), var(--primary-dark))' : '#ffffff',
+                                                color: a.primary ? 'white' : 'var(--text)', marginBottom: '12px', transition: 'all 0.2s',
+                                                border: a.primary ? 'none' : '1px solid #f0f0f0',
+                                                boxShadow: a.primary ? '0 10px 20px rgba(230,126,34,0.3)' : '0 2px 8px rgba(0,0,0,0.02)'
+                                            }} onMouseEnter={e => { if (!a.primary) { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.background = '#fff8f4' }; e.currentTarget.style.transform = 'translateY(-2px)' }} onMouseLeave={e => { if (!a.primary) { e.currentTarget.style.borderColor = '#f0f0f0'; e.currentTarget.style.background = '#ffffff' }; e.currentTarget.style.transform = 'translateY(0)' }}>
+                                                <div style={{ width: '48px', height: '48px', background: a.primary ? 'rgba(255,255,255,0.2)' : '#f8f9fa', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>{a.icon}</div>
+                                                <div><p style={{ fontWeight: 800, fontSize: '15px' }}>{a.title}</p><p style={{ fontSize: '12px', opacity: 0.7, fontWeight: 500 }}>{a.sub}</p></div>
                                             </div>
                                         ))}
                                     </div>
