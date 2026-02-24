@@ -128,11 +128,11 @@ function AdminChatModal({ req, onClose }) {
                     <div ref={bottomRef} />
                 </div>
                 <div style={{ padding: '24px', background: 'white', borderTop: `1px solid ${theme.border}`, display: 'flex', gap: '12px' }}>
-                    <input 
-                        value={text} 
+                    <input
+                        value={text}
                         onChange={e => setText(e.target.value)}
                         onKeyDown={e => e.key === 'Enter' && send()}
-                        placeholder="Type a professional response..." 
+                        placeholder="Type a professional response..."
                         style={{ flex: 1, padding: '12px 18px', borderRadius: '12px', border: `2px solid ${theme.border}`, fontSize: '14px', outline: 'none', transition: '0.2s' }}
                         onFocus={e => e.target.style.borderColor = theme.primary}
                         onBlur={e => e.target.style.borderColor = theme.border}
@@ -177,8 +177,8 @@ export default function AdminDashboard() {
         setRequests(stored ? JSON.parse(stored) : MOCK_REQUESTS)
     }, [])
 
-    const filtered = requests.filter(r => 
-        r.customerName.toLowerCase().includes(search.toLowerCase()) || 
+    const filtered = requests.filter(r =>
+        r.customerName.toLowerCase().includes(search.toLowerCase()) ||
         r.id.toLowerCase().includes(search.toLowerCase()) ||
         r.type.toLowerCase().includes(search.toLowerCase())
     )
@@ -191,9 +191,9 @@ export default function AdminDashboard() {
     const customerMap = {}
     requests.forEach(r => {
         if (!customerMap[r.customerEmail]) {
-            customerMap[r.customerEmail] = { 
-                name: r.customerName, email: r.customerEmail, phone: r.customerPhone, 
-                address: r.customerAddress, count: 0, totalValue: 0, requests: [] 
+            customerMap[r.customerEmail] = {
+                name: r.customerName, email: r.customerEmail, phone: r.customerPhone,
+                address: r.customerAddress, count: 0, totalValue: 0, requests: []
             }
         }
         customerMap[r.customerEmail].count++
@@ -211,11 +211,11 @@ export default function AdminDashboard() {
 
     return (
         <div style={{ minHeight: '100vh', background: theme.bg, display: 'flex', color: theme.text, fontFamily: "'Inter', sans-serif" }}>
-            
+
             {/* ---- SIDEBAR ---- */}
-            <aside style={{ 
-                width: '280px', background: theme.slate, borderRight: `1px solid ${theme.border}`, 
-                display: 'flex', flexDirection: 'column', position: 'fixed', height: '100vh', zIndex: 100 
+            <aside style={{
+                width: '280px', background: theme.slate, borderRight: `1px solid ${theme.border}`,
+                display: 'flex', flexDirection: 'column', position: 'fixed', height: '100vh', zIndex: 100
             }}>
                 <div style={{ padding: '32px 28px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                     <div style={{ fontSize: '20px', fontWeight: 800, color: 'white', letterSpacing: '-0.5px' }}>
@@ -234,7 +234,7 @@ export default function AdminDashboard() {
                     <div className={`sidebar-item ${view === 'customers' ? 'active' : ''}`} onClick={() => setView('customers')}>
                         <span style={{ fontSize: '18px' }}>👤</span> Customer Profiles
                     </div>
-                    
+
                     <div style={{ marginTop: '24px', padding: '0 16px' }}>
                         <p style={{ fontSize: '11px', color: '#475569', fontWeight: 800, textTransform: 'uppercase', marginBottom: '16px' }}>Performance Hub</p>
                         <div style={{ background: 'rgba(255,255,255,0.03)', padding: '16px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
@@ -247,23 +247,11 @@ export default function AdminDashboard() {
                     </div>
                 </div>
 
-                <div style={{ padding: '24px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-                        <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: theme.primary, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 800 }}>{adminEmail[0].toUpperCase()}</div>
-                        <div style={{ overflow: 'hidden' }}>
-                            <p style={{ color: 'white', fontSize: '13px', fontWeight: 700, whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{adminEmail}</p>
-                            <p style={{ color: '#64748b', fontSize: '11px' }}>Root Admin</p>
-                        </div>
-                    </div>
-                    <button onClick={logout} className="sidebar-item" style={{ width: '100%', background: 'rgba(239, 68, 68, 0.1)', color: '#f87171', border: 'none' }}>
-                        🚪 Sign Out
-                    </button>
-                </div>
             </aside>
 
             {/* ---- MAIN AREA ---- */}
             <main style={{ marginLeft: '280px', flex: 1, padding: '40px 60px', maxWidth: '1400px' }}>
-                
+
                 {/* Header */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
                     <div>
@@ -272,16 +260,31 @@ export default function AdminDashboard() {
                         </h1>
                         <p style={{ color: theme.textMuted, marginTop: '4px' }}>Welcome back. Here is what is happening today.</p>
                     </div>
-                    <div style={{ display: 'flex', gap: '16px' }}>
+                    <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
                         <div style={{ position: 'relative' }}>
                             <span style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }}>🔍</span>
-                            <input 
+                            <input
                                 value={search} onChange={e => setSearch(e.target.value)}
-                                placeholder="Universal search..." 
-                                style={{ padding: '12px 18px 12px 42px', borderRadius: '12px', border: `1px solid ${theme.border}`, width: '280px', outline: 'none', background: 'white', fontSize: '14px', transition: '0.2s' }}
+                                placeholder="Universal search..."
+                                style={{ padding: '12px 18px 12px 42px', borderRadius: '12px', border: `1px solid ${theme.border}`, width: '240px', outline: 'none', background: 'white', fontSize: '14px', transition: '0.2s' }}
                                 onFocus={e => e.target.style.borderColor = theme.primary}
                                 onBlur={e => e.target.style.borderColor = theme.border}
                             />
+                        </div>
+
+                        <div style={{ height: '32px', width: '1px', background: theme.border }}></div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <div style={{ textAlign: 'right' }}>
+                                <p style={{ color: theme.slate, fontSize: '13px', fontWeight: 700 }}>{adminEmail}</p>
+                                <p style={{ color: theme.textMuted, fontSize: '11px' }}>Root Admin</p>
+                            </div>
+                            <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: theme.slate, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 800 }}>
+                                {adminEmail[0].toUpperCase()}
+                            </div>
+                            <button onClick={logout} className="button-premium" style={{ background: '#fee2e2', color: '#dc2626', border: 'none', padding: '8px 16px', fontSize: '12px' }}>
+                                Sign Out
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -291,12 +294,12 @@ export default function AdminDashboard() {
                     <div className="animate-fadeIn">
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px', marginBottom: '40px' }}>
                             {[
-                                { label: 'Total Ecosystem Revenue', val: `₹${(revenue/100000).toFixed(1)}L`, icon: '💰', color: '#6366f1', bg: '#eef2ff' },
+                                { label: 'Total Ecosystem Revenue', val: `₹${(revenue / 100000).toFixed(1)}L`, icon: '💰', color: '#6366f1', bg: '#eef2ff' },
                                 { label: 'Active Service Requests', val: requests.length, icon: '⚡', color: theme.primary, bg: '#fff7ed' },
                                 { label: 'Efficiency Rate', val: `${conversion}%`, icon: '📈', color: '#22c55e', bg: '#f0fdf4' },
                                 { label: 'Pending Approvals', val: pending, icon: '⏳', color: '#f59e0b', bg: '#fffbeb' },
                             ].map((s, i) => (
-                                <div key={i} className={`stats-card animate-slideUp stagger-${i+1}`}>
+                                <div key={i} className={`stats-card animate-slideUp stagger-${i + 1}`}>
                                     <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: s.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px', marginBottom: '16px' }}>{s.icon}</div>
                                     <p style={{ color: theme.textMuted, fontSize: '13px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{s.label}</p>
                                     <h3 style={{ fontSize: '32px', fontWeight: 800, marginTop: '8px', color: theme.slate }}>{s.val}</h3>
@@ -384,9 +387,9 @@ export default function AdminDashboard() {
                                             <td style={{ padding: '24px 20px', fontSize: '13px', color: theme.textMuted }}>{r.dateSubmitted}</td>
                                             <td style={{ padding: '24px 20px', fontWeight: 800 }}>{r.budget}</td>
                                             <td style={{ padding: '24px 20px' }}>
-                                                <span style={{ 
-                                                    padding: '6px 14px', borderRadius: '20px', fontSize: '11px', fontWeight: 800, 
-                                                    background: r.responded ? '#f0fdf4' : '#fff7ed', 
+                                                <span style={{
+                                                    padding: '6px 14px', borderRadius: '20px', fontSize: '11px', fontWeight: 800,
+                                                    background: r.responded ? '#f0fdf4' : '#fff7ed',
                                                     color: r.responded ? '#15803d' : '#c2410c',
                                                     border: `1px solid ${r.responded ? '#bbf7d0' : '#ffedd5'}`
                                                 }}>
@@ -422,13 +425,13 @@ export default function AdminDashboard() {
                                             <span style={{ fontSize: '11px', fontWeight: 800, color: theme.primary, background: '#fff7ed', padding: '4px 10px', borderRadius: '12px' }}>PRO USER</span>
                                         </div>
                                         <p style={{ fontSize: '13px', color: theme.textMuted, marginTop: '2px' }}>{c.email}</p>
-                                        
+
                                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '16px', padding: '12px', background: '#f8fafc', borderRadius: '12px' }}>
                                             <div><p style={{ fontSize: '10px', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700 }}>Inquiries</p><p style={{ fontWeight: 800 }}>{c.count} Records</p></div>
-                                            <div><p style={{ fontSize: '10px', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700 }}>Invested</p><p style={{ fontWeight: 800, color: '#16a34a' }}>₹{(c.totalValue/100000).toFixed(1)}L</p></div>
+                                            <div><p style={{ fontSize: '10px', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700 }}>Invested</p><p style={{ fontWeight: 800, color: '#16a34a' }}>₹{(c.totalValue / 100000).toFixed(1)}L</p></div>
                                         </div>
 
-                                        <button 
+                                        <button
                                             onClick={() => setSelectedCustomer(c)}
                                             style={{ marginTop: '16px', width: '100%', padding: '10px', borderRadius: '10px', background: theme.slate, color: 'white', border: 'none', fontWeight: 700, cursor: 'pointer' }}>
                                             View Enterprise Profile
