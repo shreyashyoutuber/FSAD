@@ -367,10 +367,10 @@ export default function UserDashboard() {
 
             {/* Sidebar */}
             <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
-                <div className="sidebar-header">
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <span style={{ fontSize: '28px' }}>🏠</span>
-                        <h2 className="sidebar-brand">Bharat<span>Home</span></h2>
+                <div className="sidebar-header" onClick={() => setView('dashboard')} style={{ cursor: 'pointer', transition: '0.3s' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                        <span style={{ fontSize: '38px', filter: 'drop-shadow(0 0 8px rgba(230,126,34,0.4))' }}>🏠</span>
+                        <h2 className="sidebar-brand" style={{ fontSize: '22px' }}>Bharat<span>Home</span></h2>
                     </div>
                 </div>
                 <nav className="sidebar-nav">
@@ -743,7 +743,7 @@ export default function UserDashboard() {
 
                     {/* ---- SUBMIT PROPERTY ---- */}
                     {view === 'submit' && (
-                        <div className="animate-fadeIn" style={{ maxWidth: '700px' }}>
+                        <div className="animate-fadeIn" style={{ maxWidth: '850px', margin: '0 auto' }}>
                             <h2 style={{ fontSize: '24px', fontWeight: 800, marginBottom: '8px' }}>Submit New Property</h2>
                             <p style={{ color: 'var(--muted)', marginBottom: '24px' }}>Tell us about your property to get personalized recommendations</p>
                             <div className="card" style={{ margin: 0 }}>
