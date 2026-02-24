@@ -518,14 +518,16 @@ export default function AdminDashboard() {
                                             <td style={{ padding: '24px 20px', fontSize: '13px', color: theme.textMuted }}>{r.dateSubmitted}</td>
                                             <td style={{ padding: '24px 20px', fontWeight: 800 }}>{r.budget}</td>
                                             <td style={{ padding: '24px 20px' }}>
-                                                <span style={{
-                                                    padding: '6px 14px', borderRadius: '20px', fontSize: '11px', fontWeight: 800,
+                                                <div style={{
+                                                    display: 'inline-flex', alignItems: 'center', gap: '8px',
+                                                    padding: '6px 16px', borderRadius: '20px', fontSize: '12px', fontWeight: 800,
                                                     background: r.responded ? '#f0fdf4' : '#fff7ed',
                                                     color: r.responded ? '#15803d' : '#c2410c',
                                                     border: `1px solid ${r.responded ? '#bbf7d0' : '#ffedd5'}`
                                                 }}>
-                                                    {r.responded ? '● Responded' : '● Processing'}
-                                                </span>
+                                                    <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'currentColor' }} />
+                                                    {r.responded ? 'Responded' : 'Processing'}
+                                                </div>
                                             </td>
                                             <td style={{ padding: '24px 20px' }}>
                                                 <div style={{ display: 'flex', gap: '8px' }}>
