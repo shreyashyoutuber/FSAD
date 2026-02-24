@@ -162,6 +162,8 @@ export default function AdminDashboard() {
     const [selectedReq, setSelectedReq] = useState(null)
     const [selectedCustomer, setSelectedCustomer] = useState(null)
     const [chatReq, setChatReq] = useState(null)
+    const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
+    const [showProfileModal, setShowProfileModal] = useState(false)
     const adminEmail = localStorage.getItem('adminEmail') || 'admin@bharathomevalue.com'
 
     useEffect(() => {
@@ -203,10 +205,8 @@ export default function AdminDashboard() {
     const customers = Object.values(customerMap)
 
     const logout = () => {
-        if (confirm('Sign out of the administrator panel?')) {
-            localStorage.removeItem('adminLoggedIn')
-            navigate('/admin-login')
-        }
+        localStorage.removeItem('adminLoggedIn')
+        navigate('/admin-login')
     }
 
     return (
@@ -274,7 +274,7 @@ export default function AdminDashboard() {
 
                         <div style={{ height: '40px', width: '1px', background: theme.border }}></div>
 
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', background: 'white', padding: '6px 6px 6px 16px', borderRadius: '14px', border: `1px solid ${theme.border}`, boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', background: 'white', padding: '6px 6px 6px 16px', borderRadius: '14px', border: `1px solid ${theme.border}`, boxShadow: '0 2px 4px rgba(0,0,0,0.02)', cursor: 'pointer' }} onClick={() => setShowProfileModal(true)}>
                             <div style={{ textAlign: 'right' }}>
                                 <p style={{ color: theme.slate, fontSize: '13px', fontWeight: 800, lineHeight: 1 }}>{adminEmail.split('@')[0]}</p>
                                 <p style={{ color: theme.primary, fontSize: '10px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '4px' }}>System Admin</p>
@@ -289,7 +289,7 @@ export default function AdminDashboard() {
                                 {adminEmail[0].toUpperCase()}
                             </div>
                             <button
-                                onClick={logout}
+                                onClick={(e) => { e.stopPropagation(); setShowLogoutConfirm(true) }}
                                 className="button-premium"
                                 style={{
                                     background: '#f1f5f9', color: '#64748b', border: '1px solid #e2e8f0',
@@ -512,6 +512,51 @@ export default function AdminDashboard() {
 
             {/* Chat Modal */}
             {chatReq && <AdminChatModal req={chatReq} onClose={() => setChatReq(null)} />}
+
+            {/* Account Profile Modal */}
+            {showProfileModal && (
+                <div onClick={e => { if (e.target === e.currentTarget) setShowProfileModal(false) }}
+                    style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.7)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000 }}>
+                    <div className="animate-scaleIn" style={{ background: 'white', borderRadius: '24px', maxWidth: '480px', width: '100%', boxShadow: '0 40px 100px rgba(0,0,0,0.3)', overflow: 'hidden' }}>
+                        <div style={{ background: `linear-gradient(135deg, ${theme.slate}, ${theme.slateLight})`, padding: '40px', textAlign: 'center', color: 'white' }}>
+                            <div style={{ width: '80px', height: '80px', background: theme.primary, borderRadius: '24px', margin: '0 auto 20px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '32px', fontWeight: 800, boxShadow: '0 12px 24px rgba(230,126,34,0.3)' }}>{adminEmail[0].toUpperCase()}</div>
+                            <h2 style={{ fontSize: '24px', fontWeight: 800 }}>{adminEmail}</h2>
+                            <p style={{ color: '#94a3b8', marginTop: '4px', fontWeight: 600 }}>Master Administrator Control</p>
+                        </div>
+                        <div style={{ padding: '32px' }}>
+                            <div style={{ display: 'grid', gap: '20px' }}>
+                                <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '16px', border: `1px solid ${theme.border}` }}>
+                                    <p style={{ fontSize: '11px', color: theme.textMuted, fontWeight: 800, textTransform: 'uppercase', marginBottom: '8px' }}>Security Level</p>
+                                    <p style={{ fontWeight: 800, color: theme.slate }}>Root / Level 4 (Highest)</p>
+                                </div>
+                                <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '16px', border: `1px solid ${theme.border}` }}>
+                                    <p style={{ fontSize: '11px', color: theme.textMuted, fontWeight: 800, textTransform: 'uppercase', marginBottom: '8px' }}>Last Authentication</p>
+                                    <p style={{ fontWeight: 800, color: theme.slate }}>{new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                                </div>
+                                <button onClick={() => setShowProfileModal(false)} style={{ width: '100%', padding: '14px', borderRadius: '12px', background: theme.slate, color: 'white', border: 'none', fontWeight: 700, cursor: 'pointer', transition: '0.2s' }}>Close Account Overview</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Logout Confirmation Modal */}
+            {showLogoutConfirm && (
+                <div onClick={e => { if (e.target === e.currentTarget) setShowLogoutConfirm(false) }}
+                    style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.7)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 3000 }}>
+                    <div className="animate-scaleIn" style={{ background: 'white', borderRadius: '24px', maxWidth: '400px', width: '100%', boxShadow: '0 40px 100px rgba(0,0,0,0.3)', overflow: 'hidden' }}>
+                        <div style={{ padding: '32px', textAlign: 'center' }}>
+                            <div style={{ width: '64px', height: '64px', background: '#fee2e2', color: '#dc2626', borderRadius: '50%', margin: '0 auto 20px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>🚪</div>
+                            <h3 style={{ fontSize: '20px', fontWeight: 800, color: theme.slate }}>Confirm Sign Out</h3>
+                            <p style={{ color: theme.textMuted, marginTop: '12px', lineHeight: 1.6, fontSize: '14px' }}>Are you sure you want to end your administrative session and return to the login screen?</p>
+                        </div>
+                        <div style={{ padding: '0 32px 32px', display: 'flex', gap: '12px' }}>
+                            <button onClick={() => setShowLogoutConfirm(false)} style={{ flex: 1, padding: '14px', borderRadius: '12px', background: 'white', border: `1px solid ${theme.border}`, color: theme.slate, fontWeight: 700, cursor: 'pointer' }}>Cancel</button>
+                            <button onClick={logout} style={{ flex: 1, padding: '14px', borderRadius: '12px', background: '#dc2626', border: 'none', color: 'white', fontWeight: 700, cursor: 'pointer' }}>Sign Out</button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }
