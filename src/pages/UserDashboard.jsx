@@ -332,6 +332,16 @@ export default function UserDashboard() {
         .reduce((sum, res) => sum + parseInt(res.quote || 0), 0)
 
     const potentialValueIncrease = totalInvestment > 0 ? Math.round(totalInvestment * 1.8) : 0 // Rough heuristic: 1.8x ROI
+
+    // Fallback logic for when admin hasn't responded yet
+    const parseMoney = (s) => parseFloat(s.replace(/[^0-9]/g, '').replace(/^\./, '0.')) * (s.includes('K') ? 1000 : (s.includes('L') ? 100000 : 1))
+    const fallbackTotalCost = RECS.reduce((sum, r) => sum + parseMoney(r.cost), 0)
+    const fallbackTotalValue = RECS.reduce((sum, r) => sum + parseMoney(r.value), 0)
+
+    const displayInvestment = totalInvestment > 0 ? totalInvestment : (activeProperty ? fallbackTotalCost : 0)
+    const displayValueIncrease = potentialValueIncrease > 0 ? potentialValueIncrease : (activeProperty ? fallbackTotalValue : 0)
+    const displayRecsCount = activeRecsCount > 0 ? activeRecsCount : (activeProperty ? RECS.length : 0)
+
     const baseValue = parseInt(activeProperty?.details?.marketValue?.replace(/[^0-9]/g, '') || 5000000)
 
     const prop = activeProperty ? {
@@ -347,9 +357,9 @@ export default function UserDashboard() {
     const chartLabels = ['Current', 'In Progress', 'Responded', 'Final Value']
     const chartGrowthData = [
         baseValue,
-        baseValue + (totalInvestment * 0.2),
-        baseValue + (totalInvestment * 0.8),
-        baseValue + potentialValueIncrease
+        baseValue + (displayInvestment * 0.2),
+        baseValue + (displayInvestment * 0.8),
+        baseValue + displayValueIncrease
     ]
 
     const chartData = {
@@ -521,9 +531,9 @@ export default function UserDashboard() {
                             {activeProperty && (
                                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', marginBottom: '32px' }}>
                                     {[
-                                        { label: 'Potential Value Increase', value: `+₹${(potentialValueIncrease / 100000).toFixed(2)}L`, sub: 'With all recommendations', color: '#3b82f6', icon: '📊' },
-                                        { label: 'Total Investment', value: `₹${(totalInvestment / 100000).toFixed(2)}L`, sub: 'Estimated renovation cost', color: '#f59e0b', icon: '₹' },
-                                        { label: 'Active Recommendations', value: activeRecsCount, sub: 'Personalized for you', color: '#10b981', icon: '💡' },
+                                        { label: 'Potential Value Increase', value: `+₹${(displayValueIncrease / 100000).toFixed(2)}L`, sub: 'With all recommendations', color: '#3b82f6', icon: '📊' },
+                                        { label: 'Total Investment', value: `₹${(displayInvestment / 100000).toFixed(2)}L`, sub: 'Estimated renovation cost', color: '#f59e0b', icon: '₹' },
+                                        { label: 'Active Recommendations', value: displayRecsCount, sub: 'Personalized for you', color: '#10b981', icon: '💡' },
                                     ].map((m, i) => (
                                         <div key={i} className={`card animate-slideUp stagger-${i + 2}`} style={{ margin: 0, padding: '24px', border: '1px solid #f0f0f0', borderRadius: '20px' }}>
                                             <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '16px' }}>
