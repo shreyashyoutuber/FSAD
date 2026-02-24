@@ -338,9 +338,9 @@ export default function UserDashboard() {
     const fallbackTotalCost = RECS.reduce((sum, r) => sum + parseMoney(r.cost), 0)
     const fallbackTotalValue = RECS.reduce((sum, r) => sum + parseMoney(r.value), 0)
 
-    const displayInvestment = totalInvestment > 0 ? totalInvestment : (activeProperty ? fallbackTotalCost : 0)
-    const displayValueIncrease = potentialValueIncrease > 0 ? potentialValueIncrease : (activeProperty ? fallbackTotalValue : 0)
-    const displayRecsCount = activeRecsCount > 0 ? activeRecsCount : (activeProperty ? RECS.length : 0)
+    const displayInvestment = totalInvestment > 0 ? totalInvestment : 0
+    const displayValueIncrease = potentialValueIncrease > 0 ? potentialValueIncrease : 0
+    const displayRecsCount = activeRecsCount
 
     const baseValue = parseInt(activeProperty?.details?.marketValue?.replace(/[^0-9]/g, '') || 5000000)
 
@@ -584,32 +584,43 @@ export default function UserDashboard() {
                                     <div className="card" style={{ margin: 0, padding: '32px' }}>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                                             <h3 className="card-title" style={{ margin: 0 }}>Top Recommendations</h3>
-                                            <button onClick={() => setShowAllRecs(!showAllRecs)} style={{ background: 'none', border: 'none', color: 'var(--primary)', fontWeight: 600, cursor: 'pointer' }}>{showAllRecs ? 'Show Less' : 'View All'}</button>
+                                            {activeRecsCount > 0 && <button onClick={() => setShowAllRecs(!showAllRecs)} style={{ background: 'none', border: 'none', color: 'var(--primary)', fontWeight: 600, cursor: 'pointer' }}>{showAllRecs ? 'Show Less' : 'View All'}</button>}
                                         </div>
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                                            {(showAllRecs ? RECS : RECS.slice(0, 2)).map((rec, i) => (
-                                                <div key={i} style={{ border: '2px solid #f0f0f0', borderRadius: '12px', padding: '20px', transition: 'all 0.3s' }}>
-                                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
-                                                        <div><h4 style={{ fontSize: '17px', fontWeight: 700 }}>{rec.title}</h4><p style={{ color: 'var(--muted)', fontSize: '14px', marginTop: '4px' }}>{rec.desc}</p></div>
-                                                        <span style={{ padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 700, background: rec.priority === 'high' ? '#fee2e2' : '#fef3c7', color: rec.priority === 'high' ? '#dc2626' : '#b45309' }}>
-                                                            {rec.priority === 'high' ? 'High' : 'Medium'} Priority
-                                                        </span>
+
+                                        {activeRecsCount > 0 ? (
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                                {(showAllRecs ? RECS : RECS.slice(0, 2)).map((rec, i) => (
+                                                    <div key={i} style={{ border: '2px solid #f0f0f0', borderRadius: '12px', padding: '20px', transition: 'all 0.3s' }}>
+                                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
+                                                            <div><h4 style={{ fontSize: '17px', fontWeight: 700 }}>{rec.title}</h4><p style={{ color: 'var(--muted)', fontSize: '14px', marginTop: '4px' }}>{rec.desc}</p></div>
+                                                            <span style={{ padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 700, background: rec.priority === 'high' ? '#fee2e2' : '#fef3c7', color: rec.priority === 'high' ? '#dc2626' : '#b45309' }}>
+                                                                {rec.priority === 'high' ? 'High' : 'Medium'} Priority
+                                                            </span>
+                                                        </div>
+                                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '12px', marginBottom: '16px' }}>
+                                                            {[['Est. Cost', rec.cost, 'var(--text)'], ['Value Increase', rec.value, '#10b981'], ['ROI', rec.roi, '#3b82f6'], ['Property Impact', rec.impact, '#8b5cf6']].map(([k, v, c]) => (
+                                                                <div key={k} style={{ background: '#f8f9fa', borderRadius: '8px', padding: '10px', textAlign: 'center' }}>
+                                                                    <p style={{ fontSize: '11px', color: 'var(--muted)', marginBottom: '4px' }}>{k}</p>
+                                                                    <p style={{ fontSize: '16px', fontWeight: 800, color: c }}>{v}</p>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                        <div style={{ display: 'flex', gap: '12px' }}>
+                                                            <button onClick={() => navigate(rec.link)} className="button-press" style={{ flex: 1, padding: '10px', background: 'linear-gradient(135deg, var(--primary), var(--primary-dark))', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 12px rgba(230,126,34,0.2)' }}>Get Detailed Plan</button>
+                                                            <button onClick={() => saveIdea(rec)} className="button-press" style={{ flex: 1, padding: '10px', background: '#f8f9fa', border: '2px solid #e9ecef', borderRadius: '8px', fontWeight: 700, cursor: 'pointer' }}>Save for Later</button>
+                                                        </div>
                                                     </div>
-                                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '12px', marginBottom: '16px' }}>
-                                                        {[['Est. Cost', rec.cost, 'var(--text)'], ['Value Increase', rec.value, '#10b981'], ['ROI', rec.roi, '#3b82f6'], ['Property Impact', rec.impact, '#8b5cf6']].map(([k, v, c]) => (
-                                                            <div key={k} style={{ background: '#f8f9fa', borderRadius: '8px', padding: '10px', textAlign: 'center' }}>
-                                                                <p style={{ fontSize: '11px', color: 'var(--muted)', marginBottom: '4px' }}>{k}</p>
-                                                                <p style={{ fontSize: '16px', fontWeight: 800, color: c }}>{v}</p>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                    <div style={{ display: 'flex', gap: '12px' }}>
-                                                        <button onClick={() => navigate(rec.link)} className="button-press" style={{ flex: 1, padding: '10px', background: 'linear-gradient(135deg, var(--primary), var(--primary-dark))', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 12px rgba(230,126,34,0.2)' }}>Get Detailed Plan</button>
-                                                        <button onClick={() => saveIdea(rec)} className="button-press" style={{ flex: 1, padding: '10px', background: '#f8f9fa', border: '2px solid #e9ecef', borderRadius: '8px', fontWeight: 700, cursor: 'pointer' }}>Save for Later</button>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <div style={{ textAlign: 'center', padding: '40px 20px', background: '#f8fafc', borderRadius: '16px', border: '1px dashed #e2e8f0' }}>
+                                                <div style={{ fontSize: '32px', marginBottom: '16px' }}>⏳</div>
+                                                <h4 style={{ fontSize: '16px', fontWeight: 700, color: '#475569' }}>Expert Analysis in Progress</h4>
+                                                <p style={{ color: '#94a3b8', fontSize: '14px', maxWidth: '300px', margin: '8px auto 0', lineHeight: 1.5 }}>
+                                                    Our experts are reviewing your property details. Personalized recommendations will appear here shortly.
+                                                </p>
+                                            </div>
+                                        )}
                                     </div>
                                 </>
                             ) : (
