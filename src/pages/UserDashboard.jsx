@@ -518,34 +518,38 @@ export default function UserDashboard() {
                             )}
 
                             {/* Metric Cards */}
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', marginBottom: '32px' }}>
-                                {[
-                                    { label: 'Potential Value Increase', value: activeProperty ? `+₹${(potentialValueIncrease / 100000).toFixed(2)}L` : '₹0.00', sub: activeProperty ? 'With all recommendations' : 'Submit property to see forecast', color: '#3b82f6', icon: '📊' },
-                                    { label: 'Total Investment', value: activeProperty ? `₹${(totalInvestment / 100000).toFixed(2)}L` : '₹0.00', sub: activeProperty ? 'Estimated renovation cost' : 'Analysis pending submission', color: '#f59e0b', icon: '₹' },
-                                    { label: 'Active Recommendations', value: activeProperty ? activeRecsCount : '0', sub: activeProperty ? 'Personalized for you' : 'Get expert suggestions', color: '#10b981', icon: '💡' },
-                                ].map((m, i) => (
-                                    <div key={i} className={`card animate-slideUp stagger-${i + 2}`} style={{ margin: 0, padding: '24px', border: '1px solid #f0f0f0', borderRadius: '20px' }}>
-                                        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '16px' }}>
-                                            <div style={{ width: '40px', height: '40px', background: `${m.color}15`, borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', color: m.color }}>{m.icon}</div>
-                                            <span style={{ fontSize: '14px', fontWeight: 700, color: '#666' }}>{m.label}</span>
+                            {activeProperty && (
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', marginBottom: '32px' }}>
+                                    {[
+                                        { label: 'Potential Value Increase', value: `+₹${(potentialValueIncrease / 100000).toFixed(2)}L`, sub: 'With all recommendations', color: '#3b82f6', icon: '📊' },
+                                        { label: 'Total Investment', value: `₹${(totalInvestment / 100000).toFixed(2)}L`, sub: 'Estimated renovation cost', color: '#f59e0b', icon: '₹' },
+                                        { label: 'Active Recommendations', value: activeRecsCount, sub: 'Personalized for you', color: '#10b981', icon: '💡' },
+                                    ].map((m, i) => (
+                                        <div key={i} className={`card animate-slideUp stagger-${i + 2}`} style={{ margin: 0, padding: '24px', border: '1px solid #f0f0f0', borderRadius: '20px' }}>
+                                            <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '16px' }}>
+                                                <div style={{ width: '40px', height: '40px', background: `${m.color}15`, borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', color: m.color }}>{m.icon}</div>
+                                                <span style={{ fontSize: '14px', fontWeight: 700, color: '#666' }}>{m.label}</span>
+                                            </div>
+                                            <p style={{ fontSize: '28px', fontWeight: 800, color: m.color, letterSpacing: '-0.5px' }}>{m.value}</p>
+                                            <p style={{ fontSize: '13px', color: '#999', marginTop: '6px' }}>{m.sub}</p>
                                         </div>
-                                        <p style={{ fontSize: '28px', fontWeight: 800, color: m.color, letterSpacing: '-0.5px' }}>{m.value}</p>
-                                        <p style={{ fontSize: '13px', color: '#999', marginTop: '6px' }}>{m.sub}</p>
-                                    </div>
-                                ))}
-                            </div>
+                                    ))}
+                                </div>
+                            )}
 
                             {/* Chart + Quick Actions */}
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: '24px', marginBottom: '24px' }}>
-                                <div className="card animate-slideUp stagger-5" style={{ margin: 0, padding: '32px' }}>
-                                    <h3 style={{ fontSize: '20px', fontWeight: 800, marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        Projected Value Growth
-                                        <span style={{ fontSize: '12px', fontWeight: 600, color: '#999', background: '#f8f9fa', padding: '4px 12px', borderRadius: '12px' }}>Based on Improvements</span>
-                                    </h3>
-                                    <div style={{ height: '300px' }}>
-                                        <Line data={chartData} options={{ ...chartOptions, maintainAspectRatio: false }} />
+                            <div style={{ display: 'grid', gridTemplateColumns: activeProperty ? '1fr 340px' : '1fr', gap: '24px', marginBottom: '24px' }}>
+                                {activeProperty && (
+                                    <div className="card animate-slideUp stagger-5" style={{ margin: 0, padding: '32px' }}>
+                                        <h3 style={{ fontSize: '20px', fontWeight: 800, marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            Projected Value Growth
+                                            <span style={{ fontSize: '12px', fontWeight: 600, color: '#999', background: '#f8f9fa', padding: '4px 12px', borderRadius: '12px' }}>Based on Improvements</span>
+                                        </h3>
+                                        <div style={{ height: '300px' }}>
+                                            <Line data={chartData} options={{ ...chartOptions, maintainAspectRatio: false }} />
+                                        </div>
                                     </div>
-                                </div>
+                                )}
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                                     <div className="card" style={{ margin: 0, padding: '32px' }}>
                                         <h3 style={{ fontSize: '20px', fontWeight: 800, marginBottom: '20px' }}>Quick Actions</h3>
@@ -854,12 +858,12 @@ export default function UserDashboard() {
                                     setView('dashboard');
                                 }}>
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                                        {[['First Name', 'text', 'firstName', 'e.g., Rajesh'], ['Last Name', 'text', 'lastName', 'e.g., Kumar'], ['Email', 'email', 'email', 'your@email.com'], ['Contact Number', 'tel', 'phone', '+91 XXXXX XXXXX'], ['Address', 'text', 'address', 'Street address'], ['City', 'text', 'city', 'e.g., Mumbai']].map(([label, type, key, ph]) => (
-                                            <div className="form-group" key={key} style={key === 'address' ? { gridColumn: '1/-1' } : {}}>
-                                                <label>{label}</label>
-                                                <input name={key} type={type} placeholder={ph} required />
-                                            </div>
-                                        ))}
+                                        <div className="form-group"><label>First Name</label><input name="firstName" type="text" defaultValue={userData?.name?.split(' ')[0] || ''} required /></div>
+                                        <div className="form-group"><label>Last Name</label><input name="lastName" type="text" defaultValue={userData?.name?.split(' ')[1] || ''} required /></div>
+                                        <div className="form-group"><label>Email</label><input name="email" type="email" value={userEmail || ''} readOnly style={{ background: '#f8f9fa', cursor: 'not-allowed' }} required /></div>
+                                        <div className="form-group"><label>Contact Number</label><input name="phone" type="tel" defaultValue={userData?.phone || ''} placeholder="+91 XXXXX XXXXX" required /></div>
+                                        <div className="form-group" style={{ gridColumn: '1/-1' }}><label>Address</label><input name="address" type="text" placeholder="Street address" required /></div>
+                                        <div className="form-group"><label>City</label><input name="city" type="text" placeholder="e.g., Mumbai" required /></div>
                                     </div>
                                     <div className="form-group">
                                         <label>Property Type</label>
