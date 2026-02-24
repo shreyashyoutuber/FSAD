@@ -272,18 +272,34 @@ export default function AdminDashboard() {
                             />
                         </div>
 
-                        <div style={{ height: '32px', width: '1px', background: theme.border }}></div>
+                        <div style={{ height: '40px', width: '1px', background: theme.border }}></div>
 
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', background: 'white', padding: '6px 6px 6px 16px', borderRadius: '14px', border: `1px solid ${theme.border}`, boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
                             <div style={{ textAlign: 'right' }}>
-                                <p style={{ color: theme.slate, fontSize: '13px', fontWeight: 700 }}>{adminEmail}</p>
-                                <p style={{ color: theme.textMuted, fontSize: '11px' }}>Root Admin</p>
+                                <p style={{ color: theme.slate, fontSize: '13px', fontWeight: 800, lineHeight: 1 }}>{adminEmail.split('@')[0]}</p>
+                                <p style={{ color: theme.primary, fontSize: '10px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '4px' }}>System Admin</p>
                             </div>
-                            <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: theme.slate, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 800 }}>
+                            <div style={{
+                                width: '38px', height: '38px', borderRadius: '10px',
+                                background: `linear-gradient(135deg, ${theme.slate}, ${theme.slateLight})`,
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                color: 'white', fontWeight: 800, fontSize: '16px',
+                                boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
+                            }}>
                                 {adminEmail[0].toUpperCase()}
                             </div>
-                            <button onClick={logout} className="button-premium" style={{ background: '#fee2e2', color: '#dc2626', border: 'none', padding: '8px 16px', fontSize: '12px' }}>
-                                Sign Out
+                            <button
+                                onClick={logout}
+                                className="button-premium"
+                                style={{
+                                    background: '#f1f5f9', color: '#64748b', border: '1px solid #e2e8f0',
+                                    padding: '10px 14px', fontSize: '12px', borderRadius: '10px',
+                                    transition: '0.2s all'
+                                }}
+                                onMouseEnter={e => { e.currentTarget.style.background = '#fee2e2'; e.currentTarget.style.color = '#dc2626'; e.currentTarget.style.borderColor = '#fecaca'; }}
+                                onMouseLeave={e => { e.currentTarget.style.background = '#f1f5f9'; e.currentTarget.style.color = '#64748b'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
+                            >
+                                <span style={{ marginRight: '6px' }}>🚪</span> Sign Out
                             </button>
                         </div>
                     </div>
