@@ -469,7 +469,7 @@ export default function AdminDashboard() {
                             </div>
 
                             {/* Popular Services */}
-                            <div style={{ background: theme.slate, borderRadius: '24px', padding: '32px', color: 'white' }}>
+                            <div style={{ background: theme.slate, borderRadius: '24px', padding: '32px', color: 'white', alignSelf: 'start' }}>
                                 <h3 style={{ fontSize: '18px', fontWeight: 800, marginBottom: '24px' }}>Service Distribution</h3>
                                 {['Kitchen Estimator', 'Full Home Estimator', 'Wardrobe Estimator'].map(t => {
                                     const count = requests.filter(r => r.type === t).length
