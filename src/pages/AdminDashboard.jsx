@@ -144,13 +144,6 @@ function AdminChatModal({ req, onClose }) {
     )
 }
 
-// ---- MOCK DATA ----
-const MOCK_REQUESTS = [
-    { id: 'EST-001', customerName: 'Rajesh Kumar', customerEmail: 'rajesh@example.com', customerPhone: '+91 98765 43210', customerAddress: 'Flat 402, Sunshine Apts, Bangalore', type: 'Kitchen Estimator', status: 'pending', dateSubmitted: '2026-02-14', description: 'Kitchen renovation with modern cabinets', budget: '₹1,50,000', responded: false },
-    { id: 'EST-002', customerName: 'Priya Singh', customerEmail: 'priya@example.com', customerPhone: '+91 88822 33445', customerAddress: '7th Cross, HSR Layout, Bangalore', type: 'Full Home Estimator', status: 'pending', dateSubmitted: '2026-02-15', description: 'Complete home interior design', budget: '₹15,00,000', responded: false },
-    { id: 'EST-003', customerName: 'Amit Patel', customerEmail: 'amit@example.com', customerPhone: '+91 77766 55443', customerAddress: 'Prestige Falcon City, Kanakapura Road', type: 'Wardrobe Estimator', status: 'responded', dateSubmitted: '2026-02-10', description: 'Custom wardrobe design', budget: '₹2,85,000', responded: true },
-    { id: 'EST-004', customerName: 'Sneha Reddy', customerEmail: 'sneha@example.com', customerPhone: '+91 99900 11223', customerAddress: 'Electronics City, Phase 1', type: 'Kitchen Estimator', status: 'responded', dateSubmitted: '2026-02-18', description: 'L-shaped kitchen remodel', budget: '₹3,20,000', responded: true },
-]
 
 // ---- MAIN COMPONENT ----
 
@@ -176,7 +169,7 @@ export default function AdminDashboard() {
     useEffect(() => {
         if (!localStorage.getItem('adminLoggedIn')) { navigate('/admin-login'); return }
         const stored = localStorage.getItem('allAdminRequests')
-        setRequests(stored ? JSON.parse(stored) : MOCK_REQUESTS)
+        setRequests(stored ? JSON.parse(stored) : [])
     }, [])
 
     const filtered = requests.filter(r =>
@@ -187,7 +180,9 @@ export default function AdminDashboard() {
 
     const revenue = requests.reduce((acc, r) => acc + parseInt(r.budget.replace(/[^0-9]/g, '') || 0), 0)
     const pending = requests.filter(r => !r.responded).length
-    const conversion = ((requests.filter(r => r.responded).length / requests.length) * 100).toFixed(1)
+    const conversion = requests.length > 0
+        ? ((requests.filter(r => r.responded).length / requests.length) * 100).toFixed(1)
+        : '0.0'
 
     // Derive Customers
     const customerMap = {}

@@ -746,31 +746,60 @@ export default function UserDashboard() {
                             <h2 style={{ fontSize: '24px', fontWeight: 800, marginBottom: '8px' }}>Submit New Property</h2>
                             <p style={{ color: 'var(--muted)', marginBottom: '24px' }}>Tell us about your property to get personalized recommendations</p>
                             <div className="card" style={{ margin: 0 }}>
-                                <form onSubmit={(e) => { e.preventDefault(); alert('Property submitted! Our team will review and provide recommendations within 48 hours.'); setView('dashboard') }}>
+                                <form onSubmit={(e) => {
+                                    e.preventDefault();
+                                    const fd = new FormData(e.target);
+                                    const data = Object.fromEntries(fd.entries());
+
+                                    const newReq = {
+                                        id: `PROP-${Date.now().toString().slice(-6)}`,
+                                        customerName: `${data.firstName} ${data.lastName}`,
+                                        customerEmail: data.email,
+                                        customerPhone: data.phone,
+                                        customerAddress: `${data.address}, ${data.city}`,
+                                        type: `Property: ${data.propertyType}`,
+                                        status: 'pending',
+                                        dateSubmitted: new Date().toISOString().split('T')[0],
+                                        description: data.description || 'New property submission for review',
+                                        budget: `₹${data.improvementBudget}`,
+                                        responded: false,
+                                        details: {
+                                            size: data.propertySize,
+                                            year: data.yearBuilt,
+                                            marketValue: `₹${data.marketValue}`
+                                        }
+                                    };
+
+                                    const allReqs = JSON.parse(localStorage.getItem('allAdminRequests') || '[]');
+                                    localStorage.setItem('allAdminRequests', JSON.stringify([...allReqs, newReq]));
+
+                                    alert('Property submitted! Our team will review and provide recommendations within 48 hours.');
+                                    setView('dashboard');
+                                }}>
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                                         {[['First Name', 'text', 'firstName', 'e.g., Rajesh'], ['Last Name', 'text', 'lastName', 'e.g., Kumar'], ['Email', 'email', 'email', 'your@email.com'], ['Contact Number', 'tel', 'phone', '+91 XXXXX XXXXX'], ['Address', 'text', 'address', 'Street address'], ['City', 'text', 'city', 'e.g., Mumbai']].map(([label, type, key, ph]) => (
                                             <div className="form-group" key={key} style={key === 'address' ? { gridColumn: '1/-1' } : {}}>
                                                 <label>{label}</label>
-                                                <input type={type} placeholder={ph} required />
+                                                <input name={key} type={type} placeholder={ph} required />
                                             </div>
                                         ))}
                                     </div>
                                     <div className="form-group">
                                         <label>Property Type</label>
-                                        <select style={{ width: '100%', padding: '12px 16px', border: '2px solid #e9ecef', borderRadius: '8px', fontSize: '15px', outline: 'none' }} required>
+                                        <select name="propertyType" style={{ width: '100%', padding: '12px 16px', border: '2px solid #e9ecef', borderRadius: '8px', fontSize: '15px', outline: 'none' }} required>
                                             <option value="">Select type</option>
                                             {['Residential', 'Commercial', 'Apartment', 'Villa', 'Bungalow', 'Townhouse'].map(t => <option key={t} value={t}>{t}</option>)}
                                         </select>
                                     </div>
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                                        <div className="form-group"><label>Property Size (Sq Ft)</label><input type="number" placeholder="e.g., 1250" required /></div>
-                                        <div className="form-group"><label>Year Built</label><input type="number" placeholder="e.g., 2015" required /></div>
-                                        <div className="form-group"><label>Market Value (₹)</label><input type="number" placeholder="e.g., 5000000" required /></div>
-                                        <div className="form-group"><label>Improvement Budget (₹)</label><input type="number" placeholder="e.g., 500000" required /></div>
+                                        <div className="form-group"><label>Property Size (Sq Ft)</label><input name="propertySize" type="number" placeholder="e.g., 1250" required /></div>
+                                        <div className="form-group"><label>Year Built</label><input name="yearBuilt" type="number" placeholder="e.g., 2015" required /></div>
+                                        <div className="form-group"><label>Market Value (₹)</label><input name="marketValue" type="number" placeholder="e.g., 5000000" required /></div>
+                                        <div className="form-group"><label>Improvement Budget (₹)</label><input name="improvementBudget" type="number" placeholder="e.g., 500000" required /></div>
                                     </div>
                                     <div className="form-group">
                                         <label>Description</label>
-                                        <textarea placeholder="Describe your property..." rows={4} style={{ width: '100%', padding: '12px 16px', border: '2px solid #e9ecef', borderRadius: '8px', fontFamily: 'inherit', fontSize: '15px', resize: 'vertical', outline: 'none', transition: '0.3s' }} onFocus={e => e.target.style.borderColor = 'var(--primary)'} onBlur={e => e.target.style.borderColor = '#e9ecef'} />
+                                        <textarea name="description" placeholder="Describe your property..." rows={4} style={{ width: '100%', padding: '12px 16px', border: '2px solid #e9ecef', borderRadius: '8px', fontFamily: 'inherit', fontSize: '15px', resize: 'vertical', outline: 'none', transition: '0.3s' }} onFocus={e => e.target.style.borderColor = 'var(--primary)'} onBlur={e => e.target.style.borderColor = '#e9ecef'} />
                                     </div>
                                     <button type="submit" className="btn-submit button-press">Submit Property</button>
                                 </form>
