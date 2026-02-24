@@ -489,27 +489,33 @@ export default function UserDashboard() {
                             </div>
 
                             {/* Property Card */}
-                            <div className="card animate-slideUp stagger-1" style={{ background: 'linear-gradient(135deg, #1a1a2e, #16213e)', color: 'white' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
-                                    <div>
-                                        <h3 style={{ fontSize: '14px', opacity: 0.7, marginBottom: '4px' }}>YOUR PROPERTY</h3>
-                                        <h2 style={{ fontSize: '22px', fontWeight: 800 }}>{prop.type}</h2>
-                                        <p style={{ opacity: 0.8, marginTop: '4px' }}>{prop.location}</p>
-                                    </div>
-                                    <div style={{ textAlign: 'right' }}>
-                                        <p style={{ opacity: 0.7, fontSize: '13px' }}>Current Market Value</p>
-                                        <p style={{ fontSize: '28px', fontWeight: 800, color: '#ffd700' }}>₹{(prop.currentValue || 5000000).toLocaleString('en-IN')}</p>
-                                    </div>
-                                </div>
-                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '16px', marginTop: '24px' }}>
-                                    {[['Property Size', `${(prop.size || 1250).toLocaleString()} sq ft`], ['Property Age', `${prop.age || 8} years`], ['Location Rating', `${prop.locationRating || 4.2}/5.0`]].map(([k, v]) => (
-                                        <div key={k} style={{ background: 'rgba(255,255,255,0.1)', borderRadius: '10px', padding: '14px' }}>
-                                            <p style={{ opacity: 0.7, fontSize: '12px' }}>{k}</p>
-                                            <p style={{ fontWeight: 700, fontSize: '18px', marginTop: '4px' }}>{v}</p>
+                            {activeProperty && (
+                                <div className="card animate-slideUp stagger-1" style={{ background: 'linear-gradient(135deg, #1a1a2e, #16213e)', color: 'white', marginBottom: '32px' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
+                                        <div>
+                                            <h3 style={{ fontSize: '14px', opacity: 0.7, marginBottom: '4px' }}>YOUR PROPERTY</h3>
+                                            <h2 style={{ fontSize: '22px', fontWeight: 800 }}>{prop.type}</h2>
+                                            <p style={{ opacity: 0.8, marginTop: '4px' }}>{prop.location}</p>
                                         </div>
-                                    ))}
+                                        <div style={{ textAlign: 'right' }}>
+                                            <p style={{ opacity: 0.7, fontSize: '13px' }}>Current Market Value</p>
+                                            <p style={{ fontSize: '28px', fontWeight: 800, color: '#ffd700' }}>₹{(prop.currentValue || 5000000).toLocaleString('en-IN')}</p>
+                                        </div>
+                                    </div>
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '16px', marginTop: '24px' }}>
+                                        {[
+                                            ['Property Size', `${(prop.size || 1250).toLocaleString()} sq ft`],
+                                            ['Property Age', `${prop.age || 8} years`],
+                                            ['Location Rating', `${prop.locationRating || 4.2}/5.0`]
+                                        ].map(([k, v]) => (
+                                            <div key={k} style={{ background: 'rgba(255,255,255,0.1)', borderRadius: '10px', padding: '14px' }}>
+                                                <p style={{ opacity: 0.7, fontSize: '12px' }}>{k}</p>
+                                                <p style={{ fontWeight: 700, fontSize: '18px', marginTop: '4px' }}>{v}</p>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
-                            </div>
+                            )}
 
                             {/* Metric Cards */}
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', marginBottom: '32px' }}>
