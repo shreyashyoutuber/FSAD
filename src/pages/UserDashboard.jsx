@@ -367,11 +367,10 @@ export default function UserDashboard() {
 
             {/* Sidebar */}
             <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
-                <div className="sidebar-header" onClick={() => setView('dashboard')} style={{ cursor: 'pointer', transition: '0.3s' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                        <span style={{ fontSize: '38px', filter: 'drop-shadow(0 0 8px rgba(230,126,34,0.4))' }}>🏠</span>
-                        <h2 className="sidebar-brand" style={{ fontSize: '22px' }}>Bharat<span>Home</span></h2>
-                    </div>
+                <div className="sidebar-header" onClick={() => setView('dashboard')} style={{ cursor: 'pointer', transition: 'all 0.3s' }}>
+                    <h2 className="sidebar-brand" id="BharatHomeValue" style={{ fontSize: '22px', fontWeight: 800 }}>
+                        BharatHome<span>Value</span>
+                    </h2>
                 </div>
                 <nav className="sidebar-nav">
                     {navLinks.map(l => (
