@@ -142,7 +142,136 @@ function AdminChatModal({ req, onClose }) {
             </div>
         </div>
     )
+} function AdminResponseModal({ req, onClose, onSave }) {
+    const [quote, setQuote] = useState('')
+    const [description, setDescription] = useState('')
+    const [timeline, setTimeline] = useState('')
+    const [warranty, setWarranty] = useState('')
+    const [notes, setNotes] = useState('')
+    const [images, setImages] = useState([])
+    const [saving, setSaving] = useState(false)
+    const fileRef = useRef(null)
+
+    useEffect(() => {
+        const responses = JSON.parse(localStorage.getItem('adminResponses') || '{}')
+        if (responses[req.id]) {
+            const r = responses[req.id]
+            setQuote(r.quote || '')
+            setDescription(r.description || '')
+            setTimeline(r.timeline || '')
+            setWarranty(r.warranty || '')
+            setNotes(r.notes || '')
+            setImages(r.images || [])
+        }
+    }, [req.id])
+
+    const handleFiles = (files) => {
+        if (images.length + files.length > 5) { alert('Max 5 images allowed'); return }
+        Array.from(files).forEach(file => {
+            if (!file.type.startsWith('image/')) { alert('Only images allowed'); return }
+            const reader = new FileReader()
+            reader.onload = (e) => setImages(prev => [...prev, { name: file.name, data: e.target.result }])
+            reader.readAsDataURL(file)
+        })
+    }
+
+    const handleSubmit = (e) => {
+        e.preventDefault()
+        setSaving(true)
+        setTimeout(() => {
+            const responses = JSON.parse(localStorage.getItem('adminResponses') || '{}')
+            responses[req.id] = {
+                quote, description, timeline, warranty, notes, images,
+                requestId: req.id, responseDate: new Date().toISOString().split('T')[0]
+            }
+            localStorage.setItem('adminResponses', JSON.stringify(responses))
+
+            const stored = localStorage.getItem('allAdminRequests')
+            const allReqs = stored ? JSON.parse(stored) : []
+            const updated = allReqs.map(r => r.id === req.id ? { ...r, responded: true, status: 'responded' } : r)
+            localStorage.setItem('allAdminRequests', JSON.stringify(updated))
+
+            setSaving(false)
+            onSave(updated)
+            onClose()
+        }, 600)
+    }
+
+    const labelStyle = { display: 'block', fontSize: '11px', fontWeight: 800, color: theme.textMuted, textTransform: 'uppercase', marginBottom: '8px' }
+    const inputStyle = { width: '100%', padding: '12px 16px', borderRadius: '12px', border: `2px solid ${theme.border}`, fontSize: '14px', outline: 'none', transition: '0.2s', background: '#f8fafc' }
+
+    return (
+        <div onClick={e => { if (e.target === e.currentTarget) onClose() }}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.7)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 3000, padding: '20px' }}>
+            <div className="animate-scaleIn" style={{ background: 'white', borderRadius: '24px', width: '100%', maxWidth: '800px', height: '90vh', display: 'flex', flexDirection: 'column', boxShadow: '0 40px 100px rgba(0,0,0,0.3)', overflow: 'hidden' }}>
+                <div style={{ background: theme.slate, padding: '24px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                        <div style={{ width: '48px', height: '48px', background: theme.primary, borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', color: 'white' }}>✉️</div>
+                        <div>
+                            <h2 style={{ color: 'white', fontSize: '18px', fontWeight: 800 }}>Respond to Request</h2>
+                            <p style={{ color: '#94a3b8', fontSize: '12px' }}>{req.customerName} • {req.id}</p>
+                        </div>
+                    </div>
+                    <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', width: '36px', height: '36px', borderRadius: '50%', cursor: 'pointer', fontSize: '20px' }}>×</button>
+                </div>
+
+                <form onSubmit={handleSubmit} style={{ flex: 1, overflowY: 'auto', padding: '32px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '32px' }}>
+                        <div>
+                            <label style={labelStyle}>Quote Amount (₹)</label>
+                            <input type="number" value={quote} onChange={e => setQuote(e.target.value)} required style={inputStyle} placeholder="e.g. 150000" />
+                        </div>
+                        <div>
+                            <label style={labelStyle}>Estimated Timeline</label>
+                            <input type="text" value={timeline} onChange={e => setTimeline(e.target.value)} required style={inputStyle} placeholder="e.g. 15-20 Days" />
+                        </div>
+                    </div>
+
+                    <div style={{ marginBottom: '32px' }}>
+                        <label style={labelStyle}>Warranty / Guarantee</label>
+                        <input type="text" value={warranty} onChange={e => setWarranty(e.target.value)} required style={inputStyle} placeholder="e.g. 2 Years Comprehensive Warranty" />
+                    </div>
+
+                    <div style={{ marginBottom: '32px' }}>
+                        <label style={labelStyle}>Full Quotation Description</label>
+                        <textarea value={description} onChange={e => setDescription(e.target.value)} required rows={4} style={{ ...inputStyle, resize: 'vertical' }} placeholder="Detail the scope of work, materials used, and process..." />
+                    </div>
+
+                    <div style={{ marginBottom: '32px' }}>
+                        <label style={labelStyle}>Reference Images (Max 5)</label>
+                        <div onClick={() => fileRef.current?.click()} style={{ border: `2px dashed ${theme.border}`, borderRadius: '16px', padding: '32px', textAlign: 'center', cursor: 'pointer', transition: '0.2s', background: '#f8fafc' }} onMouseEnter={e => e.currentTarget.style.borderColor = theme.primary} onMouseLeave={e => e.currentTarget.style.borderColor = theme.border}>
+                            <p style={{ color: theme.textMuted, fontSize: '14px', fontWeight: 600 }}>Click to upload or drag and drop images</p>
+                            <input ref={fileRef} type="file" multiple accept="image/*" style={{ display: 'none' }} onChange={e => handleFiles(e.target.files)} />
+                        </div>
+                        {images.length > 0 && (
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginTop: '16px' }}>
+                                {images.map((img, i) => (
+                                    <div key={i} style={{ position: 'relative', width: '80px', height: '60px', borderRadius: '8px', overflow: 'hidden', border: `1px solid ${theme.border}` }}>
+                                        <img src={img.data} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                        <button type="button" onClick={() => setImages(prev => prev.filter((_, idx) => idx !== i))} style={{ position: 'absolute', top: '2px', right: '2px', background: 'rgba(0,0,0,0.5)', color: 'white', border: 'none', borderRadius: '50%', width: '18px', height: '18px', fontSize: '12px', cursor: 'pointer' }}>×</button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
+                    <div style={{ marginBottom: '32px' }}>
+                        <label style={labelStyle}>Internal Notes (Private)</label>
+                        <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={2} style={{ ...inputStyle, resize: 'vertical' }} placeholder="Add reminders for the team..." />
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '16px', position: 'sticky', bottom: 0, background: 'white', paddingTop: '16px', borderTop: `1px solid ${theme.border}` }}>
+                        <button type="button" onClick={onClose} style={{ flex: 1, padding: '14px', borderRadius: '12px', background: 'white', border: `1px solid ${theme.border}`, color: theme.slate, fontWeight: 700, cursor: 'pointer' }}>Cancel</button>
+                        <button type="submit" disabled={saving} style={{ flex: 1, padding: '14px', borderRadius: '12px', background: theme.primary, color: 'white', border: 'none', fontWeight: 800, cursor: saving ? 'not-allowed' : 'pointer' }}>
+                            {saving ? 'Processing...' : 'Send Response'}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    )
 }
+
 
 
 // ---- MAIN COMPONENT ----
@@ -155,6 +284,7 @@ export default function AdminDashboard() {
     const [selectedReq, setSelectedReq] = useState(null)
     const [selectedCustomer, setSelectedCustomer] = useState(null)
     const [chatReq, setChatReq] = useState(null)
+    const [respondReq, setRespondReq] = useState(null)
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
     const [showProfileModal, setShowProfileModal] = useState(false)
     const adminEmail = localStorage.getItem('adminEmail') || 'admin@bharathomevalue.com'
@@ -400,7 +530,7 @@ export default function AdminDashboard() {
                                             <td style={{ padding: '24px 20px' }}>
                                                 <div style={{ display: 'flex', gap: '8px' }}>
                                                     <button onClick={() => setChatReq(r)} className="button-premium" style={{ background: theme.bg, color: theme.slate, border: `1px solid ${theme.border}` }}>💬 Negotiate</button>
-                                                    <button onClick={() => { localStorage.setItem('currentRequestId', r.id); navigate('/admin-respond') }} className="button-premium" style={{ background: theme.slate, color: 'white' }}>{r.responded ? 'Edit' : 'Respond'}</button>
+                                                    <button onClick={() => setRespondReq(r)} className="button-premium" style={{ background: theme.slate, color: 'white' }}>{r.responded ? 'Edit' : 'Respond'}</button>
                                                 </div>
                                             </td>
                                         </tr>
@@ -541,6 +671,14 @@ export default function AdminDashboard() {
                         </div>
                     </div>
                 </div>
+            )}
+            {/* Respond Modal */}
+            {respondReq && (
+                <AdminResponseModal
+                    req={respondReq}
+                    onClose={() => setRespondReq(null)}
+                    onSave={(updatedReqs) => setRequests(updatedReqs)}
+                />
             )}
         </div>
     )
