@@ -514,9 +514,9 @@ export default function UserDashboard() {
                             {/* Metric Cards */}
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', marginBottom: '32px' }}>
                                 {[
-                                    { label: 'Potential Value Increase', value: `+₹${(potentialValueIncrease / 100000).toFixed(2)}L`, sub: 'With all recommendations', color: '#3b82f6', icon: '📊' },
-                                    { label: 'Total Investment', value: `₹${(totalInvestment / 100000).toFixed(2)}L`, sub: 'Estimated renovation cost', color: '#f59e0b', icon: '₹' },
-                                    { label: 'Active Recommendations', value: activeRecsCount, sub: 'Personalized for you', color: '#10b981', icon: '💡' },
+                                    { label: 'Potential Value Increase', value: activeProperty ? `+₹${(potentialValueIncrease / 100000).toFixed(2)}L` : '₹0.00', sub: activeProperty ? 'With all recommendations' : 'Submit property to see forecast', color: '#3b82f6', icon: '📊' },
+                                    { label: 'Total Investment', value: activeProperty ? `₹${(totalInvestment / 100000).toFixed(2)}L` : '₹0.00', sub: activeProperty ? 'Estimated renovation cost' : 'Analysis pending submission', color: '#f59e0b', icon: '₹' },
+                                    { label: 'Active Recommendations', value: activeProperty ? activeRecsCount : '0', sub: activeProperty ? 'Personalized for you' : 'Get expert suggestions', color: '#10b981', icon: '💡' },
                                 ].map((m, i) => (
                                     <div key={i} className={`card animate-slideUp stagger-${i + 2}`} style={{ margin: 0, padding: '24px', border: '1px solid #f0f0f0', borderRadius: '20px' }}>
                                         <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '16px' }}>
@@ -564,36 +564,45 @@ export default function UserDashboard() {
                             </div>
 
                             {/* Recommendations */}
-                            <div className="card" style={{ margin: 0 }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                                    <h3 className="card-title" style={{ margin: 0 }}>Top Recommendations</h3>
-                                    <button onClick={() => setShowAllRecs(!showAllRecs)} style={{ background: 'none', border: 'none', color: 'var(--primary)', fontWeight: 600, cursor: 'pointer' }}>{showAllRecs ? 'Show Less' : 'View All'}</button>
+                            {activeProperty ? (
+                                <div className="card" style={{ margin: 0, padding: '32px' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                                        <h3 className="card-title" style={{ margin: 0 }}>Top Recommendations</h3>
+                                        <button onClick={() => setShowAllRecs(!showAllRecs)} style={{ background: 'none', border: 'none', color: 'var(--primary)', fontWeight: 600, cursor: 'pointer' }}>{showAllRecs ? 'Show Less' : 'View All'}</button>
+                                    </div>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                        {(showAllRecs ? RECS : RECS.slice(0, 2)).map((rec, i) => (
+                                            <div key={i} style={{ border: '2px solid #f0f0f0', borderRadius: '12px', padding: '20px', transition: 'all 0.3s' }}>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
+                                                    <div><h4 style={{ fontSize: '17px', fontWeight: 700 }}>{rec.title}</h4><p style={{ color: 'var(--muted)', fontSize: '14px', marginTop: '4px' }}>{rec.desc}</p></div>
+                                                    <span style={{ padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 700, background: rec.priority === 'high' ? '#fee2e2' : '#fef3c7', color: rec.priority === 'high' ? '#dc2626' : '#b45309' }}>
+                                                        {rec.priority === 'high' ? 'High' : 'Medium'} Priority
+                                                    </span>
+                                                </div>
+                                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '12px', marginBottom: '16px' }}>
+                                                    {[['Est. Cost', rec.cost, 'var(--text)'], ['Value Increase', rec.value, '#10b981'], ['ROI', rec.roi, '#3b82f6'], ['Property Impact', rec.impact, '#8b5cf6']].map(([k, v, c]) => (
+                                                        <div key={k} style={{ background: '#f8f9fa', borderRadius: '8px', padding: '10px', textAlign: 'center' }}>
+                                                            <p style={{ fontSize: '11px', color: 'var(--muted)', marginBottom: '4px' }}>{k}</p>
+                                                            <p style={{ fontSize: '16px', fontWeight: 800, color: c }}>{v}</p>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                                <div style={{ display: 'flex', gap: '12px' }}>
+                                                    <button onClick={() => navigate(rec.link)} className="button-press" style={{ flex: 1, padding: '10px', background: 'linear-gradient(135deg, var(--primary), var(--primary-dark))', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 12px rgba(230,126,34,0.2)' }}>Get Detailed Plan</button>
+                                                    <button onClick={() => saveIdea(rec)} className="button-press" style={{ flex: 1, padding: '10px', background: '#f8f9fa', border: '2px solid #e9ecef', borderRadius: '8px', fontWeight: 700, cursor: 'pointer' }}>Save for Later</button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                                    {(showAllRecs ? RECS : RECS.slice(0, 2)).map((rec, i) => (
-                                        <div key={i} style={{ border: '2px solid #f0f0f0', borderRadius: '12px', padding: '20px', transition: 'all 0.3s' }}>
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
-                                                <div><h4 style={{ fontSize: '17px', fontWeight: 700 }}>{rec.title}</h4><p style={{ color: 'var(--muted)', fontSize: '14px', marginTop: '4px' }}>{rec.desc}</p></div>
-                                                <span style={{ padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 700, background: rec.priority === 'high' ? '#fee2e2' : '#fef3c7', color: rec.priority === 'high' ? '#dc2626' : '#b45309' }}>
-                                                    {rec.priority === 'high' ? 'High' : 'Medium'} Priority
-                                                </span>
-                                            </div>
-                                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '12px', marginBottom: '16px' }}>
-                                                {[['Est. Cost', rec.cost, 'var(--text)'], ['Value Increase', rec.value, '#10b981'], ['ROI', rec.roi, '#3b82f6'], ['Property Impact', rec.impact, '#8b5cf6']].map(([k, v, c]) => (
-                                                    <div key={k} style={{ background: '#f8f9fa', borderRadius: '8px', padding: '10px', textAlign: 'center' }}>
-                                                        <p style={{ fontSize: '11px', color: 'var(--muted)', marginBottom: '4px' }}>{k}</p>
-                                                        <p style={{ fontSize: '16px', fontWeight: 800, color: c }}>{v}</p>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                            <div style={{ display: 'flex', gap: '12px' }}>
-                                                <button onClick={() => navigate(rec.link)} className="button-press" style={{ flex: 1, padding: '10px', background: 'linear-gradient(135deg, var(--primary), var(--primary-dark))', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 12px rgba(230,126,34,0.2)' }}>Get Detailed Plan</button>
-                                                <button onClick={() => saveIdea(rec)} className="button-press" style={{ flex: 1, padding: '10px', background: '#f8f9fa', border: '2px solid #e9ecef', borderRadius: '8px', fontWeight: 700, cursor: 'pointer' }}>Save for Later</button>
-                                            </div>
-                                        </div>
-                                    ))}
+                            ) : (
+                                <div className="card" style={{ margin: 0, padding: '60px 40px', textAlign: 'center', background: '#f8f9fa', border: '2px dashed #e9ecef' }}>
+                                    <div style={{ fontSize: '48px', marginBottom: '16px' }}>🏠</div>
+                                    <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#333' }}>Submit Property for Insights</h3>
+                                    <p style={{ color: '#666', maxWidth: '400px', margin: '0 auto 24px', lineHeight: 1.6 }}>Once you submit your property details, our experts will provide personalized renovation recommendations and value growth projections.</p>
+                                    <button onClick={() => setView('submit')} className="button-press" style={{ padding: '12px 32px', background: 'linear-gradient(135deg, var(--primary), var(--primary-dark))', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', boxShadow: '0 8px 16px rgba(230,126,34,0.2)' }}>Submit Property Details</button>
                                 </div>
-                            </div>
+                            )}
                         </div>
                     )}
 
