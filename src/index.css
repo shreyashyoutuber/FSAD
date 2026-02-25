@@ -1437,6 +1437,16 @@ footer {
   position: relative;
 }
 
+.insp-item-duo {
+  display: flex;
+  gap: 8px;
+}
+
+.insp-item-duo .insp-item {
+  flex: 1;
+  aspect-ratio: 1 / 1;
+}
+
 /* --- All image cards --- */
 .insp-item {
   position: relative;
@@ -1448,16 +1458,11 @@ footer {
   aspect-ratio: 1 / 1;
 }
 
-/* Wide items: landscape proportion — still shows full square image via contain */
-.insp-item-square {
-  aspect-ratio: 2.48 / 1;
-}
-
 .insp-item img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
-  /* Shows the FULL image, no cropping */
+  object-fit: cover;
+  /* Fill the box perfectly */
   object-position: center;
   display: block;
   transition: transform 0.5s ease;
