@@ -1509,36 +1509,20 @@ footer {
   transform: translateY(-2px);
 }
 
-/* --- Row 1: Living Room (tall left) + stacked Bedroom & Ceiling right --- */
+/* --- Row 1: Living Room (wide) + Bedroom + Ceiling — flat, same height --- */
 .insp-row1 {
-  display: flex;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  grid-template-rows: 320px;
   gap: 10px;
-  height: 500px;
 }
 
-.insp-item-living {
-  flex: 1.15;
-  min-width: 0;
-}
 
-.insp-right-stack {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  min-width: 0;
-}
-
-.insp-right-stack .insp-item {
-  flex: 1;
-  min-height: 0;
-}
-
-/* --- Row 2: Homes (small) + Kitchen (wide) + Wardrobe (medium) --- */
+/* --- Row 2: Homes + Kitchen (wide) + Wardrobe — flat, same height --- */
 .insp-row2 {
   display: grid;
-  grid-template-columns: 1fr 2fr 1.2fr;
-  grid-template-rows: 250px;
+  grid-template-columns: 1fr 2.2fr 1fr;
+  grid-template-rows: 280px;
   gap: 10px;
   margin-top: 10px;
 }
@@ -1587,19 +1571,15 @@ footer {
   }
 
   .insp-row1 {
-    height: 440px;
+    grid-template-columns: 1.5fr 1fr 1fr;
+    grid-template-rows: 260px;
   }
 
   .insp-row2 {
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 190px;
+    grid-template-columns: 1fr 1.5fr 1fr;
+    grid-template-rows: 240px;
     gap: 8px;
     margin-top: 8px;
-  }
-
-  .insp-row2 .insp-item:last-child {
-    grid-column: 1 / -1;
-    max-height: 200px;
   }
 
   .insp-arrow {
@@ -1627,24 +1607,13 @@ footer {
   }
 
   .insp-row1 {
-    flex-direction: column;
-    height: auto;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
     gap: 8px;
   }
 
-  .insp-item-living {
-    height: 260px;
-    flex: none;
-  }
-
-  .insp-right-stack {
-    flex-direction: row;
-    gap: 8px;
-  }
-
-  .insp-right-stack .insp-item {
-    height: 180px;
-    flex: 1;
+  .insp-row1 .insp-item {
+    height: 220px;
   }
 
   .insp-row2 {
@@ -1655,12 +1624,7 @@ footer {
   }
 
   .insp-row2 .insp-item {
-    height: 180px;
-  }
-
-  .insp-row2 .insp-item:last-child {
-    grid-column: auto;
-    max-height: none;
+    height: 220px;
   }
 
   .insp-arrow {

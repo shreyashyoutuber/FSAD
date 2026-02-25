@@ -272,31 +272,29 @@ export default function Home() {
                 </div>
 
                 <div className="insp-gallery-wrapper">
-                    {/* Row 1: Living Room (tall left) + Bedroom & Ceiling stacked right */}
+                    {/* Row 1: Living Room (wide) + Bedroom + Ceiling — all same height */}
                     <div className="insp-row1">
-                        <div className="insp-item insp-item-living">
+                        <div className="insp-item insp-item-wide">
                             <img src="/Photos/insp-living.png" alt="Living Room" />
                             <div className="insp-label">Living Room</div>
                         </div>
-                        <div className="insp-right-stack">
-                            <div className="insp-item">
-                                <img src="/Photos/insp-bedroom.png" alt="Master Bedroom" />
-                                <div className="insp-label">Master Bedroom</div>
-                            </div>
-                            <div className="insp-item">
-                                <img src="/Photos/insp-ceiling.png" alt="False Ceiling" />
-                                <div className="insp-label">False Ceiling</div>
-                            </div>
+                        <div className="insp-item">
+                            <img src="/Photos/insp-bedroom.png" alt="Master Bedroom" />
+                            <div className="insp-label">Master Bedroom</div>
+                        </div>
+                        <div className="insp-item">
+                            <img src="/Photos/insp-ceiling.png" alt="False Ceiling" />
+                            <div className="insp-label">False Ceiling</div>
                         </div>
                     </div>
 
-                    {/* Row 2: Homes + Kitchen (wide) + Wardrobe */}
+                    {/* Row 2: Homes + Kitchen (wide) + Wardrobe — all same height */}
                     <div className="insp-row2">
                         <div className="insp-item">
                             <img src="/Photos/insp-general.png" alt="Homes by BharatHome" />
                             <div className="insp-label">Homes by BharatHome</div>
                         </div>
-                        <div className="insp-item">
+                        <div className="insp-item insp-item-wide">
                             <img src="/Photos/insp-kitchen.png" alt="Kitchen" />
                             <div className="insp-label">Kitchen</div>
                         </div>
