@@ -1449,6 +1449,7 @@ footer {
   overflow: hidden;
   cursor: pointer;
   background: #f0f0f0;
+  aspect-ratio: 1;
 }
 
 .insp-item img {
@@ -1511,7 +1512,6 @@ footer {
 .insp-row1 {
   display: grid;
   grid-template-columns: 2.48fr 1fr 1fr;
-  grid-template-rows: 394px;
   gap: 8px;
 }
 
@@ -1520,7 +1520,6 @@ footer {
 .insp-row2 {
   display: grid;
   grid-template-columns: 1fr 2.48fr 1fr;
-  grid-template-rows: 394px;
   gap: 8px;
   margin-top: 8px;
 }
@@ -1570,12 +1569,10 @@ footer {
 
   .insp-row1 {
     grid-template-columns: 2fr 1fr 1fr;
-    grid-template-rows: 300px;
   }
 
   .insp-row2 {
     grid-template-columns: 1fr 2fr 1fr;
-    grid-template-rows: 300px;
     gap: 8px;
     margin-top: 8px;
   }
