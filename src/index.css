@@ -1530,31 +1530,7 @@ footer {
   .insp-arrow {
     display: none;
   }
+}
 
-  @media (max-width: 640px) {
-    .inspiration-section {
-      padding: 40px 4% 50px;
-    }
 
-    .insp-header {
-      flex-direction: column;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-
-    .insp-title-box h2 {
-      font-size: 22px;
-    }
-
-    .insp-row1,
-    .insp-row2 {
-      grid-template-columns: 1fr;
-      gap: 10px;
-    }
-
-    .insp-row1 .insp-item-square,
-    .insp-row2 .insp-item-square {
-      grid-column: 1;
-      aspect-ratio: 1 / 1;
-    }
-  }
+}
