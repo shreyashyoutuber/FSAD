@@ -268,34 +268,44 @@ export default function Home() {
                         <h2>Inspiration for home interior designs</h2>
                         <p>Give your home a new look with these interior design ideas curated for you</p>
                     </div>
-                    <a href="#ideas" className="view-all-link">View All <span style={{ fontSize: '18px' }}>›</span></a>
+                    <a href="#ideas" className="view-all-link">View All <span>›</span></a>
                 </div>
 
-                <div className="insp-grid">
-                    <div className="insp-item insp-large">
-                        <img src="/Photos/insp-living.png" alt="Living Room" />
-                        <div className="insp-label">Living Room</div>
+                <div className="insp-gallery-wrapper">
+                    {/* Row 1: Living Room (tall left) + Bedroom + Ceiling */}
+                    <div className="insp-grid">
+                        <div className="insp-item insp-item-living">
+                            <img src="/Photos/insp-living.png" alt="Living Room" />
+                            <div className="insp-label">Living Room</div>
+                        </div>
+                        <div className="insp-item insp-item-bedroom">
+                            <img src="/Photos/insp-bedroom.png" alt="Master Bedroom" />
+                            <div className="insp-label">Master Bedroom</div>
+                        </div>
+                        <div className="insp-item insp-item-ceiling">
+                            <img src="/Photos/insp-ceiling.png" alt="False Ceiling" />
+                            <div className="insp-label">False Ceiling</div>
+                        </div>
                     </div>
-                    <div className="insp-item">
-                        <img src="/Photos/insp-bedroom.png" alt="Master Bedroom" />
-                        <div className="insp-label">Master Bedroom</div>
+
+                    {/* Row 2: Homes (small) + Kitchen (wide) + Wardrobe */}
+                    <div className="insp-row2">
+                        <div className="insp-item">
+                            <img src="/Photos/insp-general.png" alt="Homes by BharatHome" />
+                            <div className="insp-label">Homes by BharatHome</div>
+                        </div>
+                        <div className="insp-item">
+                            <img src="/Photos/insp-kitchen.png" alt="Kitchen" />
+                            <div className="insp-label">Kitchen</div>
+                        </div>
+                        <div className="insp-item">
+                            <img src="/Photos/insp-wardrobe.png" alt="Wardrobe" />
+                            <div className="insp-label">Wardrobe</div>
+                        </div>
                     </div>
-                    <div className="insp-item">
-                        <img src="/Photos/insp-ceiling.png" alt="False Ceiling" />
-                        <div className="insp-label">False Ceiling</div>
-                    </div>
-                    <div className="insp-item">
-                        <img src="/Photos/insp-general.png" alt="Homes by BharatHome" />
-                        <div className="insp-label">Homes by BharatHome</div>
-                    </div>
-                    <div className="insp-item insp-wide">
-                        <img src="/Photos/insp-kitchen.png" alt="Kitchen" />
-                        <div className="insp-label">Kitchen</div>
-                    </div>
-                    <div className="insp-item">
-                        <img src="/Photos/insp-wardrobe.png" alt="Wardrobe" />
-                        <div className="insp-label">Wardrobe</div>
-                    </div>
+
+                    {/* Carousel Arrow */}
+                    <button className="insp-arrow" aria-label="Next">›</button>
                 </div>
             </section>
 
