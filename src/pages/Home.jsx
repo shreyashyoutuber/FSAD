@@ -20,42 +20,91 @@ function useCounter(target, started) {
 }
 
 const ALL_POLICIES = {
-    'Terms of Use': [
-        { subtitle: 'General', text: 'Overview of our general service terms and conditions for all users.' },
-        { subtitle: 'Definitions and interpretation', text: 'Clarification of technical terms used throughout our service documentation.' },
-        { subtitle: 'Eligibility To Use', text: 'Requirements for users to access and utilize the BharatHome Value platform.' },
-        { subtitle: 'Account Registration', text: 'Guidelines for creating and maintaining a secure user account.' },
-        { subtitle: 'Our Service', text: 'Detailed explanation of the property enhancement and valuation services provided.' }
-    ],
-    'Getting Started': [
-        { subtitle: 'Getting Started', text: 'A step-by-step guide to beginning your home enhancement journey with us.' }
-    ],
-    'Designing with BharatHome': [
-        { subtitle: 'Designing my dream home', text: 'How our expert designers collaborate with you to create personalized solutions.' },
-        { subtitle: 'Managing my home project', text: 'Tools and processes for tracking your property renovation progress.' },
-        { subtitle: 'Delivery and installation', text: 'Timelines and protocols for the expert execution of design plans.' },
-        { subtitle: 'Paying for my home interiors', text: 'Transparent billing and payment schedules for your design projects.' }
-    ],
-    'Payments': [
-        { subtitle: 'Payment methods', text: 'Secure options including Credit/Debit cards, Net Banking, and UPI.' },
-        { subtitle: 'Transaction security guarantee', text: 'Industry-standard encryption and safety protocols for all financial data.' },
-        { subtitle: 'Transaction failures', text: 'Procedures for handling and resolving any payment processing issues.' },
-        { subtitle: 'Payment terms for a project', text: 'Milestone-based payment schedules to ensure project continuity and trust.' }
-    ],
-    'Warranty & Assured Care': [
-        { subtitle: 'BharatHome Warranty', text: 'Comprehensive coverage Details for design and modular systems (Furniture, Systems, etc.).' },
-        { subtitle: 'What is covered?', text: 'Specific list of services and products under our expert warranty. Design without any worries, always.' },
-        { subtitle: 'Care Instructions', text: 'Guidelines for maintaining your newly enhanced home interiors to ensure longevity.' }
-    ],
-    'Corporate & Governance': [
-        { subtitle: 'Customer Grievance Redressal', text: 'Our committed policy for handling and resolving user concerns effectively.' },
-        { subtitle: 'Whistle Blower Policy', text: 'Maintaining integrity and transparency in all our business dealings.' },
-        { subtitle: 'Cookie Policy', text: 'Information on the types of cookies we use to enhance your browsing experience.' }
-    ],
-    'Referral & Partnering': [
-        { subtitle: 'Referral Policy', text: 'Earn rewards for inviting others to experience BharatHome Value.' },
-        { subtitle: 'Becoming a Design Partner', text: 'Opportunities for expert designers to collaborate and grow with our platform.' }
-    ]
+    'Policies Hub': { icon: '📋', subtitle: 'Everything you need to know about our standards' },
+    'Terms of Use': {
+        icon: '⚖️',
+        sections: [
+            { title: 'General', content: 'Our standard terms for service delivery and property valuation across all Indian regions.' },
+            { title: 'Definitions', content: 'Interpretation of legal and technical terms used in our design agreements.' },
+            { title: 'Eligibility', content: 'Requirements for users to register and access our premium design tools.' },
+            { title: 'Account Security', content: 'Ensuring your property data and personal information remains private and secure.' },
+            { title: 'Our Service', content: 'Detailed scope of BharatHome Value\'s property enhancement and market analysis services.' }
+        ]
+    },
+    'Getting Started': {
+        icon: '🚀',
+        sections: [
+            { title: 'Meet a Designer', content: 'Initial consultation to discuss your vision, budget, and property potential.' },
+            { title: 'Book Design', content: 'Formalizing your project with a 5% booking fee to secure your design slot.' },
+            { title: 'Finalization', content: 'Selecting materials, finishes, and approving the final 3D visualization.' }
+        ]
+    },
+    'Quality & Service': {
+        icon: '💎',
+        sections: [
+            { title: 'BharatHome Quality Promise', content: 'Our commitment to delivering international design standards with verified craftsmanship.' },
+            { title: 'Expert Execution', content: 'Standard operating procedures for on-site execution and project management.' },
+            { title: 'Design Accuracy', content: 'Ensuring the final implementation matches the approved 3D designs within standard tolerances.' },
+            { title: 'Vendor Standards', content: 'Strict quality benchmarks for all third-party materials and components used.' }
+        ]
+    },
+    'Payments & EMI': {
+        icon: '💳',
+        sections: [
+            { title: 'Payment methods', content: 'Safe and secure digital payment gateways including all major Indian banks and UPI.' },
+            { title: 'Transaction Guarantee', content: 'Multi-layer security protocols to protect your financial transactions.' },
+            { title: 'Payment Terms', content: 'Clear milestone-based schedules (5%, 45%, 50%) to ensure project transparency.' },
+            { title: 'EMI Options', content: 'Flexible financing solutions available through our banking partners.' }
+        ]
+    },
+    'Cancellations & Refunds': {
+        icon: '🔄',
+        sections: [
+            { title: 'Cancellations', content: 'Refund policies based on the project stage (Pre-execution vs. Post-production).' },
+            { title: 'Return & Exchange', content: 'How we handle material discrepancies and product replacements.' },
+            { title: 'Delay Penalty', content: 'Our "On-Time or Pay" guarantee protecting you against project delays.' }
+        ]
+    },
+    'Warranty & Care': {
+        icon: '🛡️',
+        sections: [
+            { title: 'Comprehensive Warranty', content: 'Industry-leading coverage for modular systems, furniture, and services.' },
+            { title: 'Modular Warranty', content: 'Up to 10 years warranty on kitchens and wardrobes against manufacturing defects.' },
+            { title: 'Maintenance Guide', content: 'Essential care instructions to maximize the life and value of your home interiors.' },
+            { title: 'Assured Partner Warranty', content: 'Standardized warranties for services provided by our certified service partners.' }
+        ]
+    },
+    'Becoming a Partner': {
+        icon: '🤝',
+        sections: [
+            { title: 'For Designers', content: 'How professional designers can leverage our platform to reach more homeowners.' },
+            { title: 'For Suppliers', content: 'Quality benchmarks and application process for material and service providers.' },
+            { title: 'Reseller Terms', content: 'Structuring professional reseller arrangements within our ecosystem.' }
+        ]
+    },
+    'Privacy & Cookies': {
+        icon: '🍪',
+        sections: [
+            { title: 'Privacy Policy', content: 'How we protect the property images and personal data you share with us.' },
+            { title: 'Cookie Policy', content: 'Understanding the technologies we use to personalize your design experience.' },
+            { title: 'Data Redressal', content: 'Your rights to access, modify, or delete your data from our platform.' }
+        ]
+    },
+    'Customer Governance': {
+        icon: '🏛️',
+        sections: [
+            { title: 'Grievance Redressal', content: 'Escalation matrix and timeline for resolving customer concerns.' },
+            { title: 'Whistle Blower Policy', text: 'Encouraging transparency and reporting of any unethical business practices.' },
+            { title: 'Terms & Conditions', content: 'Master service agreement covering project delivery and legal obligations.' }
+        ]
+    },
+    'Referral Program': {
+        icon: '🎁',
+        sections: [
+            { title: 'Refer and Earn', content: 'Structure of our referral rewards for successful property handovers.' },
+            { title: 'Program Terms', content: 'Eligibility and validity criteria for the referral program.' }
+        ]
+    }
 }
 
 export default function Home() {
@@ -65,7 +114,7 @@ export default function Home() {
     const [showcaseStarted, setShowcaseStarted] = useState(false)
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
     const [form, setForm] = useState({ name: '', phone: '', city: '', whatsapp: true, countryCode: '+91' })
-    const [policyContent, setPolicyContent] = useState(null)
+    const [policyState, setPolicyState] = useState({ open: false, activeCat: 'Terms of Use' })
     const statsRef = useRef(null)
 
     // Hero stats: start counting immediately on mount
@@ -263,36 +312,78 @@ export default function Home() {
                 </div>
             </section>
 
-            {/* Policy Modal */}
-            {policyContent && (
-                <div className="modal-overlay" onClick={(e) => { if (e.target === e.currentTarget) setPolicyContent(null) }}>
-                    <div className="modal-box" style={{ maxWidth: '700px', width: '95%' }}>
-                        <button className="modal-close-btn" onClick={() => setPolicyContent(null)}>×</button>
-                        <div style={{ background: 'linear-gradient(135deg, var(--primary), var(--primary-dark))', padding: '40px 32px', color: 'white', textAlign: 'center' }}>
-                            <p style={{ textTransform: 'uppercase', fontSize: '12px', fontWeight: 800, letterSpacing: '2px', opacity: 0.9, marginBottom: '8px' }}>Policies</p>
-                            <h2 style={{ margin: 0, fontSize: '28px', fontWeight: 800 }}>{policyContent.title === 'All Policies' ? 'Policy Center' : policyContent.title}</h2>
-                            <p style={{ fontSize: '14px', marginTop: '12px', opacity: 0.8 }}>Get all the information you need about our services and terms</p>
+            {/* Policy Hub Modal */}
+            {policyState.open && (
+                <div className="modal-overlay" style={{ background: 'rgba(15, 23, 42, 0.9)', backdropFilter: 'blur(12px)' }} onClick={(e) => { if (e.target === e.currentTarget) setPolicyState({ ...policyState, open: false }) }}>
+                    <div className="modal-box animate-fadeIn" style={{ maxWidth: '1000px', width: '95%', height: '85vh', display: 'flex', flexDirection: 'column', borderRadius: '24px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)' }}>
+                        {/* Header */}
+                        <div style={{ background: 'white', padding: '24px 40px', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div>
+                                <h2 style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: 0 }}>Policy Center</h2>
+                                <p style={{ fontSize: '13px', color: '#64748b', marginTop: '4px' }}>Last updated: February 2026</p>
+                            </div>
+                            <button className="button-press" onClick={() => setPolicyState({ ...policyState, open: false })} style={{ background: '#f1f5f9', border: 'none', width: '36px', height: '36px', borderRadius: '50%', cursor: 'pointer', fontSize: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
                         </div>
-                        <div style={{ padding: '40px', maxHeight: '65vh', overflowY: 'auto', background: '#f8fafc' }}>
-                            {Object.entries(policyContent.data).map(([cat, items], idx) => (
-                                <div key={cat} style={{ marginBottom: idx === Object.entries(policyContent.data).length - 1 ? 0 : '40px' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px', paddingBottom: '12px', borderBottom: '2px solid #edf2f7' }}>
-                                        <span style={{ padding: '6px 12px', background: 'var(--primary)', color: 'white', borderRadius: '6px', fontSize: '12px', fontWeight: 800 }}>{idx + 1}</span>
-                                        <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#1a202c', margin: 0 }}>{cat}</h3>
-                                    </div>
-                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '20px' }}>
-                                        {items.map((item, i) => (
-                                            <div key={i} style={{ background: 'white', padding: '20px', borderRadius: '12px', boxShadow: '0 2px 4px rgba(0,0,0,0.02)', border: '1px solid #e2e8f0' }}>
-                                                <h4 style={{ fontWeight: 800, marginBottom: '10px', color: '#2d3748', fontSize: '16px' }}>{item.subtitle}</h4>
-                                                <p style={{ fontSize: '14px', color: '#718096', lineHeight: 1.6, margin: 0 }}>{item.text}</p>
-                                            </div>
-                                        ))}
-                                    </div>
+
+                        {/* Body - 2 Columns */}
+                        <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+                            {/* Left Sidebar */}
+                            <div style={{ width: '280px', background: '#f8fafc', borderRight: '1px solid #f1f5f9', overflowY: 'auto', padding: '24px' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                    {Object.entries(ALL_POLICIES).map(([cat, val]) => (
+                                        <div
+                                            key={cat}
+                                            onClick={() => setPolicyState({ ...policyState, activeCat: cat })}
+                                            className="button-press"
+                                            style={{
+                                                padding: '12px 16px',
+                                                borderRadius: '12px',
+                                                cursor: 'pointer',
+                                                transition: '0.2s',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '12px',
+                                                background: policyState.activeCat === cat ? 'white' : 'transparent',
+                                                boxShadow: policyState.activeCat === cat ? '0 4px 12px rgba(0,0,0,0.05)' : 'none',
+                                                border: policyState.activeCat === cat ? '1px solid #e2e8f0' : '1px solid transparent'
+                                            }}
+                                        >
+                                            <span style={{ fontSize: '18px' }}>{val.icon}</span>
+                                            <span style={{ fontSize: '14px', fontWeight: policyState.activeCat === cat ? 700 : 500, color: policyState.activeCat === cat ? 'var(--primary)' : '#475569' }}>
+                                                {cat}
+                                            </span>
+                                        </div>
+                                    ))}
                                 </div>
-                            ))}
+                            </div>
+
+                            {/* Right Content */}
+                            <div style={{ flex: 1, background: 'white', overflowY: 'auto', padding: '40px' }}>
+                                <div style={{ marginBottom: '32px' }}>
+                                    <h3 style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', marginBottom: '8px' }}>{policyState.activeCat}</h3>
+                                    <p style={{ color: '#64748b', fontSize: '15px' }}>{ALL_POLICIES[policyState.activeCat].subtitle || `Essential information regarding ${policyState.activeCat}`}</p>
+                                </div>
+
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+                                    {ALL_POLICIES[policyState.activeCat].sections?.map((section, idx) => (
+                                        <div key={idx} style={{ paddingLeft: '24px', borderLeft: '3px solid #e2e8f0' }}>
+                                            <h4 style={{ fontSize: '17px', fontWeight: 800, color: '#1e293b', marginBottom: '12px' }}>{section.title}</h4>
+                                            <p style={{ fontSize: '15px', color: '#475569', lineHeight: 1.7 }}>{section.content || section.text}</p>
+                                        </div>
+                                    ))}
+                                    {!ALL_POLICIES[policyState.activeCat].sections && (
+                                        <div style={{ textAlign: 'center', padding: '60px 20px', border: '2px dashed #f1f5f9', borderRadius: '20px' }}>
+                                            <p style={{ color: '#94a3b8' }}>Detailed selection coming soon for this category.</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
                         </div>
-                        <div style={{ padding: '24px 40px', borderTop: '1px solid #eee', background: 'white', textAlign: 'center' }}>
-                            <button className="btn-nav" onClick={() => setPolicyContent(null)} style={{ border: 'none', width: '100%', padding: '16px', fontWeight: 800, fontSize: '16px' }}>Acknowledge and Close</button>
+
+                        {/* Footer */}
+                        <div style={{ padding: '24px 40px', background: '#f8fafc', borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <p style={{ fontSize: '13px', color: '#64748b', margin: 0 }}>Need more help? Contact <a href="mailto:support@bharathome.com" style={{ color: 'var(--primary)', fontWeight: 600 }}>Support Team</a></p>
+                            <button className="btn-nav" onClick={() => setPolicyState({ ...policyState, open: false })} style={{ border: 'none', padding: '10px 32px' }}>Done</button>
                         </div>
                     </div>
                 </div>
@@ -324,14 +415,14 @@ export default function Home() {
                             <li><a href="#ideas" onClick={(e) => { e.preventDefault(); scrollTo('ideas') }}>Services</a></li>
                             <li><a href="#about" onClick={(e) => { e.preventDefault(); scrollTo('about') }}>About</a></li>
                             <li><a onClick={() => navigate('/login')} style={{ cursor: 'pointer' }}>Login</a></li>
-                            <li><a onClick={() => setPolicyContent({ title: 'All Policies', data: ALL_POLICIES })} style={{ cursor: 'pointer', fontWeight: 700 }}>Privacy & Company</a></li>
+                            <li><a onClick={() => setPolicyState({ open: true, activeCat: 'Terms of Use' })} style={{ cursor: 'pointer', fontWeight: 700 }}>Privacy & Company</a></li>
                         </ul>
                     </div>
                     <div className="footer-col">
                         <h4>Company</h4>
                         <ul>
-                            <li><a onClick={() => setPolicyContent({ title: 'Privacy Policy', data: { 'Privacy Policy': ALL_POLICIES['Corporate & Governance'].filter(i => i.subtitle.includes('Privacy') || i.subtitle.includes('Cookie')) } })} style={{ cursor: 'pointer' }}>Privacy Policy</a></li>
-                            <li><a onClick={() => setPolicyContent({ title: 'Terms of Use', data: { 'Terms of Use': ALL_POLICIES['Terms of Use'] } })} style={{ cursor: 'pointer' }}>Terms of Use</a></li>
+                            <li><a onClick={() => setPolicyState({ open: true, activeCat: 'Cookie Policy' })} style={{ cursor: 'pointer' }}>Privacy Policy</a></li>
+                            <li><a onClick={() => setPolicyState({ open: true, activeCat: 'Terms of Use' })} style={{ cursor: 'pointer' }}>Terms of Use</a></li>
                             <li><a onClick={() => alert('Blog coming soon!')} style={{ cursor: 'pointer' }}>Blog</a></li>
                             <li><a onClick={() => document.getElementById('contact-info')?.scrollIntoView({ behavior: 'smooth' })} style={{ cursor: 'pointer' }}>Contact Us</a></li>
                         </ul>
@@ -346,7 +437,7 @@ export default function Home() {
                     </div>
                 </div>
                 <div className="footer-bottom">
-                    <p>© 2026 BharatHome Value. All rights reserved. | <a onClick={() => setPolicyContent({ title: 'Privacy Policy', data: { 'Privacy Policy': ALL_POLICIES['Corporate & Governance'] } })} style={{ cursor: 'pointer', color: 'var(--primary)' }}>Privacy Policy</a> | <a onClick={() => setPolicyContent({ title: 'Terms of Use', data: { 'Terms of Use': ALL_POLICIES['Terms of Use'] } })} style={{ cursor: 'pointer', color: 'var(--primary)' }}>Terms of Use</a></p>
+                    <p>© 2026 BharatHome Value. All rights reserved. | <a onClick={() => setPolicyState({ open: true, activeCat: 'Terms of Use' })} style={{ cursor: 'pointer', color: 'var(--primary)' }}>Privacy Policy</a> | <a onClick={() => setPolicyState({ open: true, activeCat: 'Terms of Use' })} style={{ cursor: 'pointer', color: 'var(--primary)' }}>Terms of Use</a></p>
                 </div>
             </footer>
         </div>
