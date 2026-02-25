@@ -1437,14 +1437,10 @@ footer {
   position: relative;
 }
 
-.insp-item-duo {
+.insp-stack {
   display: flex;
+  flex-direction: column;
   gap: 8px;
-}
-
-.insp-item-duo .insp-item {
-  flex: 1;
-  aspect-ratio: 1 / 1;
 }
 
 /* --- All image cards --- */
@@ -1499,21 +1495,21 @@ footer {
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
 }
 
-/* --- Row 1: Living Room (wide) | Bedroom | Ceiling --- */
+/* --- Row 1: Large Left (Living Room) + Stacked Right --- */
 .insp-row1 {
   display: grid;
-  grid-template-columns: 2.48fr 1fr 1fr;
+  grid-template-columns: 2fr 1fr;
   gap: 8px;
   margin-bottom: 8px;
-  align-items: start;
+  align-items: stretch;
 }
 
-/* --- Row 2: Homes | Kitchen (wide) | Wardrobe --- */
+/* --- Row 2: Stacked Left + Large Right (Kitchen) --- */
 .insp-row2 {
   display: grid;
-  grid-template-columns: 1fr 2.48fr 1fr;
+  grid-template-columns: 1fr 2fr;
   gap: 8px;
-  align-items: start;
+  align-items: stretch;
 }
 
 /* --- Arrow button --- */
