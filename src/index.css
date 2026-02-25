@@ -584,43 +584,59 @@ footer {
 }
 
 .footer-col h4 {
-  font-size: 16px;
-  font-weight: 700;
-  margin-bottom: 16px;
+  font-size: 18px;
+  font-weight: 800;
+  margin-bottom: 24px;
   color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .footer-col p {
-  font-size: 13px;
-  opacity: 0.8;
-  line-height: 1.6;
+  font-size: 14px;
+  opacity: 0.7;
+  line-height: 1.8;
+  color: #a0aec0;
 }
 
 .footer-col ul {
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 14px;
 }
 
 .footer-col ul li a {
-  font-size: 14px;
-  opacity: 0.8;
-  color: white;
-  transition: 0.3s;
+  font-size: 15px;
+  color: #cbd5e0;
+  transition: all 0.3s ease;
+  display: inline-block;
 }
 
 .footer-col ul li a:hover {
-  opacity: 1;
   color: var(--primary);
+  transform: translateX(5px);
+}
+
+.footer-contact-list li a:hover {
+  transform: scale(1.05) !important;
+  color: white !important;
 }
 
 .footer-bottom {
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 30px 0;
   text-align: center;
-  font-size: 13px;
-  opacity: 0.7;
+  font-size: 14px;
+  color: #718096;
+}
+
+.footer-bottom a {
+  transition: 0.3s;
+}
+
+.footer-bottom a:hover {
+  text-decoration: underline;
 }
 
 /* Modal */
