@@ -1449,7 +1449,6 @@ footer {
   overflow: hidden;
   cursor: pointer;
   background: #f0f0f0;
-  aspect-ratio: 1;
 }
 
 .insp-item img {
@@ -1508,18 +1507,34 @@ footer {
   transform: translateY(-2px);
 }
 
-/* --- Row 1: Living Room + Bedroom + Ceiling --- */
-.insp-row1 {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+/* --- Duo container: 2 images side by side in the wide slot --- */
+.insp-item-duo {
+  display: flex;
   gap: 8px;
 }
 
+.insp-item-duo .insp-item {
+  flex: 1;
+  aspect-ratio: 1;
+}
 
-/* --- Row 2: Homes + Kitchen + Wardrobe --- */
+/* --- Row 1: Living duo (wide) + Bedroom + Ceiling --- */
+.insp-row1 {
+  display: grid;
+  grid-template-columns: 2.48fr 1fr 1fr;
+  gap: 8px;
+}
+
+/* Single items in grid rows stay square */
+.insp-row1>.insp-item,
+.insp-row2>.insp-item {
+  aspect-ratio: 1;
+}
+
+/* --- Row 2: Homes + Kitchen duo (wide) + Wardrobe --- */
 .insp-row2 {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 2.48fr 1fr;
   gap: 8px;
   margin-top: 8px;
 }
@@ -1568,11 +1583,11 @@ footer {
   }
 
   .insp-row1 {
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 2fr 1fr 1fr;
   }
 
   .insp-row2 {
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 2fr 1fr;
     gap: 8px;
     margin-top: 8px;
   }
@@ -1604,6 +1619,11 @@ footer {
   .insp-row1 {
     grid-template-columns: 1fr;
     grid-template-rows: auto;
+    gap: 8px;
+  }
+
+  .insp-item-duo {
+    flex-direction: row;
     gap: 8px;
   }
 

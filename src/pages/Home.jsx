@@ -272,11 +272,17 @@ export default function Home() {
                 </div>
 
                 <div className="insp-gallery-wrapper">
-                    {/* Row 1: Living Room (wide) + Bedroom + Ceiling — all same height */}
+                    {/* Row 1: Living Room duo (wide) + Bedroom + Ceiling */}
                     <div className="insp-row1">
-                        <div className="insp-item">
-                            <img src="/Photos/insp-living.png" alt="Living Room" />
-                            <div className="insp-label">Living Room</div>
+                        <div className="insp-item-duo">
+                            <div className="insp-item">
+                                <img src="/Photos/insp-living.png" alt="Living Room" />
+                                <div className="insp-label">Living Room</div>
+                            </div>
+                            <div className="insp-item">
+                                <img src="/Photos/HomeSub.png" alt="Living Space" />
+                                <div className="insp-label">Living Space</div>
+                            </div>
                         </div>
                         <div className="insp-item">
                             <img src="/Photos/insp-bedroom.png" alt="Master Bedroom" />
@@ -288,15 +294,21 @@ export default function Home() {
                         </div>
                     </div>
 
-                    {/* Row 2: Homes + Kitchen (wide) + Wardrobe — all same height */}
+                    {/* Row 2: Homes + Kitchen duo (wide) + Wardrobe */}
                     <div className="insp-row2">
                         <div className="insp-item">
                             <img src="/Photos/insp-general.png" alt="Homes by BharatHome" />
                             <div className="insp-label">Homes by BharatHome</div>
                         </div>
-                        <div className="insp-item">
-                            <img src="/Photos/insp-kitchen.png" alt="Kitchen" />
-                            <div className="insp-label">Kitchen</div>
+                        <div className="insp-item-duo">
+                            <div className="insp-item">
+                                <img src="/Photos/insp-kitchen.png" alt="Kitchen" />
+                                <div className="insp-label">Kitchen</div>
+                            </div>
+                            <div className="insp-item">
+                                <img src="/Photos/about-image.png" alt="Dining Area" />
+                                <div className="insp-label">Dining Area</div>
+                            </div>
                         </div>
                         <div className="insp-item">
                             <img src="/Photos/insp-wardrobe.png" alt="Wardrobe" />
