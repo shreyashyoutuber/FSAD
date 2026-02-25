@@ -1389,7 +1389,6 @@ footer {
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: 32px;
-  padding: 0 4px;
 }
 
 .insp-title-box h2 {
@@ -1405,8 +1404,6 @@ footer {
   color: #94a3b8;
   margin-top: 8px;
   font-size: 15px;
-  font-weight: 400;
-  letter-spacing: 0.1px;
 }
 
 .view-all-link {
@@ -1418,9 +1415,7 @@ footer {
   align-items: center;
   gap: 5px;
   white-space: nowrap;
-  padding: 8px 4px;
-  border-radius: 6px;
-  transition: all 0.25s ease;
+  transition: color 0.25s ease;
   margin-top: 6px;
 }
 
@@ -1437,144 +1432,89 @@ footer {
   transform: translateX(3px);
 }
 
-/* --- Gallery Container --- */
+/* --- Gallery Wrapper --- */
 .insp-gallery-wrapper {
   position: relative;
 }
 
-/* --- Shared Image Card Styles --- */
+/* --- All image cards --- */
 .insp-item {
   position: relative;
-  border-radius: 14px;
+  border-radius: 12px;
   overflow: hidden;
   cursor: pointer;
-  background: #f0f0f0;
-}
-
-.insp-item img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-  display: block;
-  transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-.insp-item:hover img {
-  transform: scale(1.06);
-}
-
-/* --- Gradient overlay for text readability --- */
-.insp-item::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 80px;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.15) 60%, transparent 100%);
-  z-index: 1;
-  pointer-events: none;
-  border-radius: 0 0 14px 14px;
-  transition: opacity 0.35s ease;
-}
-
-.insp-item:hover::after {
-  opacity: 0.85;
-}
-
-/* --- Label pill on bottom-left --- */
-.insp-label {
-  position: absolute;
-  bottom: 14px;
-  left: 16px;
-  color: #ffffff;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.3px;
-  z-index: 2;
-  background: rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  padding: 6px 14px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  transition: all 0.3s ease;
-}
-
-.insp-item:hover .insp-label {
-  background: rgba(0, 0, 0, 0.6);
-  transform: translateY(-2px);
-}
-
-/* --- Row 1: Living Room (wide) + Bedroom + Ceiling --- */
-.insp-row1 {
-  display: grid;
-  grid-template-columns: 2.48fr 1fr 1fr;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-
-/* Row 2: Homes + Kitchen (wide) + Wardrobe */
-.insp-row2 {
-  display: grid;
-  grid-template-columns: 1fr 2.48fr 1fr;
-  gap: 8px;
-}
-
-/* Ensure images are square but fill the container proportionally */
-.insp-item {
-  position: relative;
-  border-radius: 14px;
-  overflow: hidden;
-  cursor: pointer;
-  background: #f8fafc;
+  background: #e8e8e8;
+  /* Default: square — fits all square images perfectly */
   aspect-ratio: 1 / 1;
-  /* Default to square */
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
+/* Wide items: landscape proportion — still shows full square image via contain */
 .insp-item-square {
-  aspect-ratio: 2.15 / 1;
-  /* Wide items are rectangular but images are square */
+  aspect-ratio: 2.48 / 1;
 }
 
 .insp-item img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  /* Use cover but we'll try to show as much as possible */
+  object-fit: contain;
+  /* Shows the FULL image, no cropping */
   object-position: center;
   display: block;
   transition: transform 0.5s ease;
 }
 
 .insp-item:hover img {
-  transform: scale(1.05);
+  transform: scale(1.04);
 }
 
-/* --- Label pill on bottom-left --- */
+/* --- Dark gradient at bottom for label readability --- */
+.insp-item::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 70px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.6) 0%, transparent 100%);
+  z-index: 1;
+  pointer-events: none;
+  border-radius: 0 0 12px 12px;
+}
+
+/* --- Label pill --- */
 .insp-label {
   position: absolute;
   bottom: 12px;
-  left: 12px;
+  left: 14px;
   color: #ffffff;
   font-size: 13px;
   font-weight: 600;
+  letter-spacing: 0.2px;
   z-index: 2;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-  padding: 4px 12px;
-  border-radius: 6px;
-  pointer-events: none;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
 }
 
-/* --- Carousel Arrow --- */
+/* --- Row 1: Living Room (wide) | Bedroom | Ceiling --- */
+.insp-row1 {
+  display: grid;
+  grid-template-columns: 2.48fr 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 8px;
+  align-items: start;
+}
+
+/* --- Row 2: Homes | Kitchen (wide) | Wardrobe --- */
+.insp-row2 {
+  display: grid;
+  grid-template-columns: 1fr 2.48fr 1fr;
+  gap: 8px;
+  align-items: start;
+}
+
+/* --- Arrow button --- */
 .insp-arrow {
   position: absolute;
-  right: -20px;
+  right: -18px;
   top: 50%;
   transform: translateY(-50%);
   width: 40px;
@@ -1582,7 +1522,7 @@ footer {
   border-radius: 50%;
   background: #ffffff;
   border: 1px solid #e2e8f0;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1594,42 +1534,67 @@ footer {
 }
 
 .insp-arrow:hover {
-  background: #f1f5f9;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  background: #f8fafc;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.14);
 }
 
-/* --- Responsive: Tablets --- */
+/* --- Tablet --- */
 @media (max-width: 1024px) {
   .inspiration-section {
     padding: 50px 5% 60px;
   }
 
-  .insp-row1,
-  .insp-row2 {
+  .insp-row1 {
     grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    gap: 8px;
   }
 
-  .insp-item-square {
-    grid-column: span 2;
+  .insp-row2 {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  /* Wide items span both columns on tablet */
+  .insp-row1 .insp-item-square {
+    grid-column: 1 / -1;
     aspect-ratio: 2 / 1;
+  }
+
+  .insp-row2 .insp-item-square {
+    grid-column: 1 / -1;
+    aspect-ratio: 2 / 1;
+  }
+
+  .insp-arrow {
+    display: none;
   }
 }
 
-/* --- Responsive: Mobile --- */
+/* --- Mobile --- */
 @media (max-width: 640px) {
   .inspiration-section {
     padding: 40px 4% 50px;
   }
 
+  .insp-header {
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .insp-title-box h2 {
+    font-size: 22px;
+  }
+
   .insp-row1,
   .insp-row2 {
     grid-template-columns: 1fr;
-    gap: 12px;
+    gap: 10px;
   }
 
-  .insp-item-square {
-    grid-column: span 1;
+  .insp-row1 .insp-item-square,
+  .insp-row2 .insp-item-square {
+    grid-column: 1;
     aspect-ratio: 1 / 1;
   }
 }
