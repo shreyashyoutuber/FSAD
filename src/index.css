@@ -1508,18 +1508,18 @@ footer {
   transform: translateY(-2px);
 }
 
-/* --- Row 1: Living Room (wide) + Bedroom + Ceiling — Livspace exact ratio --- */
+/* --- Row 1: Living Room + Bedroom + Ceiling --- */
 .insp-row1 {
   display: grid;
-  grid-template-columns: 2.48fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 8px;
 }
 
 
-/* --- Row 2: Homes + Kitchen (wide) + Wardrobe — Livspace exact ratio --- */
+/* --- Row 2: Homes + Kitchen + Wardrobe --- */
 .insp-row2 {
   display: grid;
-  grid-template-columns: 1fr 2.48fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 8px;
   margin-top: 8px;
 }
@@ -1568,11 +1568,11 @@ footer {
   }
 
   .insp-row1 {
-    grid-template-columns: 2fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
   }
 
   .insp-row2 {
-    grid-template-columns: 1fr 2fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     gap: 8px;
     margin-top: 8px;
   }

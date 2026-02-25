@@ -274,7 +274,7 @@ export default function Home() {
                 <div className="insp-gallery-wrapper">
                     {/* Row 1: Living Room (wide) + Bedroom + Ceiling — all same height */}
                     <div className="insp-row1">
-                        <div className="insp-item insp-item-wide">
+                        <div className="insp-item">
                             <img src="/Photos/insp-living.png" alt="Living Room" />
                             <div className="insp-label">Living Room</div>
                         </div>
@@ -294,7 +294,7 @@ export default function Home() {
                             <img src="/Photos/insp-general.png" alt="Homes by BharatHome" />
                             <div className="insp-label">Homes by BharatHome</div>
                         </div>
-                        <div className="insp-item insp-item-wide">
+                        <div className="insp-item">
                             <img src="/Photos/insp-kitchen.png" alt="Kitchen" />
                             <div className="insp-label">Kitchen</div>
                         </div>
