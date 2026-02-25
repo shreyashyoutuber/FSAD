@@ -272,23 +272,25 @@ export default function Home() {
                 </div>
 
                 <div className="insp-gallery-wrapper">
-                    {/* Row 1: Living Room (tall left) + Bedroom + Ceiling */}
-                    <div className="insp-grid">
+                    {/* Row 1: Living Room (tall left) + Bedroom & Ceiling stacked right */}
+                    <div className="insp-row1">
                         <div className="insp-item insp-item-living">
                             <img src="/Photos/insp-living.png" alt="Living Room" />
                             <div className="insp-label">Living Room</div>
                         </div>
-                        <div className="insp-item insp-item-bedroom">
-                            <img src="/Photos/insp-bedroom.png" alt="Master Bedroom" />
-                            <div className="insp-label">Master Bedroom</div>
-                        </div>
-                        <div className="insp-item insp-item-ceiling">
-                            <img src="/Photos/insp-ceiling.png" alt="False Ceiling" />
-                            <div className="insp-label">False Ceiling</div>
+                        <div className="insp-right-stack">
+                            <div className="insp-item">
+                                <img src="/Photos/insp-bedroom.png" alt="Master Bedroom" />
+                                <div className="insp-label">Master Bedroom</div>
+                            </div>
+                            <div className="insp-item">
+                                <img src="/Photos/insp-ceiling.png" alt="False Ceiling" />
+                                <div className="insp-label">False Ceiling</div>
+                            </div>
                         </div>
                     </div>
 
-                    {/* Row 2: Homes (small) + Kitchen (wide) + Wardrobe */}
+                    {/* Row 2: Homes + Kitchen (wide) + Wardrobe */}
                     <div className="insp-row2">
                         <div className="insp-item">
                             <img src="/Photos/insp-general.png" alt="Homes by BharatHome" />

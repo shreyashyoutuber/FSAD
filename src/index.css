@@ -1374,68 +1374,83 @@ footer {
   }
 }
 
-/* Inspiration Gallery - Livspace Style */
+/* ========================================
+   Inspiration Gallery - Premium Livspace Style
+   ======================================== */
+
 .inspiration-section {
-  padding: 60px 5% 80px;
-  background: white;
+  padding: 70px 5% 90px;
+  background: #ffffff;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
+/* --- Header --- */
 .insp-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 24px;
+  margin-bottom: 32px;
+  padding: 0 4px;
 }
 
 .insp-title-box h2 {
-  font-size: 28px;
+  font-size: 30px;
   font-weight: 800;
-  color: #1a1a1a;
+  color: #0f172a;
   margin: 0;
-  line-height: 1.2;
+  line-height: 1.25;
+  letter-spacing: -0.5px;
 }
 
 .insp-title-box p {
-  color: #6b7280;
-  margin-top: 6px;
-  font-size: 14px;
+  color: #94a3b8;
+  margin-top: 8px;
+  font-size: 15px;
   font-weight: 400;
+  letter-spacing: 0.1px;
 }
 
 .view-all-link {
-  color: #e74c4c;
-  font-weight: 600;
-  font-size: 15px;
+  color: #dc2626;
+  font-weight: 700;
+  font-size: 14px;
   text-decoration: none;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   white-space: nowrap;
-  transition: 0.2s;
+  padding: 8px 4px;
+  border-radius: 6px;
+  transition: all 0.25s ease;
+  margin-top: 6px;
+}
+
+.view-all-link span {
+  font-size: 18px;
+  transition: transform 0.25s ease;
 }
 
 .view-all-link:hover {
-  opacity: 0.8;
+  color: #b91c1c;
 }
 
-/* Gallery Container with arrow */
+.view-all-link:hover span {
+  transform: translateX(3px);
+}
+
+/* --- Gallery Container --- */
 .insp-gallery-wrapper {
   position: relative;
 }
 
-/* Row 1: Living Room tall left + 2 stacked right */
-.insp-grid {
-  display: grid;
-  grid-template-columns: 5fr 3fr 3fr;
-  grid-template-rows: 220px 220px;
-  gap: 8px;
-}
-
+/* --- Shared Image Card Styles --- */
 .insp-item {
   position: relative;
-  border-radius: 10px;
+  border-radius: 14px;
   overflow: hidden;
   cursor: pointer;
+  background: #e2e8f0;
 }
 
 .insp-item img {
@@ -1443,144 +1458,218 @@ footer {
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: 0.4s transform ease;
+  transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .insp-item:hover img {
-  transform: scale(1.04);
+  transform: scale(1.06);
 }
 
-.insp-label {
-  position: absolute;
-  bottom: 12px;
-  left: 14px;
-  color: white;
-  font-size: 13px;
-  font-weight: 600;
-  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
-  z-index: 2;
-}
-
-/* Dark gradient overlay at bottom for text readability */
+/* --- Gradient overlay for text readability --- */
 .insp-item::after {
   content: '';
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-  height: 60px;
-  background: linear-gradient(transparent, rgba(0, 0, 0, 0.4));
+  height: 80px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.15) 60%, transparent 100%);
   z-index: 1;
   pointer-events: none;
-  border-radius: 0 0 10px 10px;
+  border-radius: 0 0 14px 14px;
+  transition: opacity 0.35s ease;
 }
 
-/* Grid Spanning - Living Room spans both rows in col 1 */
+.insp-item:hover::after {
+  opacity: 0.85;
+}
+
+/* --- Label pill on bottom-left --- */
+.insp-label {
+  position: absolute;
+  bottom: 14px;
+  left: 16px;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  z-index: 2;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  transition: all 0.3s ease;
+}
+
+.insp-item:hover .insp-label {
+  background: rgba(0, 0, 0, 0.6);
+  transform: translateY(-2px);
+}
+
+/* --- Row 1: Living Room (tall left) + stacked Bedroom & Ceiling right --- */
+.insp-row1 {
+  display: flex;
+  gap: 10px;
+  height: 430px;
+}
+
 .insp-item-living {
-  grid-row: 1 / 3;
-  grid-column: 1;
+  flex: 1.15;
+  min-width: 0;
 }
 
-.insp-item-bedroom {
-  grid-row: 1;
-  grid-column: 2;
+.insp-right-stack {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
 }
 
-.insp-item-ceiling {
-  grid-row: 1;
-  grid-column: 3;
+.insp-right-stack .insp-item {
+  flex: 1;
+  min-height: 0;
 }
 
-/* Row 2: Small left + Wide center + Medium right */
+/* --- Row 2: Homes (small) + Kitchen (wide) + Wardrobe (medium) --- */
 .insp-row2 {
   display: grid;
-  grid-template-columns: 2fr 5fr 2.5fr;
-  grid-template-rows: 220px;
-  gap: 8px;
-  margin-top: 8px;
+  grid-template-columns: 1fr 2fr 1.2fr;
+  grid-template-rows: 210px;
+  gap: 10px;
+  margin-top: 10px;
 }
 
-/* Carousel Arrow */
+/* --- Carousel Arrow --- */
 .insp-arrow {
   position: absolute;
-  right: -18px;
+  right: -20px;
   top: 50%;
   transform: translateY(-50%);
-  width: 38px;
-  height: 38px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
-  background: white;
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10), 0 1px 3px rgba(0, 0, 0, 0.06);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: 20px;
-  color: #374151;
-  transition: 0.2s;
+  font-size: 22px;
+  color: #1e293b;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 10;
+  line-height: 1;
 }
 
 .insp-arrow:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
-  background: #f9fafb;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  background: #f8fafc;
+  transform: translateY(-50%) scale(1.08);
 }
 
+.insp-arrow:active {
+  transform: translateY(-50%) scale(0.96);
+}
+
+/* --- Responsive: Tablets --- */
 @media (max-width: 1024px) {
-  .insp-grid {
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 200px 200px;
+  .inspiration-section {
+    padding: 50px 4% 60px;
   }
 
-  .insp-item-living {
-    grid-row: 1 / 3;
-    grid-column: 1;
+  .insp-title-box h2 {
+    font-size: 24px;
   }
 
-  .insp-item-bedroom {
-    grid-row: 1;
-    grid-column: 2;
-  }
-
-  .insp-item-ceiling {
-    grid-row: 2;
-    grid-column: 2;
+  .insp-row1 {
+    height: 380px;
   }
 
   .insp-row2 {
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: 200px;
+    grid-template-rows: 190px;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .insp-row2 .insp-item:last-child {
+    grid-column: 1 / -1;
+    max-height: 200px;
+  }
+
+  .insp-arrow {
+    right: -12px;
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
   }
 }
 
+/* --- Responsive: Mobile --- */
 @media (max-width: 640px) {
-  .insp-grid {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto;
+  .inspiration-section {
+    padding: 40px 4% 50px;
+  }
+
+  .insp-header {
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .insp-title-box h2 {
+    font-size: 22px;
+  }
+
+  .insp-row1 {
+    flex-direction: column;
+    height: auto;
+    gap: 8px;
   }
 
   .insp-item-living {
-    grid-row: auto;
-    grid-column: auto;
-    height: 280px;
+    height: 260px;
+    flex: none;
   }
 
-  .insp-item-bedroom,
-  .insp-item-ceiling {
-    height: 200px;
+  .insp-right-stack {
+    flex-direction: row;
+    gap: 8px;
+  }
+
+  .insp-right-stack .insp-item {
+    height: 180px;
+    flex: 1;
   }
 
   .insp-row2 {
     grid-template-columns: 1fr;
     grid-template-rows: auto;
+    gap: 8px;
+    margin-top: 8px;
   }
 
   .insp-row2 .insp-item {
-    height: 200px;
+    height: 180px;
+  }
+
+  .insp-row2 .insp-item:last-child {
+    grid-column: auto;
+    max-height: none;
   }
 
   .insp-arrow {
     display: none;
+  }
+
+  .insp-label {
+    font-size: 12px;
+    padding: 5px 12px;
+    bottom: 10px;
+    left: 12px;
   }
 }
