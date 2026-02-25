@@ -261,6 +261,44 @@ export default function Home() {
                 </div>
             </section>
 
+            {/* Inspiration Gallery */}
+            <section className="inspiration-section">
+                <div className="insp-header">
+                    <div className="insp-title-box">
+                        <h2>Inspiration for home interior designs</h2>
+                        <p>Give your home a new look with these interior design ideas curated for you</p>
+                    </div>
+                    <a href="#ideas" className="view-all-link">View All <span style={{ fontSize: '18px' }}>›</span></a>
+                </div>
+
+                <div className="insp-grid">
+                    <div className="insp-item insp-large">
+                        <img src="/Photos/insp-living.png" alt="Living Room" />
+                        <div className="insp-label">Living Room</div>
+                    </div>
+                    <div className="insp-item">
+                        <img src="/Photos/insp-bedroom.png" alt="Master Bedroom" />
+                        <div className="insp-label">Master Bedroom</div>
+                    </div>
+                    <div className="insp-item">
+                        <img src="/Photos/insp-ceiling.png" alt="False Ceiling" />
+                        <div className="insp-label">False Ceiling</div>
+                    </div>
+                    <div className="insp-item">
+                        <img src="/Photos/insp-general.png" alt="Homes by BharatHome" />
+                        <div className="insp-label">Homes by BharatHome</div>
+                    </div>
+                    <div className="insp-item insp-wide">
+                        <img src="/Photos/insp-kitchen.png" alt="Kitchen" />
+                        <div className="insp-label">Kitchen</div>
+                    </div>
+                    <div className="insp-item">
+                        <img src="/Photos/insp-wardrobe.png" alt="Wardrobe" />
+                        <div className="insp-label">Wardrobe</div>
+                    </div>
+                </div>
+            </section>
+
             {/* About */}
             <section id="about" className="about">
                 <div className="about-content">
