@@ -361,11 +361,11 @@ export default function Home() {
                             <div style={{ flex: 1, background: 'white', overflowY: 'auto', padding: '40px' }}>
                                 <div style={{ marginBottom: '32px' }}>
                                     <h3 style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', marginBottom: '8px' }}>{policyState.activeCat}</h3>
-                                    <p style={{ color: '#64748b', fontSize: '15px' }}>{ALL_POLICIES[policyState.activeCat].subtitle || `Essential information regarding ${policyState.activeCat}`}</p>
+                                    <p style={{ color: '#64748b', fontSize: '15px' }}>{ALL_POLICIES[policyState.activeCat]?.subtitle || `Essential information regarding ${policyState.activeCat}`}</p>
                                 </div>
 
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-                                    {ALL_POLICIES[policyState.activeCat].sections?.map((section, idx) => (
+                                    {ALL_POLICIES[policyState.activeCat]?.sections?.map((section, idx) => (
                                         <div key={idx} style={{ paddingLeft: '24px', borderLeft: '3px solid #e2e8f0' }}>
                                             <h4 style={{ fontSize: '17px', fontWeight: 800, color: '#1e293b', marginBottom: '12px' }}>{section.title}</h4>
                                             <p style={{ fontSize: '15px', color: '#475569', lineHeight: 1.7 }}>{section.content || section.text}</p>
@@ -421,7 +421,7 @@ export default function Home() {
                     <div className="footer-col">
                         <h4>Company</h4>
                         <ul>
-                            <li><a onClick={() => setPolicyState({ open: true, activeCat: 'Cookie Policy' })} style={{ cursor: 'pointer' }}>Privacy Policy</a></li>
+                            <li><a onClick={() => setPolicyState({ open: true, activeCat: 'Privacy & Cookies' })} style={{ cursor: 'pointer' }}>Privacy Policy</a></li>
                             <li><a onClick={() => setPolicyState({ open: true, activeCat: 'Terms of Use' })} style={{ cursor: 'pointer' }}>Terms of Use</a></li>
                             <li><a onClick={() => alert('Blog coming soon!')} style={{ cursor: 'pointer' }}>Blog</a></li>
                             <li><a onClick={() => document.getElementById('contact-info')?.scrollIntoView({ behavior: 'smooth' })} style={{ cursor: 'pointer' }}>Contact Us</a></li>
@@ -437,7 +437,7 @@ export default function Home() {
                     </div>
                 </div>
                 <div className="footer-bottom">
-                    <p>© 2026 BharatHome Value. All rights reserved. | <a onClick={() => setPolicyState({ open: true, activeCat: 'Terms of Use' })} style={{ cursor: 'pointer', color: 'var(--primary)' }}>Privacy Policy</a> | <a onClick={() => setPolicyState({ open: true, activeCat: 'Terms of Use' })} style={{ cursor: 'pointer', color: 'var(--primary)' }}>Terms of Use</a></p>
+                    <p>© 2026 BharatHome Value. All rights reserved. | <a onClick={() => setPolicyState({ open: true, activeCat: 'Privacy & Cookies' })} style={{ cursor: 'pointer', color: 'var(--primary)' }}>Privacy Policy</a> | <a onClick={() => setPolicyState({ open: true, activeCat: 'Terms of Use' })} style={{ cursor: 'pointer', color: 'var(--primary)' }}>Terms of Use</a></p>
                 </div>
             </footer>
         </div>
