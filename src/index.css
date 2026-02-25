@@ -1437,142 +1437,76 @@ footer {
   position: relative;
 }
 
-.insp-stack {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+.insp-grid-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
 }
 
-/* --- All image cards --- */
+/* --- Image cards --- */
 .insp-item {
   position: relative;
-  border-radius: 12px;
+  border-radius: 20px;
   overflow: hidden;
   cursor: pointer;
   background: #e8e8e8;
-  /* Default: square — fits all square images perfectly */
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 4 / 3;
+  /* Landscape — matches the reference image */
 }
 
 .insp-item img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  /* Fill the box perfectly */
   object-position: center;
   display: block;
   transition: transform 0.5s ease;
 }
 
 .insp-item:hover img {
-  transform: scale(1.04);
+  transform: scale(1.06);
 }
 
-/* --- Dark gradient at bottom for label readability --- */
+/* --- Gradient overlay at bottom --- */
 .insp-item::after {
   content: '';
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-  height: 70px;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.6) 0%, transparent 100%);
+  height: 45%;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.55) 0%, transparent 100%);
   z-index: 1;
   pointer-events: none;
-  border-radius: 0 0 12px 12px;
 }
 
-/* --- Label pill --- */
+/* --- Label --- */
 .insp-label {
   position: absolute;
-  bottom: 12px;
-  left: 14px;
-  color: #ffffff;
-  font-size: 13px;
+  bottom: 14px;
+  left: 16px;
+  color: #fff;
+  font-size: 14px;
   font-weight: 600;
-  letter-spacing: 0.2px;
   z-index: 2;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
-}
-
-/* --- Row 1: Large Left (Living Room) + Stacked Right --- */
-.insp-row1 {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 8px;
-  margin-bottom: 8px;
-  align-items: stretch;
-}
-
-/* --- Row 2: Stacked Left + Large Right (Kitchen) --- */
-.insp-row2 {
-  display: grid;
-  grid-template-columns: 1fr 2fr;
-  gap: 8px;
-  align-items: stretch;
-}
-
-/* --- Arrow button --- */
-.insp-arrow {
-  position: absolute;
-  right: -18px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  font-size: 20px;
-  color: #334155;
-  transition: all 0.2s ease;
-  z-index: 10;
-}
-
-.insp-arrow:hover {
-  background: #f8fafc;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.14);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
 }
 
 /* --- Tablet --- */
-@media (max-width: 1024px) {
+@media (max-width: 900px) {
   .inspiration-section {
     padding: 50px 5% 60px;
   }
 
-  .insp-row1 {
+  .insp-grid-row {
     grid-template-columns: 1fr 1fr;
-    gap: 8px;
-  }
-
-  .insp-row2 {
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-  }
-
-  /* Wide items span both columns on tablet */
-  .insp-row1 .insp-item-square {
-    grid-column: 1 / -1;
-    aspect-ratio: 2 / 1;
-  }
-
-  .insp-row2 .insp-item-square {
-    grid-column: 1 / -1;
-    aspect-ratio: 2 / 1;
-  }
-
-  .insp-arrow {
-    display: none;
+    gap: 12px;
   }
 }
 
 /* --- Mobile --- */
-@media (max-width: 640px) {
+@media (max-width: 560px) {
   .inspiration-section {
     padding: 40px 4% 50px;
   }
@@ -1587,15 +1521,40 @@ footer {
     font-size: 22px;
   }
 
-  .insp-row1,
-  .insp-row2 {
+  .insp-grid-row {
     grid-template-columns: 1fr;
-    gap: 10px;
+    gap: 12px;
+    margin-bottom: 12px;
   }
 
-  .insp-row1 .insp-item-square,
-  .insp-row2 .insp-item-square {
-    grid-column: 1;
-    aspect-ratio: 1 / 1;
+  .insp-arrow {
+    display: none;
   }
-}
+
+  @media (max-width: 640px) {
+    .inspiration-section {
+      padding: 40px 4% 50px;
+    }
+
+    .insp-header {
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .insp-title-box h2 {
+      font-size: 22px;
+    }
+
+    .insp-row1,
+    .insp-row2 {
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .insp-row1 .insp-item-square,
+    .insp-row2 .insp-item-square {
+      grid-column: 1;
+      aspect-ratio: 1 / 1;
+    }
+  }

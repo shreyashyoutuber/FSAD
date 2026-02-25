@@ -272,44 +272,37 @@ export default function Home() {
                 </div>
 
                 <div className="insp-gallery-wrapper">
-                    {/* Row 1: Living Room (Large) + Bedroom/Ceiling Stack */}
-                    <div className="insp-row1">
-                        <div className="insp-item insp-item-large">
+                    {/* Row 1: Living Room, Bedroom, Ceiling */}
+                    <div className="insp-grid-row">
+                        <div className="insp-item">
                             <img src="/Photos/insp-living.png" alt="Living Room" />
                             <div className="insp-label">Living Room</div>
                         </div>
-                        <div className="insp-stack">
-                            <div className="insp-item">
-                                <img src="/Photos/insp-bedroom.png" alt="Master Bedroom" />
-                                <div className="insp-label">Master Bedroom</div>
-                            </div>
-                            <div className="insp-item">
-                                <img src="/Photos/insp-ceiling.png" alt="False Ceiling" />
-                                <div className="insp-label">False Ceiling</div>
-                            </div>
+                        <div className="insp-item">
+                            <img src="/Photos/insp-bedroom.png" alt="Master Bedroom" />
+                            <div className="insp-label">Master Bedroom</div>
+                        </div>
+                        <div className="insp-item">
+                            <img src="/Photos/insp-ceiling.png" alt="False Ceiling" />
+                            <div className="insp-label">False Ceiling</div>
                         </div>
                     </div>
 
-                    {/* Row 2: Homes/Wardrobe Stack + Kitchen (Large) */}
-                    <div className="insp-row2">
-                        <div className="insp-stack">
-                            <div className="insp-item">
-                                <img src="/Photos/insp-general.png" alt="Homes by BharatHome" />
-                                <div className="insp-label">Homes by BharatHome</div>
-                            </div>
-                            <div className="insp-item">
-                                <img src="/Photos/insp-wardrobe.png" alt="Wardrobe" />
-                                <div className="insp-label">Wardrobe</div>
-                            </div>
+                    {/* Row 2: Homes, Kitchen, Wardrobe */}
+                    <div className="insp-grid-row">
+                        <div className="insp-item">
+                            <img src="/Photos/insp-general.png" alt="Homes by BharatHome" />
+                            <div className="insp-label">Homes by BharatHome</div>
                         </div>
-                        <div className="insp-item insp-item-large">
+                        <div className="insp-item">
                             <img src="/Photos/insp-kitchen.png" alt="Kitchen" />
                             <div className="insp-label">Kitchen</div>
                         </div>
+                        <div className="insp-item">
+                            <img src="/Photos/insp-wardrobe.png" alt="Wardrobe" />
+                            <div className="insp-label">Wardrobe</div>
+                        </div>
                     </div>
-
-                    {/* Carousel Arrow */}
-                    <button className="insp-arrow" aria-label="Next">›</button>
                 </div>
             </section>
 
