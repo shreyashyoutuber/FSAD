@@ -1,0 +1,9 @@
+package com.bharathome.database.repository;
+
+import com.bharathome.database.model.User; // This will work once you move the folders!
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface UserRepository extends JpaRepository<User, Long> {
+}

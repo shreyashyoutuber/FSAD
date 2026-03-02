@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { saveEstimation } from '../api'
 
 const CONFIGS = ['1 BHK', '2 BHK', '3 BHK', '4 BHK', 'Duplex', 'Villa']
 const SCOPES = ['Complete Interior', 'Living + Bedrooms', 'Kitchen + Bathrooms', 'Only Living Room', 'Only Bedrooms']
@@ -25,17 +26,35 @@ export default function FullHomeEstimator() {
     const base = PACKAGE_BASE[sel.pkg] || 1500000
     const total = Math.round(base * (CONFIG_MUL[sel.config] || 1) + extras)
 
-    const handleSubmit = () => {
-        const user = sessionStorage.getItem('bhvUser')
-        if (!user) { navigate('/login'); return }
-        const est = { type: 'Full Home Estimator', date: new Date().toLocaleDateString(), cost: total, package: sel.pkg, details: sel }
-        const prev = JSON.parse(localStorage.getItem('userEstimates') || '[]')
-        localStorage.setItem('userEstimates', JSON.stringify([...prev, est]))
-        const req = { id: `EST-${Date.now()}`, customerName: JSON.parse(localStorage.getItem('userData') || '{}').name || 'User', customerEmail: user, type: 'Full Home Estimator', status: 'pending', dateSubmitted: new Date().toISOString().split('T')[0], description: `${sel.config}, ${sel.style} style, ${sel.scope}`, budget: `₹${total.toLocaleString('en-IN')}`, responded: false }
-        const allReqs = JSON.parse(localStorage.getItem('allAdminRequests') || '[]')
-        localStorage.setItem('allAdminRequests', JSON.stringify([...allReqs, req]))
-        setSubmitted(true)
-        setTimeout(() => navigate('/thankyou'), 1500)
+    const handleSubmit = async () => {
+        const userEmail = sessionStorage.getItem('bhvUser')
+        if (!userEmail) { navigate('/login'); return }
+
+        const estData = {
+            userEmail: userEmail,
+            type: 'Full Home Estimator',
+            date: new Date().toLocaleDateString(),
+            cost: total,
+            details: JSON.stringify(sel)
+        }
+
+        try {
+            await saveEstimation(estData)
+
+            const est = { ...estData, package: sel.pkg }
+            const prev = JSON.parse(localStorage.getItem('userEstimates') || '[]')
+            localStorage.setItem('userEstimates', JSON.stringify([...prev, est]))
+
+            const req = { id: `EST-F-${Date.now()}`, customerName: JSON.parse(localStorage.getItem('userData') || '{}').name || 'User', customerEmail: userEmail, type: 'Full Home Estimator', status: 'pending', dateSubmitted: new Date().toISOString().split('T')[0], description: `${sel.config}, ${sel.style} style, ${sel.scope}`, budget: `₹${total.toLocaleString('en-IN')}`, responded: false }
+            const allReqs = JSON.parse(localStorage.getItem('allAdminRequests') || '[]')
+            localStorage.setItem('allAdminRequests', JSON.stringify([...allReqs, req]))
+
+            setSubmitted(true)
+            setTimeout(() => navigate('/thankyou'), 1500)
+        } catch (err) {
+            console.error("Error saving estimation:", err)
+            alert("Failed to save estimate to database.")
+        }
     }
 
     const steps = ['Property Details', 'Design Preferences', 'Package & Add-ons']

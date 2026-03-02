@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { login } from '../api'
 
 function generateCaptcha() {
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
@@ -15,7 +16,7 @@ export default function Login() {
 
     const refreshCaptcha = () => setCaptcha(generateCaptcha())
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault()
         if (form.captchaInput.toUpperCase() !== captcha) {
             setError('Captcha does not match. Please try again.')
@@ -23,13 +24,22 @@ export default function Login() {
             setForm(f => ({ ...f, captchaInput: '' }))
             return
         }
-        sessionStorage.setItem('bhvUser', form.email)
-        const name = form.email.split('@')[0]
-        localStorage.setItem('userData', JSON.stringify({
-            name, email: form.email, phone: '+91 98765 43210',
-            property: { type: '2BHK Apartment', location: 'Sector 62, Noida', currentValue: 5000000, size: 1250, age: 8, locationRating: 4.2 }
-        }))
-        navigate('/user-dashboard')
+
+        try {
+            const user = await login({ email: form.email, password: form.password })
+
+            sessionStorage.setItem('bhvUser', user.email)
+            localStorage.setItem('userData', JSON.stringify({
+                name: user.name,
+                email: user.email,
+                phone: user.phone || '+91 98765 43210',
+                property: { type: '2BHK Apartment', location: 'Sector 62, Noida', currentValue: 5000000, size: 1250, age: 8, locationRating: 4.2 }
+            }))
+            navigate('/user-dashboard')
+        } catch (err) {
+            setError(err.message)
+            refreshCaptcha()
+        }
     }
 
     const handleGoogle = () => {

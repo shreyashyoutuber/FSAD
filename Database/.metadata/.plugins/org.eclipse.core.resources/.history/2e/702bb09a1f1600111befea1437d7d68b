@@ -1,0 +1,11 @@
+package repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import com.bharathome.database.model.User;
+
+@Repository
+public interface UserRepository extends JpaRepository<User, Long> {
+    // No code needed here! Spring Data JPA handles everything.
+}

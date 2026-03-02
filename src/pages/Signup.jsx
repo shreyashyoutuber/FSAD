@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { signup } from '../api'
 
 function generateCaptcha() {
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
@@ -14,7 +15,7 @@ export default function Signup() {
 
     const refreshCaptcha = () => setCaptcha(generateCaptcha())
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault()
         setError('')
         if (form.password !== form.confirmPassword) { setError('Passwords do not match!'); return }
@@ -23,12 +24,27 @@ export default function Signup() {
             setError('Captcha does not match. Please try again.')
             refreshCaptcha(); setForm(f => ({ ...f, captchaInput: '' })); return
         }
-        sessionStorage.setItem('bhvUser', form.email)
-        localStorage.setItem('userData', JSON.stringify({
-            name: form.fullname, email: form.email, phone: form.phone,
-            property: { type: '2BHK Apartment', location: 'Sector 62, Noida', currentValue: 5000000, size: 1250, age: 8, locationRating: 4.2 }
-        }))
-        navigate('/user-dashboard')
+
+        try {
+            const userData = {
+                name: form.fullname,
+                email: form.email,
+                phone: form.phone,
+                password: form.password
+            }
+            const savedUser = await signup(userData)
+
+            sessionStorage.setItem('bhvUser', savedUser.email)
+            localStorage.setItem('userData', JSON.stringify({
+                name: savedUser.name,
+                email: savedUser.email,
+                phone: savedUser.phone,
+                property: { type: '2BHK Apartment', location: 'Sector 62, Noida', currentValue: 5000000, size: 1250, age: 8, locationRating: 4.2 }
+            }))
+            navigate('/user-dashboard')
+        } catch (err) {
+            setError(err.message)
+        }
     }
 
     const set = (k) => (e) => setForm({ ...form, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value })

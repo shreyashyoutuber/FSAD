@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { saveEstimation } from '../api'
 
 const SIZES = ['7x6 ft', '8x7 ft', '10x8 ft', '12x9 ft', '14x10 ft', 'Custom']
 const LAYOUTS = ['L-Shaped', 'U-Shaped', 'Parallel', 'Straight', 'Island']
@@ -21,17 +22,37 @@ export default function KitchenEstimator() {
 
     const S = (k, v) => setSel(p => ({ ...p, [k]: v }))
 
-    const handleSubmit = () => {
-        const user = sessionStorage.getItem('bhvUser')
-        if (!user) { navigate('/login'); return }
-        const est = { type: 'Kitchen Estimator', date: new Date().toLocaleDateString(), cost: total, package: sel.package, details: sel }
-        const prev = JSON.parse(localStorage.getItem('userEstimates') || '[]')
-        localStorage.setItem('userEstimates', JSON.stringify([...prev, est]))
-        const req = { id: `EST-${Date.now()}`, customerName: JSON.parse(localStorage.getItem('userData') || '{}').name || 'User', customerEmail: user, type: 'Kitchen Estimator', status: 'pending', dateSubmitted: new Date().toISOString().split('T')[0], description: `Kitchen ${sel.layout} layout, ${sel.size}, ${sel.shutter} shutters`, budget: `₹${total.toLocaleString('en-IN')}`, responded: false }
-        const allReqs = JSON.parse(localStorage.getItem('allAdminRequests') || '[]')
-        localStorage.setItem('allAdminRequests', JSON.stringify([...allReqs, req]))
-        setSubmitted(true)
-        setTimeout(() => navigate('/user-dashboard'), 2500)
+    const handleSubmit = async () => {
+        const userEmail = sessionStorage.getItem('bhvUser')
+        if (!userEmail) { navigate('/login'); return }
+
+        const estData = {
+            userEmail: userEmail,
+            type: 'Kitchen Estimator',
+            date: new Date().toLocaleDateString(),
+            cost: total,
+            details: JSON.stringify(sel)
+        }
+
+        try {
+            // Save to MySQL
+            await saveEstimation(estData)
+
+            // Keep for local use if needed, but primary is DB now
+            const est = { ...estData, package: sel.package }
+            const prev = JSON.parse(localStorage.getItem('userEstimates') || '[]')
+            localStorage.setItem('userEstimates', JSON.stringify([...prev, est]))
+
+            const req = { id: `EST-${Date.now()}`, customerName: JSON.parse(localStorage.getItem('userData') || '{}').name || 'User', customerEmail: userEmail, type: 'Kitchen Estimator', status: 'pending', dateSubmitted: new Date().toISOString().split('T')[0], description: `Kitchen ${sel.layout} layout, ${sel.size}, ${sel.shutter} shutters`, budget: `₹${total.toLocaleString('en-IN')}`, responded: false }
+            const allReqs = JSON.parse(localStorage.getItem('allAdminRequests') || '[]')
+            localStorage.setItem('allAdminRequests', JSON.stringify([...allReqs, req]))
+
+            setSubmitted(true)
+            setTimeout(() => navigate('/user-dashboard'), 2500)
+        } catch (err) {
+            console.error("Error saving estimation:", err)
+            alert("Failed to save estimate to database. Please check your connection.")
+        }
     }
 
     return (

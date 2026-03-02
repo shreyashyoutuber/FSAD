@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { saveEstimation } from '../api'
 
 const TYPES = ['Single Door', 'Double Door', 'Walk-in', 'Corner', 'Sliding', 'Custom']
 const MATERIALS = ['MDF with Laminate', 'HDHMR Board', 'Plywood', 'PVC', 'Solid Wood']
@@ -19,17 +20,35 @@ export default function WardrobeEstimator() {
     const extras = (sel.lights ? 8000 : 0) + (sel.mirror ? 12000 : 0) + (sel.pullout ? 15000 : 0)
     const total = isComplete ? Math.round(BASE * (sizeMul[sel.width] || 1) * (pkgMul[sel.pkg] || 1) + extras) : 0
 
-    const handleSubmit = () => {
-        const user = sessionStorage.getItem('bhvUser')
-        if (!user) { navigate('/login'); return }
-        const est = { type: 'Wardrobe Estimator', date: new Date().toLocaleDateString(), cost: total, package: sel.pkg, details: sel }
-        const prev = JSON.parse(localStorage.getItem('userEstimates') || '[]')
-        localStorage.setItem('userEstimates', JSON.stringify([...prev, est]))
-        const req = { id: `EST-${Date.now()}`, customerName: JSON.parse(localStorage.getItem('userData') || '{}').name || 'User', customerEmail: user, type: 'Wardrobe Estimator', status: 'pending', dateSubmitted: new Date().toISOString().split('T')[0], description: `${sel.type} wardrobe, ${sel.width} wide, ${sel.material}`, budget: `₹${total.toLocaleString('en-IN')}`, responded: false }
-        const allReqs = JSON.parse(localStorage.getItem('allAdminRequests') || '[]')
-        localStorage.setItem('allAdminRequests', JSON.stringify([...allReqs, req]))
-        setSubmitted(true)
-        setTimeout(() => navigate('/user-dashboard'), 2500)
+    const handleSubmit = async () => {
+        const userEmail = sessionStorage.getItem('bhvUser')
+        if (!userEmail) { navigate('/login'); return }
+
+        const estData = {
+            userEmail: userEmail,
+            type: 'Wardrobe Estimator',
+            date: new Date().toLocaleDateString(),
+            cost: total,
+            details: JSON.stringify(sel)
+        }
+
+        try {
+            await saveEstimation(estData)
+
+            const est = { ...estData, package: sel.pkg }
+            const prev = JSON.parse(localStorage.getItem('userEstimates') || '[]')
+            localStorage.setItem('userEstimates', JSON.stringify([...prev, est]))
+
+            const req = { id: `EST-W-${Date.now()}`, customerName: JSON.parse(localStorage.getItem('userData') || '{}').name || 'User', customerEmail: userEmail, type: 'Wardrobe Estimator', status: 'pending', dateSubmitted: new Date().toISOString().split('T')[0], description: `${sel.type} wardrobe, ${sel.width} wide, ${sel.material}`, budget: `₹${total.toLocaleString('en-IN')}`, responded: false }
+            const allReqs = JSON.parse(localStorage.getItem('allAdminRequests') || '[]')
+            localStorage.setItem('allAdminRequests', JSON.stringify([...allReqs, req]))
+
+            setSubmitted(true)
+            setTimeout(() => navigate('/user-dashboard'), 2500)
+        } catch (err) {
+            console.error("Error saving estimation:", err)
+            alert("Failed to save estimate to database.")
+        }
     }
 
     return (
