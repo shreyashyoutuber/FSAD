@@ -1,9 +1,6 @@
 const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? "http://localhost:8080/api"
-    : "https://fsad-backend.onrender.com/api";
-
-// 🛑 IMPORTANT: Replace "https://fsad-backend.onrender.com/api" with YOUR actual 
-// deployed backend URL from Render or Railway once you have it!
+    : "https://fsad-tpxy.onrender.com/api";
 
 const fetchWithTimeout = async (url, options = {}, timeout = 10000) => {
     const controller = new AbortController();
