@@ -2,7 +2,7 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
     ? "http://localhost:8080/api"
     : "https://fsad-tpxy.onrender.com/api";
 
-const fetchWithTimeout = async (url, options = {}, timeout = 10000) => {
+const fetchWithTimeout = async (url, options = {}, timeout = 60000) => {
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), timeout);
 
