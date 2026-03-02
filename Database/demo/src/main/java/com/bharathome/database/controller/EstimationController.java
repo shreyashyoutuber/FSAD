@@ -8,7 +8,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/estimations")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = {"http://localhost:5173", "https://bharathomevalue.vercel.app", "https://bharathome.vercel.app"})
 public class EstimationController {
 
     private final EstimationRepository estimationRepository;

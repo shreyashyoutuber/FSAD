@@ -1,4 +1,6 @@
-const API_BASE_URL = "http://localhost:8080/api";
+const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? "http://localhost:8080/api"
+    : "https://fsad-backend.onrender.com/api"; // Replace with your actual deployed backend URL
 
 export const fetchUsers = async () => {
     const response = await fetch(`${API_BASE_URL}/users`);

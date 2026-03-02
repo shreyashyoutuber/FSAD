@@ -8,7 +8,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
-@CrossOrigin(origins = "http://localhost:5173") // This allows your React app to connect!
+@CrossOrigin(origins = {"http://localhost:5173", "https://bharathomevalue.vercel.app", "https://bharathome.vercel.app"})
 public class UserController {
 
     private final UserRepository userRepository;
