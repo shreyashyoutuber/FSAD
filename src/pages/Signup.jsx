@@ -12,6 +12,7 @@ export default function Signup() {
     const [form, setForm] = useState({ fullname: '', email: '', phone: '', password: '', confirmPassword: '', terms: false, captchaInput: '' })
     const [captcha, setCaptcha] = useState(generateCaptcha())
     const [error, setError] = useState('')
+    const [isLoading, setIsLoading] = useState(false)
 
     const refreshCaptcha = () => setCaptcha(generateCaptcha())
 
@@ -25,6 +26,7 @@ export default function Signup() {
             refreshCaptcha(); setForm(f => ({ ...f, captchaInput: '' })); return
         }
 
+        setIsLoading(true)
         try {
             const userData = {
                 name: form.fullname,
@@ -43,7 +45,14 @@ export default function Signup() {
             }))
             navigate('/user-dashboard')
         } catch (err) {
-            setError(err.message)
+            console.error('Signup error:', err)
+            if (err.message.includes('Failed to fetch')) {
+                setError('Could not connect to the backend. Please ensure your backend is deployed.')
+            } else {
+                setError(err.message || 'Signup failed. Please try again.')
+            }
+        } finally {
+            setIsLoading(false)
         }
     }
 
@@ -88,7 +97,9 @@ export default function Signup() {
                         </label>
                     </div>
 
-                    <button type="submit" className="btn-submit">Create Account</button>
+                    <button type="submit" className="btn-submit" disabled={isLoading}>
+                        {isLoading ? 'Creating Account...' : 'Create Account'}
+                    </button>
                 </form>
 
                 <div className="divider"><span>or</span></div>

@@ -12,12 +12,15 @@ export default function Login() {
     const [form, setForm] = useState({ email: '', password: '', remember: false, captchaInput: '' })
     const [captcha, setCaptcha] = useState(generateCaptcha())
     const [error, setError] = useState('')
+    const [isLoading, setIsLoading] = useState(false)
     const [isHovered, setIsHovered] = useState(null)
 
     const refreshCaptcha = () => setCaptcha(generateCaptcha())
 
     const handleSubmit = async (e) => {
         e.preventDefault()
+        setError('')
+
         if (form.captchaInput.toUpperCase() !== captcha) {
             setError('Captcha does not match. Please try again.')
             refreshCaptcha()
@@ -25,6 +28,7 @@ export default function Login() {
             return
         }
 
+        setIsLoading(true)
         try {
             const user = await login({ email: form.email, password: form.password })
 
@@ -37,8 +41,15 @@ export default function Login() {
             }))
             navigate('/user-dashboard')
         } catch (err) {
-            setError(err.message)
+            console.error('Login error:', err)
+            if (err.message.includes('Failed to fetch')) {
+                setError('Could not connect to the backend. Please ensure your backend is deployed and running.')
+            } else {
+                setError(err.message || 'An unexpected error occurred.')
+            }
             refreshCaptcha()
+        } finally {
+            setIsLoading(false)
         }
     }
 
@@ -276,23 +287,24 @@ export default function Login() {
 
                         <button
                             type="submit"
+                            disabled={isLoading}
                             style={{
                                 padding: '14px',
                                 borderRadius: '12px',
                                 border: 'none',
-                                background: 'linear-gradient(135deg, #e67e22, #d35400)',
+                                background: isLoading ? '#bdc3c7' : 'linear-gradient(135deg, #e67e22, #d35400)',
                                 color: 'white',
                                 fontSize: '16px',
                                 fontWeight: 800,
-                                cursor: 'pointer',
+                                cursor: isLoading ? 'not-allowed' : 'pointer',
                                 transition: '0.3s',
-                                boxShadow: '0 6px 20px rgba(230, 126, 34, 0.3)',
+                                boxShadow: isLoading ? 'none' : '0 6px 20px rgba(230, 126, 34, 0.3)',
                                 marginTop: '8px'
                             }}
-                            onMouseEnter={e => (e.target.style.transform = 'translateY(-2px)')}
-                            onMouseLeave={e => (e.target.style.transform = 'translateY(0)')}
+                            onMouseEnter={e => !isLoading && (e.target.style.transform = 'translateY(-2px)')}
+                            onMouseLeave={e => !isLoading && (e.target.style.transform = 'translateY(0)')}
                         >
-                            Sign In
+                            {isLoading ? 'Signing In...' : 'Sign In'}
                         </button>
                     </form>
 
