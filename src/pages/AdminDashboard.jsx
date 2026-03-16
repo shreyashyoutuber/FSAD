@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { clearDatabaseData } from '../api'
 
 // ---- PROFESSIONAL STYLING & ANIMATIONS ----
 const theme = {
@@ -286,6 +287,9 @@ export default function AdminDashboard() {
     const [chatReq, setChatReq] = useState(null)
     const [respondReq, setRespondReq] = useState(null)
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
+    const [showResetConfirm, setShowResetConfirm] = useState(false)
+    const [resetStep, setResetStep] = useState(1) // 1 for first confirm, 2 for final
+    const [isResetting, setIsResetting] = useState(false)
     const [showProfileModal, setShowProfileModal] = useState(false)
     const adminEmail = localStorage.getItem('adminEmail') || 'admin@bharathomevalue.com'
 
@@ -334,6 +338,24 @@ export default function AdminDashboard() {
         navigate('/admin-login')
     }
 
+    const clearDatabase = async () => {
+        setIsResetting(true)
+        try {
+            await clearDatabaseData()
+            alert('Database cleared successfully! Users and estimations have been removed.')
+            localStorage.removeItem('allAdminRequests')
+            setRequests([])
+            setView('overview')
+        } catch (error) {
+            console.error('Reset error:', error)
+            alert('Error: ' + error.message)
+        } finally {
+            setIsResetting(false)
+            setShowResetConfirm(false)
+            setResetStep(1)
+        }
+    }
+
     return (
         <div style={{ minHeight: '100vh', background: theme.bg, display: 'flex', color: theme.text, fontFamily: "'Inter', sans-serif" }}>
 
@@ -357,6 +379,9 @@ export default function AdminDashboard() {
                     </div>
                     <div className={`sidebar-item ${view === 'customers' ? 'active' : ''}`} onClick={() => setView('customers')}>
                         <span style={{ fontSize: '18px' }}>👤</span> Customer Profiles
+                    </div>
+                    <div className={`sidebar-item ${view === 'settings' ? 'active' : ''}`} onClick={() => setView('settings')}>
+                        <span style={{ fontSize: '18px' }}>⚙️</span> System Management
                     </div>
 
                     <div style={{ marginTop: '24px', padding: '0 16px' }}>
@@ -575,6 +600,53 @@ export default function AdminDashboard() {
                         </div>
                     </div>
                 )}
+
+                {/* ---- SETTINGS / SYSTEM MANAGEMENT ---- */}
+                {view === 'settings' && (
+                    <div className="animate-fadeIn">
+                        <div style={{ maxWidth: '800px' }}>
+                            <div style={{ background: 'white', borderRadius: '24px', padding: '40px', border: `1px solid ${theme.border}`, marginBottom: '32px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '24px' }}>
+                                    <div style={{ width: '56px', height: '56px', background: '#fee2e2', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px' }}>🚨</div>
+                                    <div>
+                                        <h3 style={{ fontSize: '20px', fontWeight: 800 }}>Database Maintenance</h3>
+                                        <p style={{ color: theme.textMuted, fontSize: '14px' }}>Critical system operations and data management.</p>
+                                    </div>
+                                </div>
+
+                                <div style={{ background: '#f8fafc', padding: '24px', borderRadius: '16px', border: `1px solid ${theme.border}`, marginBottom: '24px' }}>
+                                    <h4 style={{ fontSize: '15px', fontWeight: 800, color: '#dc2626', marginBottom: '8px' }}>Reset Platform Data</h4>
+                                    <p style={{ fontSize: '13px', color: theme.textMuted, lineHeight: 1.6, marginBottom: '20px' }}>
+                                        This action will permanently delete all registered users and property valuation requests. This is intended for cleaning up test data.
+                                        <strong> This action is irreversible.</strong>
+                                    </p>
+                                    <button
+                                        onClick={() => setShowResetConfirm(true)}
+                                        style={{ background: '#dc2626', color: 'white', border: 'none', padding: '12px 24px', borderRadius: '10px', fontWeight: 700, cursor: 'pointer', transition: '0.2s' }}
+                                        onMouseEnter={e => e.currentTarget.style.background = '#b91c1c'}
+                                        onMouseLeave={e => e.currentTarget.style.background = '#dc2626'}
+                                    >
+                                        Delete All Users & Estimations
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div style={{ background: 'white', borderRadius: '24px', padding: '40px', border: `1px solid ${theme.border}` }}>
+                                <h3 style={{ fontSize: '18px', fontWeight: 800, marginBottom: '16px' }}>System Info</h3>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+                                    <div>
+                                        <p style={{ fontSize: '11px', color: theme.textMuted, fontWeight: 800, textTransform: 'uppercase' }}>Frontend Status</p>
+                                        <p style={{ fontWeight: 600, color: '#16a34a' }}>● Online (Production)</p>
+                                    </div>
+                                    <div>
+                                        <p style={{ fontSize: '11px', color: theme.textMuted, fontWeight: 800, textTransform: 'uppercase' }}>API Connection</p>
+                                        <p style={{ fontWeight: 600 }}>Aiven MySQL Cluster</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </main>
 
             {/* Customer Detail Modal */}
@@ -681,6 +753,48 @@ export default function AdminDashboard() {
                     onClose={() => setRespondReq(null)}
                     onSave={(updatedReqs) => setRequests(updatedReqs)}
                 />
+            )}
+
+            {/* Reset Confirmation Modal */}
+            {showResetConfirm && (
+                <div onClick={e => { if (e.target === e.currentTarget) setShowResetConfirm(false) }}
+                    style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.7)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 4000 }}>
+                    <div className="animate-scaleIn" style={{ background: 'white', borderRadius: '24px', maxWidth: '440px', width: '90%', boxShadow: '0 40px 100px rgba(0,0,0,0.4)', overflow: 'hidden' }}>
+                        <div style={{ padding: '40px', textAlign: 'center' }}>
+                            <div style={{ width: '80px', height: '80px', background: '#fee2e2', color: '#dc2626', borderRadius: '50%', margin: '0 auto 24px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '36px' }}>⚠️</div>
+
+                            {resetStep === 1 ? (
+                                <>
+                                    <h3 style={{ fontSize: '22px', fontWeight: 800, color: theme.slate }}>Are you absolutely sure?</h3>
+                                    <p style={{ color: theme.textMuted, marginTop: '16px', lineHeight: 1.6, fontSize: '15px' }}>
+                                        You are about to wipe the entire database. This will remove all users and their estimation history.
+                                    </p>
+                                    <div style={{ display: 'flex', gap: '12px', marginTop: '32px' }}>
+                                        <button onClick={() => setShowResetConfirm(false)} style={{ flex: 1, padding: '14px', borderRadius: '12px', background: 'white', border: `1px solid ${theme.border}`, fontWeight: 700, cursor: 'pointer' }}>Cancel</button>
+                                        <button onClick={() => setResetStep(2)} style={{ flex: 1, padding: '14px', borderRadius: '12px', background: theme.slate, color: 'white', border: 'none', fontWeight: 700, cursor: 'pointer' }}>Next</button>
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <h3 style={{ fontSize: '22px', fontWeight: 800, color: '#dc2626' }}>Final Warning</h3>
+                                    <p style={{ color: theme.textMuted, marginTop: '16px', lineHeight: 1.6, fontSize: '15px' }}>
+                                        This cannot be undone. Click the button below to confirm complete data deletion.
+                                    </p>
+                                    <div style={{ display: 'flex', gap: '12px', marginTop: '32px' }}>
+                                        <button onClick={() => { setResetStep(1); setShowResetConfirm(false); }} style={{ flex: 1, padding: '14px', borderRadius: '12px', background: 'white', border: `1px solid ${theme.border}`, fontWeight: 700, cursor: 'pointer' }}>Wait, Go Back</button>
+                                        <button
+                                            onClick={clearDatabase}
+                                            disabled={isResetting}
+                                            style={{ flex: 1, padding: '14px', borderRadius: '12px', background: '#dc2626', border: 'none', color: 'white', fontWeight: 800, cursor: isResetting ? 'not-allowed' : 'pointer' }}
+                                        >
+                                            {isResetting ? 'Deleting...' : 'WIPE DATABASE NOW'}
+                                        </button>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     )

@@ -123,3 +123,15 @@ export const createUser = async (user) => {
     if (!response.ok) throw new Error("Failed to create user");
     return response.json();
 };
+
+export const clearDatabaseData = async () => {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/admin/clear-data`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" }
+    });
+    if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text || "Failed to clear database");
+    }
+    return response.text();
+};
