@@ -5,12 +5,8 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
 const fetchWithTimeout = async (url, options = {}, timeout = 60000) => {
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), timeout);
-
     try {
-        const response = await fetch(url, {
-            ...options,
-            signal: controller.signal
-        });
+        const response = await fetch(url, { ...options, signal: controller.signal });
         clearTimeout(id);
         return response;
     } catch (error) {
@@ -28,6 +24,30 @@ export const fetchUsers = async () => {
     return response.json();
 };
 
+// ── OTP ──────────────────────────────────────────────────────────────────────
+export const sendOtp = async (email, name) => {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/auth/send-otp`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, name }),
+    });
+    const text = await response.text();
+    if (!response.ok) throw new Error(text || "Failed to send OTP");
+    return text;
+};
+
+export const verifyOtp = async (email, otp) => {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/auth/verify-otp`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, otp }),
+    });
+    const text = await response.text();
+    if (!response.ok) throw new Error(text || "OTP verification failed");
+    return text;
+};
+
+// ── Auth ──────────────────────────────────────────────────────────────────────
 export const signup = async (userData) => {
     const response = await fetchWithTimeout(`${API_BASE_URL}/auth/signup`, {
         method: "POST",
@@ -35,8 +55,8 @@ export const signup = async (userData) => {
         body: JSON.stringify(userData),
     });
     if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || "Signup failed");
+        const text = await response.text();
+        throw new Error(text || "Signup failed");
     }
     return response.json();
 };
@@ -48,12 +68,36 @@ export const login = async (credentials) => {
         body: JSON.stringify(credentials),
     });
     if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || "Login failed");
+        const text = await response.text();
+        throw new Error(text || "Login failed");
     }
     return response.json();
 };
 
+// ── Password Reset ────────────────────────────────────────────────────────────
+export const forgotPassword = async (email) => {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/auth/forgot-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+    });
+    const text = await response.text();
+    if (!response.ok) throw new Error(text || "Request failed");
+    return text;
+};
+
+export const resetPassword = async (token, newPassword) => {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/auth/reset-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, newPassword }),
+    });
+    const text = await response.text();
+    if (!response.ok) throw new Error(text || "Reset failed");
+    return text;
+};
+
+// ── Estimations ───────────────────────────────────────────────────────────────
 export const saveEstimation = async (estimationData) => {
     const response = await fetchWithTimeout(`${API_BASE_URL}/estimations`, {
         method: "POST",
