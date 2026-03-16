@@ -5,7 +5,6 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,9 +27,16 @@ public class EmailService {
   }
 
   private void sendEmailViaBrevo(String toEmail, String subject, String htmlContent) throws Exception {
+    if (brevoApiKey == null || brevoApiKey.isBlank()) {
+      System.err.println("CRITICAL: BREVO_API_KEY is missing or empty!");
+    } else {
+      System.out.println("Brevo API Key detected. Length: " + brevoApiKey.length() + ", Prefix: "
+          + brevoApiKey.substring(0, Math.min(10, brevoApiKey.length())) + "...");
+    }
+
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
-    headers.set("api-key", brevoApiKey);
+    headers.set("api-key", brevoApiKey.trim());
 
     Map<String, Object> body = new HashMap<>();
     body.put("sender", Map.of("name", "BharatHome Value", "email", "bharthomevalue@gmail.com"));
