@@ -22,37 +22,45 @@ public class EmailService {
 
   private final String BREVO_API_URL = "https://api.brevo.com/v3/smtp/email";
 
-  public EmailService() {
-    this.restTemplate = new RestTemplate();
+  public EmailService(RestTemplate restTemplate) {
+    this.restTemplate = restTemplate;
   }
 
   private void sendEmailViaBrevo(String toEmail, String subject, String htmlContent) throws Exception {
     if (brevoApiKey == null || brevoApiKey.isBlank()) {
-      System.err.println("CRITICAL: BREVO_API_KEY is missing or empty!");
+      System.err.println("CRITICAL CONFIG ERROR: BREVO_API_KEY is null or empty!");
     } else {
-      System.out.println("Brevo API Key detected. Length: " + brevoApiKey.length() + ", Prefix: "
-          + brevoApiKey.substring(0, Math.min(10, brevoApiKey.length())) + "...");
+      String trimmedKey = brevoApiKey.trim();
+      System.out.println("BREVO_API_KEY Check: Length=" + trimmedKey.length() + ", StartsWith="
+          + (trimmedKey.length() > 10 ? trimmedKey.substring(0, 7) : "too short"));
     }
 
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
-    headers.set("api-key", brevoApiKey.trim());
+    headers.setAccept(java.util.Collections.singletonList(MediaType.APPLICATION_JSON));
+    headers.set("api-key", brevoApiKey != null ? brevoApiKey.trim() : "");
 
     Map<String, Object> body = new HashMap<>();
-    body.put("sender", Map.of("name", "BharatHome Value", "email", "bharthomevalue@gmail.com"));
+    body.put("sender", Map.of("name", "BharthomeValue", "email", "bharthomevalue@gmail.com"));
     body.put("to", List.of(Map.of("email", toEmail)));
     body.put("subject", subject);
     body.put("htmlContent", htmlContent);
+    body.put("textContent", "Please use an HTML compatible email client to view this message.");
 
     HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
 
     try {
+      System.out.println("Attempting to send email to: " + toEmail + " via Brevo...");
       ResponseEntity<String> response = restTemplate.postForEntity(BREVO_API_URL, entity, String.class);
+      System.out.println("Brevo Response Status: " + response.getStatusCode());
+      System.out.println("Brevo Response Body: " + response.getBody());
+
       if (!response.getStatusCode().is2xxSuccessful()) {
-        throw new Exception("Brevo API error: " + response.getBody());
+        throw new Exception("Brevo API error: " + response.getStatusCode() + " - " + response.getBody());
       }
     } catch (Exception e) {
-      System.err.println("Failed to send email via Brevo: " + e.getMessage());
+      System.err.println("CRITICAL: Failed to send email via Brevo: " + e.getMessage());
+      e.printStackTrace();
       throw e;
     }
   }
