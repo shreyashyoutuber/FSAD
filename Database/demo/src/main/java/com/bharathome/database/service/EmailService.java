@@ -69,18 +69,18 @@ public class EmailService {
     String subject = "Your OTP - BharatHome Value";
     String html = """
         <div style="font-family:'Segoe UI',Arial,sans-serif;max-width:560px;margin:0 auto;background:#ffffff;border:1px solid #eeeeee;border-radius:12px;overflow:hidden;">
-          <div style="background-color:#1a1a2e;padding:30px 40px;text-align:center;">
-            <h1 style="color:#c9a84c;margin:0;font-size:24px;letter-spacing:1px;">BharatHome<span style="color:#ffffff;">Value</span></h1>
+          <div style="background-color:#ffffff;padding:30px 40px;text-align:center;border-bottom:1px solid #f0f0f0;">
+            <h1 style="margin:0;font-size:24px;letter-spacing:0.5px;color:#1a1a2e;">Bharat<span style="color:#e67e22;">Home</span> <span style="color:#1a1a2e;">Value</span></h1>
           </div>
           <div style="padding:40px;text-align:center;">
             <p style="color:#2d3748;font-size:16px;margin:0 0 10px;">Hello %s,</p>
             <p style="color:#4a5568;font-size:15px;margin:0 0 30px;">Use the OTP below to verify your email address. It expires in 5 minutes.</p>
-            <div style="background-color:#f7f8fa;border:2px dashed #c9a84c;border-radius:10px;padding:30px;margin-bottom:20px;">
+            <div style="background-color:#f7f8fa;border:2px dashed #e67e22;border-radius:10px;padding:30px;margin-bottom:20px;">
               <span style="font-size:42px;font-weight:800;color:#1a1a2e;letter-spacing:10px;">%s</span>
             </div>
           </div>
           <div style="background-color:#f7f8fa;padding:20px;text-align:center;border-top:1px solid #eeeeee;">
-            <p style="color:#a0aec0;font-size:12px;margin:0;">&copy; 2025 BharatHome Value. All rights reserved.</p>
+            <p style="color:#a0aec0;font-size:12px;margin:0;">&copy; 2026 BharatHome Value. All rights reserved.</p>
           </div>
         </div>
         """
@@ -95,25 +95,25 @@ public class EmailService {
 
     String html = """
         <div style="font-family:'Segoe UI',Arial,sans-serif;max-width:560px;margin:0 auto;background:#ffffff;border:1px solid #eeeeee;border-radius:12px;overflow:hidden;">
-          <div style="background-color:#1a1a2e;padding:30px 40px;text-align:center;">
-            <h1 style="color:#c9a84c;margin:0;font-size:24px;letter-spacing:1px;">BharatHome<span style="color:#ffffff;">Value</span></h1>
+          <div style="background-color:#ffffff;padding:30px 40px;text-align:center;border-bottom:1px solid #f0f0f0;">
+            <h1 style="margin:0;font-size:24px;letter-spacing:0.5px;color:#1a1a2e;">Bharat<span style="color:#e67e22;">Home</span> <span style="color:#1a1a2e;">Value</span></h1>
           </div>
           <div style="padding:40px;">
             <p style="color:#2d3748;font-size:18px;font-weight:600;margin:0 0 10px;">Welcome, %s! 🎉</p>
             <p style="color:#4a5568;font-size:15px;margin:0 0 20px;">Your account is ready. Here are your login details:</p>
 
-            <div style="background-color:#f7f8fa;border-left:4px solid #c9a84c;padding:20px;margin-bottom:30px;">
+            <div style="background-color:#f7f8fa;border-left:4px solid #e67e22;padding:20px;margin-bottom:30px;">
               <p style="margin:0 0 10px;"><strong>Email:</strong> %s</p>
               <p style="margin:0;"><strong>Default Password:</strong> <span style="font-family:monospace;font-size:18px;letter-spacing:2px;">%s</span></p>
             </div>
 
             <div style="text-align:center;margin-bottom:20px;">
-              <a href="%s" style="display:inline-block;background-color:#c9a84c;color:#1a1a2e;text-decoration:none;padding:15px 30px;border-radius:8px;font-size:16px;font-weight:700;">Reset My Password</a>
+              <a href="%s" style="display:inline-block;background-color:#e67e22;color:#ffffff;text-decoration:none;padding:15px 30px;border-radius:8px;font-size:16px;font-weight:700;">Reset My Password</a>
             </div>
             <p style="color:#718096;font-size:13px;text-align:center;">If the button doesn't work, copy this link:<br/>%s</p>
           </div>
           <div style="background-color:#f7f8fa;padding:20px;text-align:center;border-top:1px solid #eeeeee;">
-            <p style="color:#a0aec0;font-size:12px;margin:0;">&copy; 2025 BharatHome Value. All rights reserved.</p>
+            <p style="color:#a0aec0;font-size:12px;margin:0;">&copy; 2026 BharatHome Value. All rights reserved.</p>
           </div>
         </div>
         """
@@ -128,19 +128,19 @@ public class EmailService {
 
     String html = """
         <div style="font-family:'Segoe UI',Arial,sans-serif;max-width:560px;margin:0 auto;background:#ffffff;border:1px solid #eeeeee;border-radius:12px;overflow:hidden;">
-          <div style="background-color:#1a1a2e;padding:30px 40px;text-align:center;">
-            <h1 style="color:#c9a84c;margin:0;font-size:24px;letter-spacing:1px;">BharatHome<span style="color:#ffffff;">Value</span></h1>
+          <div style="background-color:#ffffff;padding:30px 40px;text-align:center;border-bottom:1px solid #f0f0f0;">
+            <h1 style="margin:0;font-size:24px;letter-spacing:0.5px;color:#1a1a2e;">Bharat<span style="color:#e67e22;">Home</span> <span style="color:#1a1a2e;">Value</span></h1>
           </div>
           <div style="padding:40px;">
             <p style="color:#2d3748;font-size:16px;margin:0 0 10px;">Hello %s,</p>
             <p style="color:#4a5568;font-size:15px;margin:0 0 25px;">We received a request to reset your password. Click the button below. This link expires in 1 hour.</p>
             <div style="text-align:center;margin-bottom:20px;">
-              <a href="%s" style="display:inline-block;background-color:#c9a84c;color:#1a1a2e;text-decoration:none;padding:15px 30px;border-radius:8px;font-size:16px;font-weight:700;">Reset My Password</a>
+              <a href="%s" style="display:inline-block;background-color:#e67e22;color:#ffffff;text-decoration:none;padding:15px 30px;border-radius:8px;font-size:16px;font-weight:700;">Reset My Password</a>
             </div>
             <p style="color:#718096;font-size:13px;text-align:center;">If the button doesn't work, copy this link:<br/>%s</p>
           </div>
           <div style="background-color:#f7f8fa;padding:20px;text-align:center;border-top:1px solid #eeeeee;">
-            <p style="color:#a0aec0;font-size:12px;margin:0;">&copy; 2025 BharatHome Value. All rights reserved.</p>
+            <p style="color:#a0aec0;font-size:12px;margin:0;">&copy; 2026 BharatHome Value. All rights reserved.</p>
           </div>
         </div>
         """

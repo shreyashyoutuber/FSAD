@@ -17,6 +17,8 @@ export default function ResetPassword() {
     const [isLoading, setIsLoading] = useState(false)
 
     useEffect(() => {
+        console.log("ResetPassword component mounted. Current token:", token);
+        console.log("Current stage:", stage);
         if (token) setStage('RESET')
     }, [token])
 
@@ -58,11 +60,11 @@ export default function ResetPassword() {
         return (
             <div className="auth-container">
                 <div className="auth-box" style={{ textAlign: 'center' }}>
-                    <a className="auth-logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
-                        Bharat<span>Home</span> Value
+                    <a className="auth-logo" onClick={() => navigate('/')} style={{ cursor: 'pointer', color: '#1a1a2e', textDecoration: 'none' }}>
+                        Bharat<span style={{ color: '#e67e22' }}>Home</span> <span style={{ color: '#1a1a2e' }}>Value</span>
                     </a>
                     <div style={{ fontSize: '56px', margin: '24px 0 16px' }}>{token ? '✅' : '📧'}</div>
-                    <h2>{token ? 'Password Reset!' : 'Check Your Email'}</h2>
+                    <h2 style={{ color: '#1a1a2e' }}>{token ? 'Password Reset!' : 'Check Your Email'}</h2>
                     <p className="subtitle" style={{ marginBottom: '32px' }}>
                         {token
                             ? 'Your password has been updated successfully. You can now login with your new password.'
@@ -84,11 +86,11 @@ export default function ResetPassword() {
         return (
             <div className="auth-container">
                 <div className="auth-box">
-                    <a className="auth-logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
-                        Bharat<span>Home</span> Value
+                    <a className="auth-logo" onClick={() => navigate('/')} style={{ cursor: 'pointer', color: '#1a1a2e', textDecoration: 'none' }}>
+                        Bharat<span style={{ color: '#e67e22' }}>Home</span> <span style={{ color: '#1a1a2e' }}>Value</span>
                     </a>
                     <div style={{ fontSize: '36px', textAlign: 'center', margin: '12px 0 4px' }}>🔒</div>
-                    <h2 style={{ textAlign: 'center' }}>Set New Password</h2>
+                    <h2 style={{ textAlign: 'center', color: '#1a1a2e' }}>Set New Password</h2>
                     <p className="subtitle" style={{ textAlign: 'center', marginBottom: '24px' }}>
                         Choose a strong password for your account.
                     </p>
@@ -140,11 +142,11 @@ export default function ResetPassword() {
     return (
         <div className="auth-container">
             <div className="auth-box">
-                <a className="auth-logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
-                    Bharat<span>Home</span> Value
+                <a className="auth-logo" onClick={() => navigate('/')} style={{ cursor: 'pointer', color: '#1a1a2e' }}>
+                    Bharat<span style={{ color: '#e67e22' }}>Home</span> <span style={{ color: '#1a1a2e' }}>Value</span>
                 </a>
                 <div style={{ fontSize: '36px', textAlign: 'center', margin: '12px 0 4px' }}>🔑</div>
-                <h2 style={{ textAlign: 'center' }}>Forgot Password?</h2>
+                <h2 style={{ textAlign: 'center', color: '#1a1a2e' }}>Forgot Password?</h2>
                 <p className="subtitle" style={{ textAlign: 'center', marginBottom: '24px' }}>
                     Enter your registered email and we'll send you a reset link.
                 </p>
