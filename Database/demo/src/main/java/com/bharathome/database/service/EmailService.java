@@ -1,34 +1,58 @@
 package com.bharathome.database.service;
 
-import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class EmailService {
 
-  private final JavaMailSender mailSender;
+  private final RestTemplate restTemplate;
 
   @Value("${app.frontend.url}")
   private String frontendUrl;
 
-  @Value("${spring.mail.username}")
-  private String fromEmail;
+  @Value("${app.brevo.api-key}")
+  private String brevoApiKey;
 
-  public EmailService(JavaMailSender mailSender) {
-    this.mailSender = mailSender;
+  private final String BREVO_API_URL = "https://api.brevo.com/v3/smtp/email";
+
+  public EmailService() {
+    this.restTemplate = new RestTemplate();
+  }
+
+  private void sendEmailViaBrevo(String toEmail, String subject, String htmlContent) throws Exception {
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_JSON);
+    headers.set("api-key", brevoApiKey);
+
+    Map<String, Object> body = new HashMap<>();
+    body.put("sender", Map.of("name", "BharatHome Value", "email", "bharthomevalue@gmail.com"));
+    body.put("to", List.of(Map.of("email", toEmail)));
+    body.put("subject", subject);
+    body.put("htmlContent", htmlContent);
+
+    HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
+
+    try {
+      ResponseEntity<String> response = restTemplate.postForEntity(BREVO_API_URL, entity, String.class);
+      if (!response.getStatusCode().is2xxSuccessful()) {
+        throw new Exception("Brevo API error: " + response.getBody());
+      }
+    } catch (Exception e) {
+      System.err.println("Failed to send email via Brevo: " + e.getMessage());
+      throw e;
+    }
   }
 
   public void sendOtpEmail(String toEmail, String name, String otp) throws Exception {
-    MimeMessage message = mailSender.createMimeMessage();
-    MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-
-    helper.setFrom(fromEmail);
-    helper.setTo(toEmail);
-    helper.setSubject("Your OTP - BharatHome Value");
-
+    String subject = "Your OTP - BharatHome Value";
     String html = """
         <div style="font-family:'Segoe UI',Arial,sans-serif;max-width:560px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.10);">
           <div style="background:linear-gradient(135deg,#1a1a2e 0%%,#16213e 100%%);padding:36px 40px 28px;">
@@ -51,18 +75,11 @@ public class EmailService {
         """
         .formatted(name, otp);
 
-    helper.setText(html, true);
-    mailSender.send(message);
+    sendEmailViaBrevo(toEmail, subject, html);
   }
 
   public void sendWelcomeEmail(String toEmail, String name, String defaultPassword) throws Exception {
-    MimeMessage message = mailSender.createMimeMessage();
-    MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-
-    helper.setFrom(fromEmail);
-    helper.setTo(toEmail);
-    helper.setSubject("Welcome to BharatHome Value - Your Account Details");
-
+    String subject = "Welcome to BharatHome Value - Your Account Details";
     String resetLink = frontendUrl + "/reset-password";
 
     String html = """
@@ -95,18 +112,11 @@ public class EmailService {
         """
         .formatted(name, toEmail, defaultPassword, resetLink);
 
-    helper.setText(html, true);
-    mailSender.send(message);
+    sendEmailViaBrevo(toEmail, subject, html);
   }
 
   public void sendPasswordResetEmail(String toEmail, String name, String resetToken) throws Exception {
-    MimeMessage message = mailSender.createMimeMessage();
-    MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-
-    helper.setFrom(fromEmail);
-    helper.setTo(toEmail);
-    helper.setSubject("Reset Your Password - BharatHome Value");
-
+    String subject = "Reset Your Password - BharatHome Value";
     String resetLink = frontendUrl + "/reset-password?token=" + resetToken;
 
     String html = """
@@ -130,7 +140,6 @@ public class EmailService {
         """
         .formatted(name, resetLink);
 
-    helper.setText(html, true);
-    mailSender.send(message);
+    sendEmailViaBrevo(toEmail, subject, html);
   }
 }
