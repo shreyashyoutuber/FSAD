@@ -14,6 +14,9 @@ public class EmailService {
   @Value("${app.frontend.url}")
   private String frontendUrl;
 
+  @Value("${spring.mail.username}")
+  private String fromEmail;
+
   public EmailService(JavaMailSender mailSender) {
     this.mailSender = mailSender;
   }
@@ -22,7 +25,7 @@ public class EmailService {
     MimeMessage message = mailSender.createMimeMessage();
     MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-    helper.setFrom("bharthomevalue@gmail.com");
+    helper.setFrom(fromEmail);
     helper.setTo(toEmail);
     helper.setSubject("Your OTP - BharatHome Value");
 
@@ -56,7 +59,7 @@ public class EmailService {
     MimeMessage message = mailSender.createMimeMessage();
     MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-    helper.setFrom("bharthomevalue@gmail.com");
+    helper.setFrom(fromEmail);
     helper.setTo(toEmail);
     helper.setSubject("Welcome to BharatHome Value - Your Account Details");
 
@@ -100,7 +103,7 @@ public class EmailService {
     MimeMessage message = mailSender.createMimeMessage();
     MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-    helper.setFrom("bharthomevalue@gmail.com");
+    helper.setFrom(fromEmail);
     helper.setTo(toEmail);
     helper.setSubject("Reset Your Password - BharatHome Value");
 
