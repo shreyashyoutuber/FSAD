@@ -2,6 +2,7 @@ package com.bharathome.database.service;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -65,6 +66,7 @@ public class EmailService {
     }
   }
 
+  @Async
   public void sendOtpEmail(String toEmail, String name, String otp) throws Exception {
     String subject = "Your OTP - BharatHome Value";
     String html = """
@@ -89,6 +91,7 @@ public class EmailService {
     sendEmailViaBrevo(toEmail, subject, html);
   }
 
+  @Async
   public void sendWelcomeEmail(String toEmail, String name, String defaultPassword) throws Exception {
     String subject = "Welcome to BharatHome Value - Your Account Details";
     String resetLink = frontendUrl + "/reset-password";
@@ -122,6 +125,7 @@ public class EmailService {
     sendEmailViaBrevo(toEmail, subject, html);
   }
 
+  @Async
   public void sendPasswordResetEmail(String toEmail, String name, String resetToken) throws Exception {
     String subject = "Reset Your Password - BharatHome Value";
     String resetLink = frontendUrl + "/reset-password?token=" + resetToken;
