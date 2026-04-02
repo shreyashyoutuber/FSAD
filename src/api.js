@@ -51,12 +51,13 @@ export const sendOtp = async (email, name) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, name }),
     });
+    const clone = response.clone();
     if (!response.ok) {
         try {
             const errorData = await response.json();
             throw new Error(errorData.message || "Failed to send OTP");
         } catch (e) {
-            const text = await response.text();
+            const text = await clone.text();
             throw new Error(text || "Failed to send OTP");
         }
     }
@@ -209,9 +210,15 @@ export const updateProfile = async (userData) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(userData),
     });
+    const clone = response.clone();
     if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to update profile");
+        try {
+            const errorData = await response.json();
+            throw new Error(errorData.message || "Failed to update profile");
+        } catch (e) {
+            const text = await clone.text();
+            throw new Error(text || "Failed to update profile");
+        }
     }
     const data = await response.json();
     // Update local storage with new user data
@@ -224,9 +231,15 @@ export const clearDatabaseData = async () => {
         method: "POST",
         headers: { "Content-Type": "application/json" }
     });
+    const clone = response.clone();
     if (!response.ok) {
-        const text = await response.text();
-        throw new Error(text || "Failed to clear database");
+        try {
+            const errorData = await response.json();
+            throw new Error(errorData.message || "Failed to clear database");
+        } catch (e) {
+            const text = await clone.text();
+            throw new Error(text || "Failed to clear database");
+        }
     }
     return response.text();
 };
