@@ -11,6 +11,7 @@ import WardrobeEstimator from './pages/WardrobeEstimator'
 import FullHomeEstimator from './pages/FullHomeEstimator'
 import ThankYou from './pages/ThankYou'
 import DatabaseTest from './pages/DatabaseTest'
+import ProfilePage from './pages/ProfilePage'
 
 function App() {
     return (
@@ -29,6 +30,7 @@ function App() {
                 <Route path="/full-home-estimator" element={<FullHomeEstimator />} />
                 <Route path="/thankyou" element={<ThankYou />} />
                 <Route path="/db-test" element={<DatabaseTest />} />
+                <Route path="/profile" element={<ProfilePage />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
         </BrowserRouter>

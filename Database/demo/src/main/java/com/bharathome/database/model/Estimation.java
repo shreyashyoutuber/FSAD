@@ -2,6 +2,9 @@ package com.bharathome.database.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Entity
@@ -18,10 +21,17 @@ public class Estimation {
 
     @Transient
     private String userEmail; 
+    @NotBlank(message = "Estimation type is required")
     private String type; // e.g., "Kitchen Estimator"
+    
+    @NotBlank(message = "Date is required")
     private String date;
+    
+    @NotNull(message = "Cost is required")
+    @DecimalMin(value = "0.0", message = "Cost cannot be negative")
     private Double cost;
     
+    @NotBlank(message = "Details are required")
     @Column(columnDefinition = "TEXT")
     private String details; // Stores the JSON details of the estimate
 

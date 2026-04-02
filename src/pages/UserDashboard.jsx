@@ -454,7 +454,7 @@ export default function UserDashboard() {
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                         <div
-                            onClick={() => setShowProfile(true)}
+                            onClick={() => navigate('/profile')}
                             style={{
                                 display: 'flex',
                                 alignItems: 'center',

@@ -15,6 +15,7 @@ export default function FullHomeEstimator() {
     const [step, setStep] = useState(1)
     const [sel, setSel] = useState({ config: '', scope: '', style: '', floor: '', pkg: 'Premium', painting: false, lighting: false, furnishing: false })
     const [submitted, setSubmitted] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
 
     const S = (k, v) => setSel(p => ({ ...p, [k]: v }))
     const isStepOk = (s) => {
@@ -38,6 +39,7 @@ export default function FullHomeEstimator() {
             details: JSON.stringify(sel)
         }
 
+        setIsLoading(true)
         try {
             await saveEstimation(estData)
 
@@ -53,7 +55,9 @@ export default function FullHomeEstimator() {
             setTimeout(() => navigate('/thankyou'), 1500)
         } catch (err) {
             console.error("Error saving estimation:", err)
-            alert("Failed to save estimate to database.")
+            alert("Failed to save estimate to database. Please check your connection.")
+        } finally {
+            setIsLoading(false)
         }
     }
 
@@ -164,7 +168,24 @@ export default function FullHomeEstimator() {
                                 <p style={{ opacity: 0.9, marginBottom: '8px' }}>Estimated Full Home Interior Cost</p>
                                 <div className="amount">₹{total.toLocaleString('en-IN')}</div>
                                 <p style={{ opacity: 0.85, marginTop: '8px' }}>{sel.pkg} Package · {sel.config} · {sel.style}</p>
-                                <button onClick={handleSubmit} style={{ marginTop: '24px', background: 'white', color: '#0f3460', border: 'none', padding: '14px 40px', borderRadius: '10px', fontWeight: 800, fontSize: '16px', cursor: 'pointer' }}>Submit & Get Expert Quote →</button>
+                                <button 
+                                    onClick={handleSubmit} 
+                                    disabled={isLoading}
+                                    style={{ 
+                                        marginTop: '24px', 
+                                        background: isLoading ? '#ccc' : 'white', 
+                                        color: 'var(--primary)', 
+                                        border: 'none', 
+                                        padding: '14px 40px', 
+                                        borderRadius: '10px', 
+                                        fontWeight: 800, 
+                                        fontSize: '16px', 
+                                        cursor: isLoading ? 'not-allowed' : 'pointer', 
+                                        transition: '0.3s' 
+                                    }}
+                                >
+                                    {isLoading ? 'Submitting...' : 'Submit & Get Expert Quote →'}
+                                </button>
                             </div>
                         </>
                     )}

@@ -8,6 +8,7 @@ import com.bharathome.database.security.JwtUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -23,7 +24,8 @@ public class AuthController {
     private final JwtUtils jwtUtils;
     private final BCryptPasswordEncoder passwordEncoder;
 
-    public AuthController(UserRepository userRepository, OtpService otpService, EmailService emailService, JwtUtils jwtUtils, BCryptPasswordEncoder passwordEncoder) {
+    public AuthController(UserRepository userRepository, OtpService otpService, EmailService emailService,
+            JwtUtils jwtUtils, BCryptPasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.otpService = otpService;
         this.emailService = emailService;
@@ -76,12 +78,8 @@ public class AuthController {
     // STEP 3: Register (after OTP verified) - generates auto-password & sends email
     // ─────────────────────────────────────────────────────────────────────────
     @PostMapping("/signup")
-    public ResponseEntity<?> signup(@RequestBody Map<String, String> body) {
-        String name = body.get("name");
-        String email = body.get("email");
-        String phone = body.get("phone");
-
-        if (userRepository.findByEmail(email).isPresent()) {
+    public ResponseEntity<?> signup(@Valid @RequestBody User user) {
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
             return ResponseEntity.badRequest().body("Email already registered.");
         }
 

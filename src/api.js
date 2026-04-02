@@ -51,9 +51,16 @@ export const sendOtp = async (email, name) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, name }),
     });
-    const text = await response.text();
-    if (!response.ok) throw new Error(text || "Failed to send OTP");
-    return text;
+    if (!response.ok) {
+        try {
+            const errorData = await response.json();
+            throw new Error(errorData.message || "Failed to send OTP");
+        } catch (e) {
+            const text = await response.text();
+            throw new Error(text || "Failed to send OTP");
+        }
+    }
+    return response.text();
 };
 
 export const verifyOtp = async (email, otp) => {
@@ -79,9 +86,9 @@ export const signup = async (userData) => {
         throw new Error(text || "Signup failed");
     }
     const data = await response.json();
-    if (data.token) {
+    if (data.token && data.user) {
         localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(data));
+        localStorage.setItem("user", JSON.stringify(data.user));
     }
     return data;
 };
@@ -93,13 +100,18 @@ export const login = async (credentials) => {
         body: JSON.stringify(credentials),
     });
     if (!response.ok) {
-        const text = await response.text();
-        throw new Error(text || "Login failed");
+        try {
+            const errorData = await response.json();
+            throw new Error(errorData.message || "Login failed");
+        } catch (e) {
+            const text = await response.text();
+            throw new Error(text || "Login failed");
+        }
     }
     const data = await response.json();
-    if (data.token) {
+    if (data.token && data.user) {
         localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(data));
+        localStorage.setItem("user", JSON.stringify(data.user));
     }
     return data;
 };
@@ -158,6 +170,28 @@ export const createUser = async (user) => {
     });
     if (!response.ok) throw new Error("Failed to create user");
     return response.json();
+};
+
+export const getCurrentUser = async () => {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/users/me`);
+    if (!response.ok) throw new Error("Failed to fetch profile");
+    return response.json();
+};
+
+export const updateProfile = async (userData) => {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/users/profile`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(userData),
+    });
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to update profile");
+    }
+    const data = await response.json();
+    // Update local storage with new user data
+    localStorage.setItem("user", JSON.stringify(data));
+    return data;
 };
 
 export const clearDatabaseData = async () => {
