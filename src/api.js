@@ -5,9 +5,29 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
 const fetchWithTimeout = async (url, options = {}, timeout = 60000) => {
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), timeout);
+    
+    // Add JWT Token to headers if present
+    const token = localStorage.getItem("token");
+    const headers = {
+        ...options.headers,
+        ...(token ? { "Authorization": `Bearer ${token}` } : {})
+    };
+
     try {
-        const response = await fetch(url, { ...options, signal: controller.signal });
+        const response = await fetch(url, { 
+            ...options, 
+            headers,
+            signal: controller.signal 
+        });
         clearTimeout(id);
+        
+        // Handle unauthorized (expired token)
+        if (response.status === 401 && !url.includes("/auth/login")) {
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+            window.location.href = "/login";
+        }
+        
         return response;
     } catch (error) {
         clearTimeout(id);
@@ -58,7 +78,12 @@ export const signup = async (userData) => {
         const text = await response.text();
         throw new Error(text || "Signup failed");
     }
-    return response.json();
+    const data = await response.json();
+    if (data.token) {
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data));
+    }
+    return data;
 };
 
 export const login = async (credentials) => {
@@ -71,7 +96,18 @@ export const login = async (credentials) => {
         const text = await response.text();
         throw new Error(text || "Login failed");
     }
-    return response.json();
+    const data = await response.json();
+    if (data.token) {
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data));
+    }
+    return data;
+};
+
+export const logout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    window.location.href = "/login";
 };
 
 // ── Password Reset ────────────────────────────────────────────────────────────

@@ -15,19 +15,19 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = { "http://localhost:5173", "https://bharathomevalue.vercel.app",
-        "https://bharathome.vercel.app" })
 public class AuthController {
-
     private final UserRepository userRepository;
     private final OtpService otpService;
     private final EmailService emailService;
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final JwtUtils jwtUtils;
+    private final BCryptPasswordEncoder passwordEncoder;
 
-    public AuthController(UserRepository userRepository, OtpService otpService, EmailService emailService) {
+    public AuthController(UserRepository userRepository, OtpService otpService, EmailService emailService, JwtUtils jwtUtils, BCryptPasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.otpService = otpService;
         this.emailService = emailService;
+        this.jwtUtils = jwtUtils;
+        this.passwordEncoder = passwordEncoder;
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -94,6 +94,9 @@ public class AuthController {
         user.setPassword(passwordEncoder.encode(rawPassword));
         userRepository.save(user);
 
+        // Generate JWT token
+        String token = jwtUtils.generateToken(email);
+
         try {
             emailService.sendWelcomeEmail(email, name, rawPassword);
         } catch (Exception e) {
@@ -103,6 +106,7 @@ public class AuthController {
 
         return ResponseEntity.ok(Map.of(
                 "message", "Account created! Check your email for your login credentials.",
+                "token", token,
                 "name", user.getName(),
                 "email", user.getEmail(),
                 "phone", user.getPhone() != null ? user.getPhone() : ""));
@@ -120,7 +124,9 @@ public class AuthController {
         if (userOptional.isPresent()) {
             User user = userOptional.get();
             if (passwordEncoder.matches(password, user.getPassword())) {
+                String token = jwtUtils.generateToken(email);
                 return ResponseEntity.ok(Map.of(
+                        "token", token,
                         "name", user.getName(),
                         "email", user.getEmail(),
                         "phone", user.getPhone() != null ? user.getPhone() : "",
