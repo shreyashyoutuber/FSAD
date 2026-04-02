@@ -1,5 +1,6 @@
 package com.bharathome.database.controller;
 
+import com.bharathome.database.dto.SignupRequest;
 import com.bharathome.database.dto.UserResponse;
 import com.bharathome.database.model.User;
 import com.bharathome.database.repository.UserRepository;
@@ -79,19 +80,22 @@ public class AuthController {
     // STEP 3: Register (after OTP verified) - generates auto-password & sends email
     // ─────────────────────────────────────────────────────────────────────────
     @PostMapping("/signup")
-    public ResponseEntity<UserResponse> signup(@Valid @RequestBody User userParam) {
-        if (userParam.getEmail() == null || userParam.getEmail().isBlank()) {
-            return ResponseEntity.badRequest().build();
-        }
-        if (userRepository.findByEmail(userParam.getEmail()).isPresent()) {
+    public ResponseEntity<UserResponse> signup(@Valid @RequestBody SignupRequest request) {
+        if (userRepository.findByEmail(request.email()).isPresent()) {
             return ResponseEntity.badRequest().build();
         }
 
+        // Map DTO to Entity
+        User user = new User();
+        user.setName(request.name());
+        user.setEmail(request.email());
+        user.setPhone(request.phone());
+
         // Generate strong unique default password
         String rawPassword = generateSecurePassword();
-        userParam.setPassword(passwordEncoder.encode(rawPassword));
+        user.setPassword(passwordEncoder.encode(rawPassword));
         
-        User savedUser = userRepository.save(userParam);
+        User savedUser = userRepository.save(user);
 
         try {
             emailService.sendWelcomeEmail(savedUser.getEmail(), savedUser.getName(), rawPassword);
