@@ -7,5 +7,5 @@ import java.util.List;
 
 @Repository
 public interface EstimationRepository extends JpaRepository<Estimation, Long> {
-    List<Estimation> findByUserEmail(String userEmail);
+    List<Estimation> findByUser_Email(String userEmail);
 }

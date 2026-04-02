@@ -1,5 +1,6 @@
 package com.bharathome.database.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -11,7 +12,12 @@ public class Estimation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String userEmail;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @Transient
+    private String userEmail; 
     private String type; // e.g., "Kitchen Estimator"
     private String date;
     private Double cost;
@@ -24,8 +30,20 @@ public class Estimation {
     // --- Getters and Setters ---
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
-    public String getUserEmail() { return userEmail; }
-    public void setUserEmail(String userEmail) { this.userEmail = userEmail; }
+
+    @JsonProperty("userEmail")
+    public String getUserEmail() {
+        if (user != null) return user.getEmail();
+        return this.userEmail;
+    }
+
+    @JsonProperty("userEmail")
+    public void setUserEmail(String userEmail) {
+        this.userEmail = userEmail;
+    }
+
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
     public String getType() { return type; }
     public void setType(String type) { this.type = type; }
     public String getDate() { return date; }

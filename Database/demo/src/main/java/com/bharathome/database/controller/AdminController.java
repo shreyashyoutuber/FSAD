@@ -7,8 +7,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/admin")
-@CrossOrigin(origins = { "http://localhost:5173", "https://bharathomevalue.vercel.app",
-        "https://bharathome.vercel.app" })
 public class AdminController {
 
     private final UserRepository userRepository;
