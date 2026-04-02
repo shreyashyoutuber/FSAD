@@ -81,14 +81,29 @@ export const signup = async (userData) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(userData),
     });
+    
+    const clone = response.clone();
     if (!response.ok) {
-        const text = await response.text();
-        throw new Error(text || "Signup failed");
+        try {
+            const errorData = await response.json();
+            throw new Error(errorData.message || "Signup failed");
+        } catch (e) {
+            const text = await clone.text();
+            throw new Error(text || "Signup failed");
+        }
     }
+
     const data = await response.json();
-    if (data.token && data.user) {
+    if (data.token) {
         localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(data.user));
+        // Map top-level UserResponse fields to a user object for frontend compatibility
+        const user = { 
+            id: data.id, 
+            name: data.name, 
+            email: data.email, 
+            phone: data.phone 
+        };
+        localStorage.setItem("user", JSON.stringify(user));
     }
     return data;
 };
@@ -99,19 +114,29 @@ export const login = async (credentials) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(credentials),
     });
+
+    const clone = response.clone();
     if (!response.ok) {
         try {
             const errorData = await response.json();
             throw new Error(errorData.message || "Login failed");
         } catch (e) {
-            const text = await response.text();
+            const text = await clone.text();
             throw new Error(text || "Login failed");
         }
     }
+
     const data = await response.json();
-    if (data.token && data.user) {
+    if (data.token) {
         localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(data.user));
+        // Map top-level UserResponse fields to a user object for frontend compatibility
+        const user = { 
+            id: data.id, 
+            name: data.name, 
+            email: data.email, 
+            phone: data.phone 
+        };
+        localStorage.setItem("user", JSON.stringify(user));
     }
     return data;
 };
