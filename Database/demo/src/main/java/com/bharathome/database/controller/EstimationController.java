@@ -6,6 +6,7 @@ import com.bharathome.database.model.User;
 import com.bharathome.database.repository.EstimationRepository;
 import com.bharathome.database.repository.UserRepository;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import jakarta.validation.Valid;
@@ -31,7 +32,7 @@ public class EstimationController {
     }
 
     @PostMapping
-    public Estimation saveEstimation(@Valid @RequestBody Estimation estimation) {
+    public ResponseEntity<EstimationResponse> saveEstimation(@Valid @RequestBody Estimation estimation) {
         // Since we removed userEmail from Estimation table, we must find the user
         String email = estimation.getUserEmail();
         if (email == null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "userEmail is required");

@@ -1,5 +1,6 @@
 package com.bharathome.database.controller;
 
+import com.bharathome.database.dto.UserResponse;
 import com.bharathome.database.model.User;
 import com.bharathome.database.repository.UserRepository;
 import com.bharathome.database.service.EmailService;
@@ -78,44 +79,34 @@ public class AuthController {
     // STEP 3: Register (after OTP verified) - generates auto-password & sends email
     // ─────────────────────────────────────────────────────────────────────────
     @PostMapping("/signup")
-    public ResponseEntity<?> signup(@Valid @RequestBody User user) {
-        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
-            return ResponseEntity.badRequest().body("Email already registered.");
+    public ResponseEntity<UserResponse> signup(@Valid @RequestBody User userParam) {
+        if (userParam.getEmail() == null || userParam.getEmail().isBlank()) {
+            return ResponseEntity.badRequest().build();
+        }
+        if (userRepository.findByEmail(userParam.getEmail()).isPresent()) {
+            return ResponseEntity.badRequest().build();
         }
 
         // Generate strong unique default password
         String rawPassword = generateSecurePassword();
-
-        User user = new User();
-        user.setName(name);
-        user.setEmail(email);
-        user.setPhone(phone);
-        user.setPassword(passwordEncoder.encode(rawPassword));
-        userRepository.save(user);
-
-        // Generate JWT token
-        String token = jwtUtils.generateToken(email);
+        userParam.setPassword(passwordEncoder.encode(rawPassword));
+        
+        User savedUser = userRepository.save(userParam);
 
         try {
-            emailService.sendWelcomeEmail(email, name, rawPassword);
+            emailService.sendWelcomeEmail(savedUser.getEmail(), savedUser.getName(), rawPassword);
         } catch (Exception e) {
-            // User is saved; email failure shouldn't rollback registration
             System.err.println("Welcome email failed: " + e.getMessage());
         }
 
-        return ResponseEntity.ok(Map.of(
-                "message", "Account created! Check your email for your login credentials.",
-                "token", token,
-                "name", user.getName(),
-                "email", user.getEmail(),
-                "phone", user.getPhone() != null ? user.getPhone() : ""));
+        return ResponseEntity.ok(UserResponse.fromEntity(savedUser));
     }
 
     // ─────────────────────────────────────────────────────────────────────────
     // Login
     // ─────────────────────────────────────────────────────────────────────────
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Map<String, String> body) {
+    public ResponseEntity<UserResponse> login(@RequestBody Map<String, String> body) {
         String email = body.get("email");
         String password = body.get("password");
 
@@ -124,15 +115,11 @@ public class AuthController {
             User user = userOptional.get();
             if (passwordEncoder.matches(password, user.getPassword())) {
                 String token = jwtUtils.generateToken(email);
-                return ResponseEntity.ok(Map.of(
-                        "token", token,
-                        "name", user.getName(),
-                        "email", user.getEmail(),
-                        "phone", user.getPhone() != null ? user.getPhone() : "",
-                        "id", user.getId()));
+                UserResponse response = new UserResponse(user.getId(), user.getName(), user.getEmail(), user.getPhone(), token);
+                return ResponseEntity.ok(response);
             }
         }
-        return ResponseEntity.status(401).body("Invalid email or password.");
+        return ResponseEntity.status(401).build();
     }
 
     // ─────────────────────────────────────────────────────────────────────────
