@@ -4,6 +4,7 @@ import com.bharathome.database.model.User;
 import com.bharathome.database.repository.UserRepository;
 import com.bharathome.database.service.EmailService;
 import com.bharathome.database.service.OtpService;
+import com.bharathome.database.security.JwtUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
