@@ -330,7 +330,7 @@ export default function UserDashboard() {
             const allReqs = JSON.parse(localStorage.getItem('allAdminRequests') || '[]')
             const readCounts = JSON.parse(localStorage.getItem('chatReadCounts') || '{}')
             allReqs.forEach(req => {
-                if (req.responded) {
+                if (req.customerEmail === userEmail) {
                     const chatMsgs = JSON.parse(localStorage.getItem(`chat_${req.id}`) || '[]')
                     readCounts[req.id] = chatMsgs.filter(m => m.sender === 'admin').length
                 }
@@ -780,8 +780,8 @@ export default function UserDashboard() {
                         const userEmail = sessionStorage.getItem('bhvUser')
                         const allReqs = JSON.parse(localStorage.getItem('allAdminRequests') || '[]')
                         const allResponses = JSON.parse(localStorage.getItem('adminResponses') || '{}')
-                        // Get only this user's requests that have been responded to
-                        const myResponded = allReqs.filter(r => r.customerEmail === userEmail && r.responded)
+                        // Get all of this user's requests
+                        const myRequests = allReqs.filter(r => r.customerEmail === userEmail)
                         return (
                             <div className="animate-fadeIn">
                                 <div style={{ marginBottom: '28px' }}>
@@ -789,7 +789,7 @@ export default function UserDashboard() {
                                     <p style={{ color: 'var(--muted)', marginTop: '6px' }}>Quotes and advice sent by our experts for your requests</p>
                                 </div>
 
-                                {myResponded.length === 0 ? (
+                                {myRequests.length === 0 ? (
                                     <div className="card hover-lift" style={{ textAlign: 'center', padding: '70px 40px' }}>
                                         <div style={{ fontSize: '64px', marginBottom: '16px' }}>📬</div>
                                         <h3 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '8px' }}>No Recommendations Yet</h3>
@@ -798,90 +798,125 @@ export default function UserDashboard() {
                                     </div>
                                 ) : (
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                                        {myResponded.map((req, i) => {
+                                        {myRequests.map((req, i) => {
                                             const res = allResponses[req.id]
-                                            if (!res) return null
+                                            const isResponded = req.responded && res
                                             return (
-                                                <div key={req.id} className={`card animate-slideUp stagger-${(i % 5) + 1}`} style={{ margin: 0, borderLeft: '4px solid var(--primary)', borderRadius: '16px', padding: '28px' }}>
+                                                <div key={req.id} className={`card animate-slideUp stagger-${(i % 5) + 1}`} style={{ margin: 0, borderLeft: '4px solid ' + (isResponded ? '#10b981' : '#f59e0b'), borderRadius: '16px', padding: '28px' }}>
                                                     {/* Header */}
                                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px', marginBottom: '24px' }}>
                                                         <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                                                            <div style={{ width: '48px', height: '48px', background: 'linear-gradient(135deg,var(--primary),var(--primary-dark))', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px' }}>
-                                                                {req.type === 'Kitchen Estimator' ? '🍳' : req.type === 'Wardrobe Estimator' ? '👔' : '🏠'}
+                                                            <div style={{ width: '48px', height: '48px', background: isResponded ? 'linear-gradient(135deg,#10b981,#059669)' : 'linear-gradient(135deg,#f59e0b,#d97706)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px' }}>
+                                                                {req.type?.includes('Kitchen') ? '🍳' : req.type?.includes('Wardrobe') ? '👔' : '🏠'}
                                                             </div>
                                                             <div>
                                                                 <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#1a1a1a' }}>{req.type}</h3>
-                                                                <p style={{ color: 'var(--muted)', fontSize: '13px' }}>Request {req.id} · Responded on {res.responseDate}</p>
+                                                                <p style={{ color: 'var(--muted)', fontSize: '13px' }}>Request {req.id} · {isResponded ? `Quote received on ${res.responseDate}` : 'Processing by our experts'}</p>
                                                             </div>
                                                         </div>
-                                                        <span style={{ background: '#dcfce7', color: '#16a34a', padding: '6px 16px', borderRadius: '20px', fontSize: '13px', fontWeight: 700, border: '1px solid #bbf7d0' }}>✓ Quote Received</span>
+                                                        <span style={{ 
+                                                            background: isResponded ? '#dcfce7' : '#fef3c7', 
+                                                            color: isResponded ? '#16a34a' : '#b45309', 
+                                                            padding: '6px 16px', borderRadius: '20px', 
+                                                            fontSize: '13px', fontWeight: 700, 
+                                                            border: '1px solid ' + (isResponded ? '#bbf7d0' : '#fde68a') 
+                                                        }}>
+                                                            {isResponded ? '✓ Quote Received' : '⏳ Processing'}
+                                                        </span>
                                                     </div>
 
-                                                    {/* Quote Metrics */}
-                                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(160px,1fr))', gap: '16px', marginBottom: '24px' }}>
-                                                        {[
-                                                            { label: 'Expert Quote', value: `₹${Number(res.quote || 0).toLocaleString('en-IN')}`, color: 'var(--primary)', bg: '#fff3e0', icon: '💰' },
-                                                            { label: 'Timeline', value: res.timeline, color: '#3b82f6', bg: '#eff6ff', icon: '📅' },
-                                                            { label: 'Warranty', value: res.warranty, color: '#10b981', bg: '#ecfdf5', icon: '🛡️' },
-                                                        ].map(({ label, value, color, bg, icon }) => (
-                                                            <div key={label} style={{ background: bg, borderRadius: '12px', padding: '16px', textAlign: 'center' }}>
-                                                                <div style={{ fontSize: '24px', marginBottom: '6px' }}>{icon}</div>
-                                                                <p style={{ fontSize: '11px', fontWeight: 700, color: '#999', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>{label}</p>
-                                                                <p style={{ fontSize: '18px', fontWeight: 800, color }}>{value}</p>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-
-                                                    {/* Description */}
-                                                    {res.description && (
-                                                        <div style={{ background: '#f8f9fa', borderRadius: '12px', padding: '20px', marginBottom: '20px' }}>
-                                                            <h4 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '10px' }}>Expert Breakdown</h4>
-                                                            <p style={{ fontSize: '15px', lineHeight: 1.8, color: '#333', whiteSpace: 'pre-wrap' }}>{res.description}</p>
-                                                        </div>
-                                                    )}
-
-                                                    {/* Reference Images — Clickable Gallery */}
-                                                    {res.images && res.images.length > 0 && (
-                                                        <div style={{ marginBottom: '20px' }}>
-                                                            <h4 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>🖼️ Design References ({res.images.length})</h4>
-                                                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '12px' }}>
-                                                                {res.images.map((img, idx) => (
-                                                                    <div
-                                                                        key={idx}
-                                                                        onClick={() => setLightbox({ images: res.images, index: idx })}
-                                                                        style={{ position: 'relative', borderRadius: '12px', overflow: 'hidden', cursor: 'pointer', aspectRatio: '4/3', boxShadow: '0 4px 16px rgba(0,0,0,0.1)', border: '2px solid #f0ece6', transition: '0.3s' }}
-                                                                        onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.03)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(230,126,34,0.25)'; e.currentTarget.style.borderColor = '#e67e22' }}
-                                                                        onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.1)'; e.currentTarget.style.borderColor = '#f0ece6' }}
-                                                                    >
-                                                                        <img src={img.data} alt={img.name || 'Reference'} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-                                                                        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(transparent 50%, rgba(0,0,0,0.5))', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', padding: '10px' }}>
-                                                                            <span style={{ color: 'white', fontSize: '11px', fontWeight: 600, maxWidth: '80%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{img.name || `Image ${idx + 1}`}</span>
-                                                                            <span style={{ color: 'rgba(255,255,255,0.9)', fontSize: '16px' }}>🔍</span>
-                                                                        </div>
+                                                    {isResponded ? (
+                                                        <>
+                                                            {/* Quote Metrics */}
+                                                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(160px,1fr))', gap: '16px', marginBottom: '24px' }}>
+                                                                {[
+                                                                    { label: 'Expert Quote', value: `₹${Number(res.quote || 0).toLocaleString('en-IN')}`, color: 'var(--primary)', bg: '#fff3e0', icon: '💰' },
+                                                                    { label: 'Timeline', value: res.timeline, color: '#3b82f6', bg: '#eff6ff', icon: '📅' },
+                                                                    { label: 'Warranty', value: res.warranty, color: '#10b981', bg: '#ecfdf5', icon: '🛡️' },
+                                                                ].map(({ label, value, color, bg, icon }) => (
+                                                                    <div key={label} style={{ background: bg, borderRadius: '12px', padding: '16px', textAlign: 'center' }}>
+                                                                        <div style={{ fontSize: '24px', marginBottom: '6px' }}>{icon}</div>
+                                                                        <p style={{ fontSize: '11px', fontWeight: 700, color: '#999', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>{label}</p>
+                                                                        <p style={{ fontSize: '18px', fontWeight: 800, color }}>{value}</p>
                                                                     </div>
                                                                 ))}
                                                             </div>
+
+                                                            {res.description && (
+                                                                <div style={{ background: '#f8f9fa', borderRadius: '12px', padding: '20px', marginBottom: '20px' }}>
+                                                                    <h4 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '10px' }}>Expert Breakdown</h4>
+                                                                    <p style={{ fontSize: '15px', lineHeight: 1.8, color: '#333', whiteSpace: 'pre-wrap' }}>{res.description}</p>
+                                                                </div>
+                                                            )}
+
+                                                            {res.images && res.images.length > 0 && (
+                                                                <div style={{ marginBottom: '20px' }}>
+                                                                    <h4 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>🖼️ Design References ({res.images.length})</h4>
+                                                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '12px' }}>
+                                                                        {res.images.map((img, idx) => (
+                                                                            <div
+                                                                                key={idx}
+                                                                                onClick={() => setLightbox({ images: res.images, index: idx })}
+                                                                                style={{ position: 'relative', borderRadius: '12px', overflow: 'hidden', cursor: 'pointer', aspectRatio: '4/3', boxShadow: '0 4px 16px rgba(0,0,0,0.1)', border: '2px solid #f0ece6', transition: '0.3s' }}
+                                                                                onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.03)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(230,126,34,0.25)'; e.currentTarget.style.borderColor = '#e67e22' }}
+                                                                                onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.1)'; e.currentTarget.style.borderColor = '#f0ece6' }}
+                                                                            >
+                                                                                <img src={img.data} alt={img.name || 'Reference'} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                                                                                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(transparent 50%, rgba(0,0,0,0.5))', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', padding: '10px' }}>
+                                                                                    <span style={{ color: 'white', fontSize: '11px', fontWeight: 600, maxWidth: '80%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{img.name || `Image ${idx + 1}`}</span>
+                                                                                    <span style={{ color: 'rgba(255,255,255,0.9)', fontSize: '16px' }}>🔍</span>
+                                                                                </div>
+                                                                            </div>
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                        </>
+                                                    ) : (
+                                                        <div style={{ background: '#fffbeb', border: '1px dashed #fcd34d', borderRadius: '12px', padding: '24px', textAlign: 'center', marginBottom: '24px' }}>
+                                                            <div style={{ fontSize: '32px', marginBottom: '12px' }}>👷</div>
+                                                            <h4 style={{ fontSize: '16px', fontWeight: 700, color: '#92400e' }}>Expert Analysis in Progress</h4>
+                                                            <p style={{ color: '#b45309', fontSize: '14px', maxWidth: '400px', margin: '8px auto 0', lineHeight: 1.6 }}>
+                                                                Our experts are currently reviewing your request details and creating your personalized quote. 
+                                                                You can click the button below to directly chat with the expert.
+                                                            </p>
                                                         </div>
                                                     )}
 
                                                     {/* Action */}
-                                                    <div style={{ display: 'flex', gap: '12px', marginTop: '8px', flexWrap: 'wrap' }}>
+                                                    <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                                                         <button
                                                             onClick={() => setChatReq({ id: req.id, type: req.type })}
                                                             className="button-press"
-                                                            style={{ flex: 1, minWidth: '180px', padding: '13px 20px', background: 'linear-gradient(135deg, var(--primary), var(--primary-dark))', border: 'none', borderRadius: '10px', color: 'white', fontWeight: 800, fontSize: '15px', cursor: 'pointer', boxShadow: '0 6px 16px rgba(230,126,34,0.35)', transition: '0.3s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                                                            style={{ 
+                                                                flex: 1, minWidth: '180px', padding: '13px 20px', 
+                                                                background: 'linear-gradient(135deg, var(--primary), var(--primary-dark))', 
+                                                                border: 'none', borderRadius: '10px', color: 'white', 
+                                                                fontWeight: 800, fontSize: '15px', cursor: 'pointer', 
+                                                                boxShadow: '0 6px 16px rgba(230,126,34,0.35)', 
+                                                                transition: '0.3s', display: 'flex', alignItems: 'center', 
+                                                                justifyContent: 'center', gap: '8px' 
+                                                            }}
                                                             onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
                                                             onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}>
                                                             💬 Chat &amp; Negotiate
                                                         </button>
-                                                        <button
-                                                            onClick={() => { navigator.clipboard?.writeText(`Quote: ₹${Number(res.quote || 0).toLocaleString('en-IN')} | Timeline: ${res.timeline} | Warranty: ${res.warranty}`); alert('Quote details copied!') }}
-                                                            className="button-press"
-                                                            style={{ flex: 1, minWidth: '140px', padding: '13px 20px', background: 'white', border: '2px solid #e9ecef', borderRadius: '10px', cursor: 'pointer', fontWeight: 700, color: '#555', transition: '0.3s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
-                                                            onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.color = 'var(--primary)' }}
-                                                            onMouseLeave={e => { e.currentTarget.style.borderColor = '#e9ecef'; e.currentTarget.style.color = '#555' }}>
-                                                            📋 Copy Quote
-                                                        </button>
+                                                        {isResponded && (
+                                                            <button
+                                                                onClick={() => { navigator.clipboard?.writeText(`Quote: ₹${Number(res.quote || 0).toLocaleString('en-IN')} | Timeline: ${res.timeline} | Warranty: ${res.warranty}`); alert('Quote details copied!') }}
+                                                                className="button-press"
+                                                                style={{ 
+                                                                    flex: 1, minWidth: '140px', padding: '13px 20px', 
+                                                                    background: 'white', border: '2px solid #e9ecef', 
+                                                                    borderRadius: '10px', cursor: 'pointer', fontWeight: 700, 
+                                                                    color: '#555', transition: '0.3s', display: 'flex', 
+                                                                    alignItems: 'center', justifyContent: 'center', gap: '8px' 
+                                                                }}
+                                                                onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.color = 'var(--primary)' }}
+                                                                onMouseLeave={e => { e.currentTarget.style.borderColor = '#e9ecef'; e.currentTarget.style.color = '#555' }}>
+                                                                📋 Copy Quote
+                                                            </button>
+                                                        )}
                                                     </div>
                                                 </div>
                                             )
