@@ -47,9 +47,9 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             User newUser = new User();
             newUser.setEmail(email);
             newUser.setName(name != null ? name : "Google User");
-            // Set a dummy but secure password since it's required by the entity
-            // In a more complex app, we'd mark this user as 'SOCIAL_LOGIN_ONLY'
-            newUser.setPassword(""); 
+            // Set dummy but valid fields to satisfy database @NotBlank/Size constraints
+            newUser.setPhone("0000000000"); 
+            newUser.setPassword("GOOGLE_LOGIN_SECURE_BYPASS_" + System.currentTimeMillis()); 
             userRepository.save(newUser);
         }
 
