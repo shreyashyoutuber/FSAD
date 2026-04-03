@@ -2,11 +2,6 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { sendOtp, verifyOtp, signup } from '../api'
 
-// Registration has 3 stages:
-//  1) FORM    – fill in name, email, phone
-//  2) OTP     – enter the 6-digit code sent to email
-//  3) SUCCESS – account created, password sent via email
-
 export default function Signup() {
     const navigate = useNavigate()
 
@@ -19,11 +14,9 @@ export default function Signup() {
 
     const set = (k) => (e) => setForm({ ...form, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value })
 
-    // ── Stage 1: Send OTP ──────────────────────────────────────────────────
     const handleSendOtp = async (e) => {
         e.preventDefault()
         setError('')
-
         if (!form.fullname.trim()) { setError('Please enter your full name.'); return }
         if (!form.email.trim()) { setError('Please enter your email address.'); return }
         if (!form.phone.trim()) { setError('Please enter your phone number.'); return }
@@ -34,7 +27,7 @@ export default function Signup() {
         try {
             await sendOtp(form.email, form.fullname)
             setStage('OTP')
-            setInfo(`A 6-digit OTP has been sent to ${form.email}. It expires in 5 minutes.`)
+            setInfo(`A 6-digit OTP has been sent to ${form.email}`)
         } catch (err) {
             setError(err.message || 'Failed to send OTP. Please try again.')
         } finally {
@@ -42,21 +35,15 @@ export default function Signup() {
         }
     }
 
-    // ── Stage 2: Verify OTP & Register ────────────────────────────────────
     const handleVerifyAndRegister = async (e) => {
         e.preventDefault()
         setError('')
-
         if (otp.trim().length !== 6) { setError('Please enter the 6-digit OTP.'); return }
 
         setIsLoading(true)
         try {
-            // Verify OTP first
             await verifyOtp(form.email, otp.trim())
-
-            // OTP valid → register the user
             await signup({ name: form.fullname, email: form.email, phone: form.phone })
-
             setStage('SUCCESS')
         } catch (err) {
             setError(err.message || 'Verification failed. Please try again.')
@@ -79,151 +66,221 @@ export default function Signup() {
         }
     }
 
-    // ── Stage 3: Success screen ────────────────────────────────────────────
+    // --- Styles ---
+    const styles = {
+        container: {
+            minHeight: '100vh',
+            background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '24px',
+            fontFamily: "'Plus Jakarta Sans', sans-serif"
+        },
+        card: {
+            background: 'rgba(255, 255, 255, 0.03)',
+            backdropFilter: 'blur(16px)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            borderRadius: '24px',
+            padding: '48px',
+            width: '100%',
+            maxW: '480px',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+            animation: 'fadeIn 0.6s ease-out'
+        },
+        logo: {
+            fontSize: '28px',
+            fontWeight: '800',
+            color: '#ffffff',
+            textAlign: 'center',
+            marginBottom: '32px',
+            display: 'block',
+            letterSpacing: '-0.5px'
+        },
+        logoSpan: { color: '#f59e0b' },
+        title: {
+            fontSize: '32px',
+            fontWeight: '800',
+            color: '#ffffff',
+            marginBottom: '8px',
+            textAlign: 'center'
+        },
+        subtitle: {
+            fontSize: '16px',
+            color: '#94a3b8',
+            textAlign: 'center',
+            marginBottom: '32px'
+        },
+        inputGroup: { marginBottom: '20px' },
+        label: {
+            display: 'block',
+            fontSize: '14px',
+            fontWeight: '600',
+            color: '#cbd5e1',
+            marginBottom: '8px',
+            marginLeft: '4px'
+        },
+        input: {
+            width: '100%',
+            background: 'rgba(255, 255, 255, 0.05)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            borderRadius: '12px',
+            padding: '14px 16px',
+            color: '#ffffff',
+            fontSize: '15px',
+            outline: 'none',
+            transition: 'all 0.3s'
+        },
+        button: {
+            width: '100%',
+            background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+            color: '#ffffff',
+            padding: '16px',
+            borderRadius: '12px',
+            fontSize: '16px',
+            fontWeight: '700',
+            border: 'none',
+            cursor: 'pointer',
+            marginTop: '12px',
+            boxShadow: '0 10px 15px -3px rgba(217, 119, 6, 0.3)',
+            transition: 'transform 0.2s, box-shadow 0.2s'
+        },
+        alert: {
+            background: 'rgba(217, 119, 6, 0.1)',
+            border: '1px solid rgba(217, 119, 6, 0.2)',
+            borderRadius: '12px',
+            padding: '12px 16px',
+            fontSize: '13px',
+            color: '#fbbf24',
+            marginBottom: '24px',
+            display: 'flex',
+            gap: '10px',
+            alignItems: 'center'
+        },
+        error: {
+            background: 'rgba(239, 68, 68, 0.1)',
+            border: '1px solid rgba(239, 68, 68, 0.2)',
+            color: '#f87171',
+            padding: '12px',
+            borderRadius: '10px',
+            fontSize: '14px',
+            marginBottom: '20px',
+            textAlign: 'center'
+        },
+        link: {
+            color: '#94a3b8',
+            fontSize: '14px',
+            textAlign: 'center',
+            marginTop: '24px'
+        },
+        activeLink: {
+            color: '#f59e0b',
+            fontWeight: '600',
+            cursor: 'pointer',
+            marginLeft: '6px'
+        }
+    }
+
     if (stage === 'SUCCESS') {
         return (
-            <div className="auth-container">
-                <div className="auth-box" style={{ textAlign: 'center' }}>
-                    <a className="auth-logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
-                        Bharat<span>Home</span> Value
-                    </a>
-                    <div style={{ fontSize: '56px', margin: '24px 0 16px' }}>🎉</div>
-                    <h2 style={{ marginBottom: '8px' }}>Account Created!</h2>
-                    <p className="subtitle" style={{ marginBottom: '24px' }}>
-                        Your account is ready. We've sent your <strong>login credentials</strong> to:
-                    </p>
+            <div style={styles.container}>
+                <div style={{...styles.card, textAlign: 'center'}}>
+                    <div style={styles.logo}>Bharat<span style={styles.logoSpan}>Home</span> Value</div>
+                    <div style={{fontSize: '64px', margin: '20px 0'}}>✨</div>
+                    <h2 style={styles.title}>Welcome Aboard!</h2>
+                    <p style={styles.subtitle}>Your profile is ready. Your secure password has been sent to:</p>
                     <div style={{
-                        background: 'linear-gradient(135deg,#1a1a2e,#16213e)',
-                        color: '#c9a84c',
-                        padding: '14px 20px',
-                        borderRadius: '8px',
-                        fontWeight: '600',
-                        fontSize: '15px',
-                        marginBottom: '20px',
-                        letterSpacing: '0.5px'
+                        background: 'rgba(245, 158, 11, 0.1)',
+                        color: '#f59e0b',
+                        padding: '16px',
+                        borderRadius: '12px',
+                        fontWeight: '700',
+                        fontSize: '18px',
+                        marginBottom: '32px'
                     }}>
-                        📧 {form.email}
+                        {form.email}
                     </div>
-                    <p style={{ color: '#4a5568', fontSize: '14px', marginBottom: '32px', lineHeight: '1.6' }}>
-                        Check your inbox for your <strong>default password</strong> and a button to reset it anytime.
-                    </p>
-                    <button className="btn-submit" onClick={() => navigate('/login')}>
-                        Go to Login →
-                    </button>
-                    <a className="back-home-link" onClick={() => navigate('/')} style={{ cursor: 'pointer', display: 'block', marginTop: '16px' }}>
-                        ← Back to Home
-                    </a>
+                    <button style={styles.button} onClick={() => navigate('/login')}>Sign In Now →</button>
                 </div>
             </div>
         )
     }
 
-    // ── Stage 2: OTP Verification ──────────────────────────────────────────
     if (stage === 'OTP') {
         return (
-            <div className="auth-container">
-                <div className="auth-box">
-                    <a className="auth-logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
-                        Bharat<span>Home</span> Value
-                    </a>
-                    <div style={{ fontSize: '40px', textAlign: 'center', margin: '12px 0 4px' }}>📬</div>
-                    <h2 style={{ textAlign: 'center' }}>Verify Your Email</h2>
-                    <p className="subtitle" style={{ textAlign: 'center', marginBottom: '24px' }}>
-                        Enter the 6-digit code sent to<br />
-                        <strong style={{ color: 'var(--primary)' }}>{form.email}</strong>
-                    </p>
+            <div style={styles.container}>
+                <div style={styles.card}>
+                    <div style={styles.logo}>Bharat<span style={styles.logoSpan}>Home</span> Value</div>
+                    <h2 style={styles.title}>Confirm Email</h2>
+                    <p style={styles.subtitle}>Enter the 6-digit code sent to <br/><span style={{color: '#f59e0b'}}>{form.email}</span></p>
 
-                    {info && <div style={{ background: '#f0fdf4', color: '#166534', padding: '12px 16px', borderRadius: '8px', fontSize: '14px', marginBottom: '16px' }}>{info}</div>}
-                    {error && <div style={{ background: '#fee2e2', color: '#dc2626', padding: '12px 16px', borderRadius: '8px', fontSize: '14px', marginBottom: '16px' }}>{error}</div>}
+                    {error && <div style={styles.error}>{error}</div>}
 
                     <form onSubmit={handleVerifyAndRegister}>
-                        <div className="form-group">
-                            <label>OTP Code</label>
+                        <div style={styles.inputGroup}>
                             <input
                                 type="text"
+                                style={{...styles.input, textAlign: 'center', fontSize: '28px', letterSpacing: '8px', fontWeight: '800'}}
                                 value={otp}
-                                onChange={(e) => { setOtp(e.target.value.replace(/\D/g, '').slice(0, 6)); setError('') }}
-                                placeholder="Enter 6-digit OTP"
+                                onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                                placeholder="000000"
                                 maxLength={6}
-                                style={{ letterSpacing: '8px', fontSize: '22px', textAlign: 'center', fontWeight: '700' }}
-                                autoComplete="one-time-code"
                                 required
                             />
                         </div>
-
-                        <button type="submit" className="btn-submit" disabled={isLoading || otp.length !== 6}>
-                            {isLoading ? 'Verifying...' : 'Verify & Create Account'}
-                        </button>
+                        <button style={styles.button} disabled={isLoading}>{isLoading ? 'Verifying...' : 'Complete Registry'}</button>
                     </form>
-
-                    <div style={{ textAlign: 'center', marginTop: '20px' }}>
-                        <p style={{ color: '#718096', fontSize: '14px', marginBottom: '8px' }}>Didn't receive the code?</p>
-                        <button
-                            onClick={handleResendOtp}
-                            disabled={isLoading}
-                            style={{ background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', fontWeight: '600', fontSize: '14px', textDecoration: 'underline' }}
-                        >
-                            {isLoading ? 'Sending...' : 'Resend OTP'}
-                        </button>
+                    <div style={styles.link}>
+                        Didn't get it? <span style={styles.activeLink} onClick={handleResendOtp}>Resend Code</span>
                     </div>
-
-                    <button
-                        onClick={() => { setStage('FORM'); setOtp(''); setError(''); setInfo('') }}
-                        style={{ display: 'block', margin: '16px auto 0', background: 'none', border: 'none', color: '#718096', cursor: 'pointer', fontSize: '13px' }}
-                    >
-                        ← Change email address
-                    </button>
+                    <div style={{...styles.link, marginTop: '12px', fontSize: '12px', cursor: 'pointer'}} onClick={() => setStage('FORM')}>
+                        ← Use a different email
+                    </div>
                 </div>
             </div>
         )
     }
 
-    // ── Stage 1: Registration Form ─────────────────────────────────────────
     return (
-        <div className="auth-container">
-            <div className="auth-box">
-                <a className="auth-logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
-                    Bharat<span>Home</span> Value
-                </a>
-                <h2>Create Account</h2>
-                <p className="subtitle">Join us to enhance your property value</p>
+        <div style={styles.container}>
+            <div style={{...styles.card, maxWidth: '480px'}}>
+                <div style={styles.logo}>Bharat<span style={styles.logoSpan}>Home</span> Value</div>
+                <h2 style={styles.title}>Create Account</h2>
+                <p style={styles.subtitle}>Start your journey towards a better home</p>
 
-                {error && (
-                    <div style={{ background: '#fee2e2', color: '#dc2626', padding: '12px 16px', borderRadius: '8px', fontSize: '14px', marginBottom: '16px' }}>
-                        {error}
-                    </div>
-                )}
+                {error && <div style={styles.error}>{error}</div>}
 
-                <div style={{ background: '#fffbeb', border: '1px solid #fcd34d', borderRadius: '8px', padding: '12px 16px', fontSize: '13px', color: '#92400e', marginBottom: '20px' }}>
-                    🔐 No password needed! We'll generate a secure one and email it to you after verification.
+                <div style={styles.alert}>
+                    <span>🛡️</span>
+                    <span>No password needed! We'll generate a secure one for you.</span>
                 </div>
 
                 <form onSubmit={handleSendOtp}>
-                    {[
-                        { label: 'Full Name', type: 'text', key: 'fullname', ph: 'Enter your full name' },
-                        { label: 'Email Address', type: 'email', key: 'email', ph: 'Enter your email' },
-                        { label: 'Phone Number', type: 'tel', key: 'phone', ph: 'Enter your phone number' },
-                    ].map(({ label, type, key, ph }) => (
-                        <div className="form-group" key={key}>
-                            <label>{label}</label>
-                            <input type={type} value={form[key]} onChange={set(key)} placeholder={ph} required />
-                        </div>
-                    ))}
-
-                    <div className="form-group">
-                        <label className="remember-me" style={{ display: 'flex', gap: '10px', alignItems: 'center', fontSize: '14px', fontWeight: 'normal' }}>
-                            <input type="checkbox" checked={form.terms} onChange={set('terms')} />
-                            <span>I agree to the <a href="#" style={{ color: 'var(--primary)' }}>Terms & Conditions</a></span>
-                        </label>
+                    <div style={styles.inputGroup}>
+                        <label style={styles.label}>Full Name</label>
+                        <input style={styles.input} type="text" value={form.fullname} onChange={set('fullname')} placeholder="e.g. John Doe" required />
                     </div>
-
-                    <button type="submit" className="btn-submit" disabled={isLoading}>
-                        {isLoading ? 'Sending OTP...' : 'Send Verification OTP →'}
-                    </button>
+                    <div style={styles.inputGroup}>
+                        <label style={styles.label}>Email Address</label>
+                        <input style={styles.input} type="email" value={form.email} onChange={set('email')} placeholder="name@example.com" required />
+                    </div>
+                    <div style={styles.inputGroup}>
+                        <label style={styles.label}>Phone Number</label>
+                        <input style={styles.input} type="tel" value={form.phone} onChange={set('phone')} placeholder="+91 XXXXX XXXXX" required />
+                    </div>
+                    <div style={{...styles.inputGroup, display: 'flex', alignItems: 'center', gap: '10px'}}>
+                        <input type="checkbox" checked={form.terms} onChange={set('terms')} style={{width: '18px', height: '18px', cursor: 'pointer', accentColor: '#f59e0b'}} />
+                        <span style={{color: '#94a3b8', fontSize: '13px'}}>I agree to the <span style={{color: '#f59e0b', cursor: 'pointer'}}>Terms of Service</span></span>
+                    </div>
+                    <button style={styles.button} disabled={isLoading}>{isLoading ? 'Starting...' : 'Send OTP →'}</button>
                 </form>
 
-                <p className="auth-link">Already have an account? <a onClick={() => navigate('/login')} style={{ cursor: 'pointer' }}>Login</a></p>
-                <a className="back-home-link" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>← Back to Home</a>
+                <div style={styles.link}>
+                    Already have an account? <span style={styles.activeLink} onClick={() => navigate('/login')}>Login</span>
+                </div>
+                <div style={{...styles.link, marginTop: '20px', cursor: 'pointer'}} onClick={() => navigate('/')}>
+                    ← Back to Home
+                </div>
             </div>
         </div>
     )
