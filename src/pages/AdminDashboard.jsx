@@ -217,6 +217,21 @@ function AdminChatModal({ req, onClose }) {
                 </div>
 
                 <form onSubmit={handleSubmit} style={{ flex: 1, overflowY: 'auto', padding: '32px' }}>
+                    {/* User Submitted Property Photos */}
+                    {req.propertyPhotos && req.propertyPhotos.length > 0 && (
+                        <div style={{ marginBottom: '32px', background: '#f8fafc', padding: '24px', borderRadius: '16px', border: `1px solid ${theme.border}` }}>
+                            <label style={{ ...labelStyle, color: theme.primary }}>📸 User Submitted Photos ({req.propertyPhotos.length})</label>
+                            <p style={{ fontSize: '12px', color: theme.textMuted, marginBottom: '16px' }}>Photos provided by the user for construction/site review.</p>
+                            <div style={{ display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '12px' }}>
+                                {req.propertyPhotos.map((img, i) => (
+                                    <div key={i} style={{ flexShrink: 0, width: '160px', height: '120px', borderRadius: '12px', overflow: 'hidden', border: `2px solid white`, boxShadow: '0 4px 12px rgba(0,0,0,0.1)', cursor: 'pointer' }} onClick={() => window.open(img.data)}>
+                                        <img src={img.data} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} title="Click to enlarge" />
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '32px' }}>
                         <div>
                             <label style={labelStyle}>Quote Amount (₹)</label>

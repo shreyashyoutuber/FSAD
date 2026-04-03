@@ -258,6 +258,33 @@ export default function UserDashboard() {
     const [unreadChats, setUnreadChats] = useState(0)
     const [showProfile, setShowProfile] = useState(false)
     const [showExitConfirm, setShowExitConfirm] = useState(false)
+    const [propertyPhotos, setPropertyPhotos] = useState([]) // Base64 images for submission
+    const fileInputRef = useRef(null)
+
+    // Handle Property Image Upload
+    const handlePropertyPhotoUpload = (e) => {
+        const files = Array.from(e.target.files)
+        if (propertyPhotos.length + files.length > 5) {
+            alert('Maximum 5 photos allowed per property.')
+            return
+        }
+
+        files.forEach(file => {
+            if (!file.type.startsWith('image/')) {
+                alert(`${file.name} is not an image file.`)
+                return
+            }
+            const reader = new FileReader()
+            reader.onload = (event) => {
+                setPropertyPhotos(prev => [...prev, { name: file.name, data: event.target.result }])
+            }
+            reader.readAsDataURL(file)
+        })
+    }
+
+    const removePropertyPhoto = (index) => {
+        setPropertyPhotos(prev => prev.filter((_, i) => i !== index))
+    }
 
     // ---- AI RECOMMENDATION ENGINE ----
     const generateAIRecommendations = (property) => {
@@ -825,6 +852,20 @@ export default function UserDashboard() {
                                                         </span>
                                                     </div>
 
+                                                    {/* User Submitted Photos - Preview */}
+                                                    {req.propertyPhotos && req.propertyPhotos.length > 0 && (
+                                                        <div style={{ marginBottom: '24px', background: '#fdf6ee', borderRadius: '12px', padding: '16px', border: '1px solid #fbd38d' }}>
+                                                            <h4 style={{ fontSize: '13px', fontWeight: 700, color: '#b45309', textTransform: 'uppercase', marginBottom: '12px' }}>🏗️ Your Property Photos ({req.propertyPhotos.length})</h4>
+                                                            <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '8px' }}>
+                                                                {req.propertyPhotos.map((img, idx) => (
+                                                                    <div key={idx} style={{ flexShrink: 0, width: '120px', height: '90px', borderRadius: '8px', overflow: 'hidden', border: '2px solid white', boxShadow: '0 4px 8px rgba(0,0,0,0.1)', cursor: 'pointer' }} onClick={() => setLightbox({ images: req.propertyPhotos, index: idx })}>
+                                                                        <img src={img.data} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    )}
+
                                                     {isResponded ? (
                                                         <>
                                                             {/* Quote Metrics */}
@@ -983,6 +1024,7 @@ export default function UserDashboard() {
                                         description: data.description || 'New property submission for review',
                                         budget: `₹${data.improvementBudget}`,
                                         responded: false,
+                                        propertyPhotos: propertyPhotos, // New property photos
                                         details: {
                                             size: data.propertySize,
                                             year: data.yearBuilt,
@@ -1017,10 +1059,51 @@ export default function UserDashboard() {
                                         <div className="form-group"><label>Market Value (₹)</label><input name="marketValue" type="number" placeholder="e.g., 5000000" required /></div>
                                         <div className="form-group"><label>Improvement Budget (₹)</label><input name="improvementBudget" type="number" placeholder="e.g., 500000" required /></div>
                                     </div>
-                                    <div className="form-group">
-                                        <label>Description</label>
-                                        <textarea name="description" placeholder="Describe your property..." rows={4} style={{ width: '100%', padding: '12px 16px', border: '2px solid #e9ecef', borderRadius: '8px', fontFamily: 'inherit', fontSize: '15px', resize: 'vertical', outline: 'none', transition: '0.3s' }} onFocus={e => e.target.style.borderColor = 'var(--primary)'} onBlur={e => e.target.style.borderColor = '#e9ecef'} />
+                                    <div className="form-group" style={{ marginTop: '24px' }}>
+                                        <label style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                            <span>Property & Construction Photos</span>
+                                            <span style={{ fontSize: '11px', color: 'var(--muted)' }}>Max 5 (Optional)</span>
+                                        </label>
+                                        
+                                        <div 
+                                            onClick={() => fileInputRef.current?.click()}
+                                            style={{ 
+                                                border: '2px dashed #e9ecef', borderRadius: '16px', padding: '32px 20px', 
+                                                textAlign: 'center', cursor: 'pointer', transition: '0.3s', background: '#fdf6ee',
+                                                marginBottom: '16px'
+                                            }}
+                                            onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.background = 'white' }}
+                                            onMouseLeave={e => { e.currentTarget.style.borderColor = '#e9ecef'; e.currentTarget.style.background = '#fdf6ee' }}
+                                        >
+                                            <div style={{ fontSize: '32px', marginBottom: '8px' }}>📸</div>
+                                            <p style={{ fontSize: '14px', fontWeight: 600, color: '#666' }}>Click to upload photos of your property</p>
+                                            <p style={{ fontSize: '12px', color: '#999', marginTop: '4px' }}>Drag and drop or select files (PNG, JPG)</p>
+                                            <input 
+                                                type="file" 
+                                                ref={fileInputRef}
+                                                multiple 
+                                                accept="image/*" 
+                                                onChange={handlePropertyPhotoUpload} 
+                                                style={{ display: 'none' }} 
+                                            />
+                                        </div>
+
+                                        {propertyPhotos.length > 0 && (
+                                            <div style={{ display: 'flex', gap: '12px', overflowX: 'auto', padding: '4px 4px 12px', scrollbarWidth: 'none' }}>
+                                                {propertyPhotos.map((img, i) => (
+                                                    <div key={i} style={{ position: 'relative', flexShrink: 0, width: '100px', height: '75px', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', border: '2px solid white' }}>
+                                                        <img src={img.data} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                                        <button 
+                                                            type="button"
+                                                            onClick={(e) => { e.stopPropagation(); removePropertyPhoto(i) }}
+                                                            style={{ position: 'absolute', top: '4px', right: '4px', background: 'rgba(0,0,0,0.6)', color: 'white', border: 'none', borderRadius: '50%', width: '20px', height: '20px', fontSize: '14px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                                        >×</button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
                                     </div>
+
                                     <button type="submit" className="btn-submit button-press">Submit Property</button>
                                 </form>
                             </div>
