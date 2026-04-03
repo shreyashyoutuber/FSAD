@@ -255,7 +255,8 @@ export default function UserDashboard() {
     const [showAllRecs, setShowAllRecs] = useState(false)
     const [chatReq, setChatReq] = useState(null) // { id, type } of request to chat about
     const [lightbox, setLightbox] = useState(null) // { images: [], index: 0 }
-       const [showProfile, setShowProfile] = useState(false)
+    const [unreadChats, setUnreadChats] = useState(0)
+    const [showProfile, setShowProfile] = useState(false)
     const [showExitConfirm, setShowExitConfirm] = useState(false)
 
     // ---- AI RECOMMENDATION ENGINE ----
