@@ -53,14 +53,16 @@ export default function Login() {
         }
     }
 
+    const getGoogleUrl = () => {
+        const base = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:8080'
+            : 'https://fsad-tpxy.onrender.com';
+        return `${base}/oauth2/authorization/google`;
+    };
+
     const handleGoogle = () => {
-        sessionStorage.setItem('bhvUser', 'google-user@gmail.com')
-        localStorage.setItem('userData', JSON.stringify({
-            name: 'Google User', email: 'google-user@gmail.com', phone: '+91 98765 43210',
-            property: { type: '2BHK Apartment', location: 'Sector 62, Noida', currentValue: 5000000, size: 1250, age: 8, locationRating: 4.2 }
-        }))
-        navigate('/user-dashboard')
-    }
+        window.location.href = getGoogleUrl();
+    };
 
     return (
         <div style={{

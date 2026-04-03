@@ -12,6 +12,7 @@ import FullHomeEstimator from './pages/FullHomeEstimator'
 import ThankYou from './pages/ThankYou'
 import DatabaseTest from './pages/DatabaseTest'
 import ProfilePage from './pages/ProfilePage'
+import AuthSuccess from './pages/AuthSuccess'
 
 function App() {
     return (
@@ -20,6 +21,7 @@ function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
+                <Route path="/auth-success" element={<AuthSuccess />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/forgot-password" element={<ResetPassword />} />
                 <Route path="/admin-login" element={<AdminLogin />} />
