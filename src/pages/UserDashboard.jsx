@@ -321,7 +321,6 @@ export default function UserDashboard() {
     const estimates = allEstimates.filter(est => est.userEmail === userEmail || est.customerEmail === userEmail)
     const allAdminRequests = JSON.parse(localStorage.getItem('allAdminRequests') || '[]')
     const adminResponses = JSON.parse(localStorage.getItem('adminResponses') || '{}')
-    const userEmail = sessionStorage.getItem('bhvUser')
 
     // Find the primary property for this user (most recent submission)
     const myProperties = allAdminRequests.filter(r => r.customerEmail === userEmail && r.type.startsWith('Property:'))
