@@ -316,7 +316,9 @@ export default function UserDashboard() {
         navigate('/')
     }
 
-    const estimates = JSON.parse(localStorage.getItem('userEstimates') || '[]')
+    const allEstimates = JSON.parse(localStorage.getItem('userEstimates') || '[]')
+    const userEmail = sessionStorage.getItem('bhvUser')
+    const estimates = allEstimates.filter(est => est.userEmail === userEmail || est.customerEmail === userEmail)
     const allAdminRequests = JSON.parse(localStorage.getItem('allAdminRequests') || '[]')
     const adminResponses = JSON.parse(localStorage.getItem('adminResponses') || '{}')
     const userEmail = sessionStorage.getItem('bhvUser')
