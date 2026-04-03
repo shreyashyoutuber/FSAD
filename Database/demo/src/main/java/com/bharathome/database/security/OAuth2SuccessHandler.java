@@ -56,8 +56,9 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         // Generate JWT
         String token = jwtUtils.generateToken(email);
 
-        // Redirect to frontend with token as a parameter
-        // Frontend will catch this and store it in localStorage
-        response.sendRedirect(frontendUrl + "/auth-success?token=" + token + "&email=" + email);
+        // Redirect to frontend with token, email, and name
+        // Use URLEncoder to handle spaces in names
+        String encodedName = java.net.URLEncoder.encode(name != null ? name : "User", java.nio.charset.StandardCharsets.UTF_8);
+        response.sendRedirect(frontendUrl + "/auth-success?token=" + token + "&email=" + email + "&name=" + encodedName);
     }
 }

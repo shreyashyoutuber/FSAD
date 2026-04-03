@@ -1,47 +1,54 @@
-import { useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useEffect } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 
 export default function AuthSuccess() {
-    const [searchParams] = useSearchParams();
-    const navigate = useNavigate();
+    const [searchParams] = useSearchParams()
+    const navigate = useNavigate()
 
     useEffect(() => {
-        const token = searchParams.get('token');
-        const email = searchParams.get('email');
+        const token = searchParams.get('token')
+        const email = searchParams.get('email')
+        const name = searchParams.get('name')
 
         if (token && email) {
-            // Save to localStorage
-            localStorage.setItem('token', token);
-            // Prepare a basic user object for the dashboard
-            const user = { 
-                email: email,
-                name: 'User' 
-            };
-            localStorage.setItem('user', JSON.stringify(user));
+            // --- Matching existing login system keys ---
             
-            // Redirect to dashboard
-            navigate('/user-dashboard');
+            // 1. JWT for API calls
+            localStorage.setItem('token', token)
+            
+            // 2. Email for session tracking (Required by UserDashboard.jsx)
+            sessionStorage.setItem('bhvUser', email)
+            
+            // 3. Complete user object (Required by UserDashboard.jsx)
+            const userData = { 
+                name: name || 'Google User', 
+                email: email,
+                phone: '0000000000' // Placeholder as it is mandatory in DB
+            }
+            localStorage.setItem('userData', JSON.stringify(userData))
+
+            // Success redirect
+            navigate('/user-dashboard')
         } else {
-            // Something went wrong
-            navigate('/login?error=Authentication failed');
+            console.error('Missing auth parameters')
+            navigate('/login?error=Authentication failed')
         }
-    }, [searchParams, navigate]);
+    }, [searchParams, navigate])
 
     return (
-        <div style={{ 
-            minHeight: '100vh', 
-            background: '#1a1a1a', 
-            color: 'white', 
-            display: 'flex', 
-            alignItems: 'center', 
+        <div style={{
+            height: '100vh',
+            background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+            display: 'flex',
+            alignItems: 'center',
             justifyContent: 'center',
+            color: 'white',
             fontFamily: 'sans-serif'
         }}>
             <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '48px', marginBottom: '20px' }}>🚀</div>
-                <h2 style={{ fontSize: '24px', fontWeight: 'bold' }}>Finalizing Login...</h2>
-                <p style={{ color: '#666', marginTop: '8px' }}>Bringing you to your dashboard.</p>
+                <div style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '16px' }}>Authenticating...</div>
+                <div style={{ color: '#94a3b8' }}>Completing your secure sign-in</div>
             </div>
         </div>
-    );
+    )
 }
