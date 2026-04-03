@@ -255,9 +255,54 @@ export default function UserDashboard() {
     const [showAllRecs, setShowAllRecs] = useState(false)
     const [chatReq, setChatReq] = useState(null) // { id, type } of request to chat about
     const [lightbox, setLightbox] = useState(null) // { images: [], index: 0 }
-    const [unreadChats, setUnreadChats] = useState(0)
-    const [showProfile, setShowProfile] = useState(false)
+       const [showProfile, setShowProfile] = useState(false)
     const [showExitConfirm, setShowExitConfirm] = useState(false)
+
+    // ---- AI RECOMMENDATION ENGINE ----
+    const generateAIRecommendations = (property) => {
+        if (!property) return []
+        const typeStr = property.type?.replace('Property: ', '') || 'Property'
+        const valueNum = parseInt(property.details?.marketValue?.replace(/[^0-9]/g, '') || 5000000)
+        const sizeNum = parseInt(property.details?.area || property.details?.size || 1200)
+        const locationStr = property.customerAddress?.split(',').pop().trim() || 'your location'
+        
+        const recommendations = []
+        recommendations.push({
+            title: 'Designer Modular Kitchen',
+            desc: `Premium L-shaped layout with quartz countertops, ideal for ${typeStr}s in ${locationStr}.`,
+            cost: `₹${(Math.round(valueNum * 0.05) / 100000).toFixed(1)}L`,
+            value: `+₹${(Math.round(valueNum * 0.05 * 1.6) / 100000).toFixed(1)}L`,
+            roi: '60%', impact: '+6.5%', priority: 'high', link: '/kitchen-estimator'
+        })
+        recommendations.push({
+            title: 'Italian Marble Flooring',
+            desc: `Replace standard tiles with mirrored Italian marble to elevate the ${typeStr}'s appeal.`,
+            cost: `₹${(Math.round(sizeNum * 450) / 100000).toFixed(1)}L`,
+            value: `+₹${(Math.round(sizeNum * 450 * 1.8) / 100000).toFixed(1)}L`,
+            roi: '80%', impact: '+8%', priority: 'medium', link: '/full-home-estimator'
+        })
+        if (valueNum > 7000000) {
+            recommendations.push({
+                title: 'Smart Automation Hub',
+                desc: `Integrated lighting, security, and climate control for a modern ${locationStr} lifestyle.`,
+                cost: '₹2.5L', value: '+₹4.0L', roi: '60%', impact: '+4%', priority: 'medium', link: '/full-home-estimator'
+            })
+        }
+        if (typeStr.toLowerCase().includes('villa') || typeStr.toLowerCase().includes('house')) {
+            recommendations.push({
+                title: 'Solar Power Plant',
+                desc: `5kW Rooftop Solar system with net metering. High value for independent ${typeStr}s.`,
+                cost: '₹4.5L', value: '+₹8.0L', roi: '78%', impact: '+9%', priority: 'high', link: '/full-home-estimator'
+            })
+        } else {
+            recommendations.push({
+                title: 'Master Bedroom suite',
+                desc: `End-to-end paneling and walk-in wardrobe for your ${typeStr} bedroom.`,
+                cost: '₹3.2L', value: '+₹5.5L', roi: '72%', impact: '+5%', priority: 'medium', link: '/wardrobe-estimator'
+            })
+        }
+        return recommendations
+    }
 
     useEffect(() => {
         const style = document.createElement('style')
@@ -316,6 +361,14 @@ export default function UserDashboard() {
         navigate('/')
     }
 
+    const saveProfile = (newInfo) => {
+        const updated = { ...userData, ...newInfo }
+        setUserData(updated)
+        localStorage.setItem('userData', JSON.stringify(updated))
+        setShowProfile(false)
+    }
+
+    // Data Derivation
     const allEstimates = JSON.parse(localStorage.getItem('userEstimates') || '[]')
     const userEmail = sessionStorage.getItem('bhvUser')
     const estimates = allEstimates.filter(est => est.userEmail === userEmail || est.customerEmail === userEmail)
@@ -326,16 +379,17 @@ export default function UserDashboard() {
     const myProperties = allAdminRequests.filter(r => r.customerEmail === userEmail && r.type.startsWith('Property:'))
     const activeProperty = myProperties.length > 0 ? myProperties[myProperties.length - 1] : null
 
-    // Dynamic Calculations
+    // Calculated metrics
+    const dynamicRecs = generateAIRecommendations(activeProperty)
     const activeRecsCount = allAdminRequests.filter(r => r.customerEmail === userEmail && r.responded).length
     const totalInvestment = Object.values(adminResponses)
         .filter(res => allAdminRequests.find(req => req.id === res.requestId && req.customerEmail === userEmail))
         .reduce((sum, res) => sum + parseInt(res.quote || 0), 0)
 
-    const potentialValueIncrease = totalInvestment > 0 ? Math.round(totalInvestment * 1.8) : 0 // Rough heuristic: 1.8x ROI
-
-    // Fallback logic for when admin hasn't responded yet
-    const parseMoney = (s) => parseFloat(s.replace(/[^0-9]/g, '').replace(/^\./, '0.')) * (s.includes('K') ? 1000 : (s.includes('L') ? 100000 : 1))
+    const potentialValueIncrease = totalInvestment > 0 ? Math.round(totalInvestment * 1.8) : 0 
+    
+    // Heuristics for display
+    const parseMoney = (s) => parseFloat(s?.replace(/[^0-9]/g, '') || '0') * (s?.includes('K') ? 1000 : (s?.includes('L') ? 100000 : 1))
     const fallbackTotalCost = RECS.reduce((sum, r) => sum + parseMoney(r.cost), 0)
     const fallbackTotalValue = RECS.reduce((sum, r) => sum + parseMoney(r.value), 0)
 
@@ -346,10 +400,10 @@ export default function UserDashboard() {
     const baseValue = parseInt(activeProperty?.details?.marketValue?.replace(/[^0-9]/g, '') || 5000000)
 
     const prop = activeProperty ? {
-        type: activeProperty.type.replace('Property: ', ''),
-        location: activeProperty.customerAddress,
+        type: activeProperty.type?.replace('Property: ', '') || 'Residential',
+        location: activeProperty.customerAddress || 'Location',
         currentValue: baseValue,
-        size: activeProperty.details?.size,
+        size: activeProperty.details?.size || '1,250',
         age: activeProperty.details?.year ? (new Date().getFullYear() - activeProperty.details.year) : 10,
         locationRating: 4.5
     } : (userData?.property || {})
@@ -400,12 +454,15 @@ export default function UserDashboard() {
     const getUnreadCount = () => {
         const allReqs = JSON.parse(localStorage.getItem('allAdminRequests') || '[]')
         const readCounts = JSON.parse(localStorage.getItem('chatReadCounts') || '{}')
+        const userEmail = sessionStorage.getItem('bhvUser')
         let total = 0
         allReqs.forEach(req => {
-            const chatMsgs = JSON.parse(localStorage.getItem(`chat_${req.id}`) || '[]')
-            const adminMsgs = chatMsgs.filter(m => m.sender === 'admin').length
-            const lastRead = readCounts[req.id] || 0
-            total += Math.max(0, adminMsgs - lastRead)
+            if (req.customerEmail === userEmail) {
+                const chatMsgs = JSON.parse(localStorage.getItem(`chat_${req.id}`) || '[]')
+                const adminMsgs = chatMsgs.filter(m => m.sender === 'admin').length
+                const lastRead = readCounts[req.id] || 0
+                total += Math.max(0, adminMsgs - lastRead)
+            }
         })
         return total
     }
@@ -424,6 +481,7 @@ export default function UserDashboard() {
 
     return (
         <div className="dashboard-layout">
+            {showProfile && <ProfileModal userData={userData} onClose={() => setShowProfile(false)} onSave={saveProfile} />}
             {/* Overlay for mobile */}
             {sidebarOpen && <div onClick={() => setSidebarOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 199 }} />}
 
@@ -455,7 +513,7 @@ export default function UserDashboard() {
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                         <div
-                            onClick={() => navigate('/profile')}
+                            onClick={() => setShowProfile(true)}
                             style={{
                                 display: 'flex',
                                 alignItems: 'center',
@@ -507,19 +565,19 @@ export default function UserDashboard() {
                                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
                                             <div>
                                                 <h3 style={{ fontSize: '14px', opacity: 0.7, marginBottom: '4px' }}>YOUR PROPERTY</h3>
-                                                <h2 style={{ fontSize: '22px', fontWeight: 800 }}>{prop.type}</h2>
-                                                <p style={{ opacity: 0.8, marginTop: '4px' }}>{prop.location}</p>
+                                                <h2 style={{ fontSize: '22px', fontWeight: 800 }}>{activeProperty.type?.replace('Property: ', '') || 'Residential'}</h2>
+                                                <p style={{ opacity: 0.8, marginTop: '4px' }}>{activeProperty.customerAddress || 'Location details'}</p>
                                             </div>
                                             <div style={{ textAlign: 'right' }}>
                                                 <p style={{ opacity: 0.7, fontSize: '13px' }}>Current Market Value</p>
-                                                <p style={{ fontSize: '28px', fontWeight: 800, color: '#ffd700' }}>₹{(prop.currentValue || 5000000).toLocaleString('en-IN')}</p>
+                                                <p style={{ fontSize: '28px', fontWeight: 800, color: '#ffd700' }}>₹{activeProperty.details?.marketValue || '₹50,00,000'}</p>
                                             </div>
                                         </div>
                                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '16px', marginTop: '24px' }}>
                                             {[
-                                                ['Property Size', `${(prop.size || 1250).toLocaleString()} sq ft`],
-                                                ['Property Age', `${prop.age || 8} years`],
-                                                ['Location Rating', `${prop.locationRating || 4.2}/5.0`]
+                                                ['Property Size', `${activeProperty.details?.size || '1,250'} sq ft`],
+                                                ['Property Age', `${activeProperty.details?.age || '10'} years`],
+                                                ['Location Rating', `4.5/5.0`]
                                             ].map(([k, v]) => (
                                                 <div key={k} style={{ background: 'rgba(255,255,255,0.1)', borderRadius: '10px', padding: '14px' }}>
                                                     <p style={{ opacity: 0.7, fontSize: '12px' }}>{k}</p>
@@ -581,19 +639,21 @@ export default function UserDashboard() {
                                         </div>
                                     </div>
 
-                                    {/* Recommendations */}
+                                    {/* AI Recommendations */}
                                     <div className="card" style={{ margin: 0, padding: '32px' }}>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                                             <div>
                                                 <h3 className="card-title" style={{ margin: 0 }}>Top Recommendations</h3>
-                                                {activeRecsCount === 0 && <p style={{ fontSize: '12px', color: 'var(--primary)', fontWeight: 600, marginTop: '4px' }}>✨ AI-Projected Insights (Expert Review Pending)</p>}
+                                                <p style={{ fontSize: '12px', color: 'var(--primary)', fontWeight: 600, marginTop: '4px' }}>
+                                                    ✨ AI-Optimized for {activeProperty?.customerAddress?.split(',').pop().trim() || 'your property'}
+                                                </p>
                                             </div>
-                                            {displayRecsCount > 0 && <button onClick={() => setShowAllRecs(!showAllRecs)} style={{ background: 'none', border: 'none', color: 'var(--primary)', fontWeight: 600, cursor: 'pointer' }}>{showAllRecs ? 'Show Less' : 'View All'}</button>}
+                                            {dynamicRecs.length > 0 && <button onClick={() => setShowAllRecs(!showAllRecs)} style={{ background: 'none', border: 'none', color: 'var(--primary)', fontWeight: 600, cursor: 'pointer' }}>{showAllRecs ? 'Show Less' : 'View All'}</button>}
                                         </div>
 
-                                        {displayRecsCount > 0 ? (
+                                        {dynamicRecs.length > 0 ? (
                                             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                                                {(showAllRecs ? RECS : RECS.slice(0, 2)).map((rec, i) => (
+                                                {(showAllRecs ? dynamicRecs : dynamicRecs.slice(0, 2)).map((rec, i) => (
                                                     <div key={i} style={{ border: '2px solid #f0f0f0', borderRadius: '12px', padding: '20px', transition: 'all 0.3s' }}>
                                                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
                                                             <div><h4 style={{ fontSize: '17px', fontWeight: 700 }}>{rec.title}</h4><p style={{ color: 'var(--muted)', fontSize: '14px', marginTop: '4px' }}>{rec.desc}</p></div>
@@ -602,7 +662,12 @@ export default function UserDashboard() {
                                                             </span>
                                                         </div>
                                                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '12px', marginBottom: '16px' }}>
-                                                            {[['Est. Cost', rec.cost, 'var(--text)'], ['Value Increase', rec.value, '#10b981'], ['ROI', rec.roi, '#3b82f6'], ['Property Impact', rec.impact, '#8b5cf6']].map(([k, v, c]) => (
+                                                            {[
+                                                                ['Est. Cost', rec.cost, 'var(--text)'],
+                                                                ['Value Increase', rec.value, '#10b981'],
+                                                                ['ROI', rec.roi, '#3b82f6'],
+                                                                ['Property Impact', rec.impact, '#8b5cf6']
+                                                            ].map(([k, v, c]) => (
                                                                 <div key={k} style={{ background: '#f8f9fa', borderRadius: '8px', padding: '10px', textAlign: 'center' }}>
                                                                     <p style={{ fontSize: '11px', color: 'var(--muted)', marginBottom: '4px' }}>{k}</p>
                                                                     <p style={{ fontSize: '16px', fontWeight: 800, color: c }}>{v}</p>
