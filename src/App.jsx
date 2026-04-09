@@ -13,8 +13,14 @@ import ThankYou from './pages/ThankYou'
 import DatabaseTest from './pages/DatabaseTest'
 import ProfilePage from './pages/ProfilePage'
 import AuthSuccess from './pages/AuthSuccess'
+import { useEffect } from 'react'
+import { warmUpBackend } from './api'
 
 function App() {
+    useEffect(() => {
+        warmUpBackend();
+    }, []);
+
     return (
         <BrowserRouter>
             <Routes>

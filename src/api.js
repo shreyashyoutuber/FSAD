@@ -2,6 +2,11 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
     ? "http://localhost:8080/api"
     : "https://fsad-tpxy.onrender.com/api";
 
+export const warmUpBackend = () => {
+    // Just a simple ping to wake up the Render server
+    fetch(`${API_BASE_URL}/users`).catch(() => {});
+};
+
 const fetchWithTimeout = async (url, options = {}, timeout = 60000) => {
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), timeout);
