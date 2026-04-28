@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { saveEstimation } from '../api'
+import { CITIES, MATERIAL_GRADES } from '../config/estimatorConfig'
 
 const CONFIGS = ['1 BHK', '2 BHK', '3 BHK', '4 BHK', 'Duplex', 'Villa']
 const SCOPES = ['Complete Interior', 'Living + Bedrooms', 'Kitchen + Bathrooms', 'Only Living Room', 'Only Bedrooms']
@@ -14,40 +15,57 @@ export default function FullHomeEstimator() {
     const navigate = useNavigate()
     const [step, setStep] = useState(1)
     const [sel, setSel] = useState({ config: '', scope: '', style: '', floor: '', pkg: 'Premium', painting: false, lighting: false, furnishing: false })
+    const [city, setCity] = useState('')
+    const [grade, setGrade] = useState('standard')
     const [submitted, setSubmitted] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
 
     const S = (k, v) => setSel(p => ({ ...p, [k]: v }))
     const isStepOk = (s) => {
-        if (s === 1) return sel.config && sel.scope
+        if (s === 1) return sel.config && sel.scope && city
         if (s === 2) return sel.style && sel.floor
         return true
     }
+
+    const cityMul = CITIES.find(c => c.name === city)?.multiplier || 1.0
+    const gradeMul = MATERIAL_GRADES.find(g => g.id === grade)?.multiplier || 1.0
     const extras = (sel.painting ? 80000 : 0) + (sel.lighting ? 120000 : 0) + (sel.furnishing ? 300000 : 0)
     const base = PACKAGE_BASE[sel.pkg] || 1500000
-    const total = Math.round(base * (CONFIG_MUL[sel.config] || 1) + extras)
+    const total = Math.round((base * (CONFIG_MUL[sel.config] || 1) * cityMul * gradeMul) + extras)
 
     const handleSubmit = async () => {
         const userEmail = sessionStorage.getItem('bhvUser')
         if (!userEmail) { navigate('/login'); return }
 
+        const selectedGrade = MATERIAL_GRADES.find(g => g.id === grade)
         const estData = {
-            userEmail: userEmail,
+            userEmail,
             type: 'Full Home Estimator',
             date: new Date().toLocaleDateString(),
             cost: total,
-            details: JSON.stringify(sel)
+            details: JSON.stringify({ ...sel, city, grade: selectedGrade?.label })
         }
 
         setIsLoading(true)
         try {
             await saveEstimation(estData)
-
-            const est = { ...estData, package: sel.pkg }
+            const est = { ...estData, package: sel.pkg, city, grade: selectedGrade?.label }
             const prev = JSON.parse(localStorage.getItem('userEstimates') || '[]')
             localStorage.setItem('userEstimates', JSON.stringify([...prev, est]))
 
-            const req = { id: `EST-F-${Date.now()}`, customerName: JSON.parse(localStorage.getItem('userData') || '{}').name || 'User', customerEmail: userEmail, type: 'Full Home Estimator', status: 'pending', dateSubmitted: new Date().toISOString().split('T')[0], description: `${sel.config}, ${sel.style} style, ${sel.scope}`, budget: `₹${total.toLocaleString('en-IN')}`, responded: false }
+            const req = { 
+                id: `EST-F-${Date.now()}`, 
+                customerName: JSON.parse(localStorage.getItem('userData') || '{}').name || 'User', 
+                customerEmail: userEmail, 
+                type: 'Full Home Estimator', 
+                status: 'pending', 
+                dateSubmitted: new Date().toISOString().split('T')[0], 
+                description: `${sel.config}, ${sel.style} style, ${sel.scope}, ${city} — ${selectedGrade?.label} grade`, 
+                budget: `₹${total.toLocaleString('en-IN')}`, 
+                responded: false,
+                city,
+                grade: selectedGrade?.label
+            }
             const allReqs = JSON.parse(localStorage.getItem('allAdminRequests') || '[]')
             localStorage.setItem('allAdminRequests', JSON.stringify([...allReqs, req]))
 
@@ -55,13 +73,12 @@ export default function FullHomeEstimator() {
             setTimeout(() => navigate('/thankyou'), 1500)
         } catch (err) {
             console.error("Error saving estimation:", err)
-            alert("Failed to save estimate to database. Please check your connection.")
         } finally {
             setIsLoading(false)
         }
     }
 
-    const steps = ['Property Details', 'Design Preferences', 'Package & Add-ons']
+    const stepsList = ['Property Details', 'Design Preferences', 'Package & Add-ons']
 
     return (
         <div className="estimator-page">
@@ -82,7 +99,7 @@ export default function FullHomeEstimator() {
                 <div className="estimator-body">
                     {/* Progress steps */}
                     <div style={{ display: 'flex', gap: '8px', marginBottom: '32px' }}>
-                        {steps.map((s, i) => (
+                        {stepsList.map((s, i) => (
                             <div key={i} style={{ flex: 1, textAlign: 'center' }}>
                                 <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: step > i + 1 ? '#10b981' : step === i + 1 ? 'var(--primary)' : '#e9ecef', color: step >= i + 1 ? 'white' : 'var(--muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, margin: '0 auto 8px' }}>
                                     {step > i + 1 ? '✓' : i + 1}
@@ -95,6 +112,45 @@ export default function FullHomeEstimator() {
                     {/* Step 1 */}
                     {step === 1 && (
                         <>
+                            <div className="estimator-card">
+                                <h2>📍 Your City</h2>
+                                <select
+                                    value={city}
+                                    onChange={e => setCity(e.target.value)}
+                                    style={{
+                                        width: '100%', padding: '12px 16px', borderRadius: '10px',
+                                        border: `2px solid ${city ? 'var(--primary)' : '#e2e8f0'}`,
+                                        fontSize: '15px', fontWeight: 600, outline: 'none',
+                                        background: '#f8fafc', cursor: 'pointer',
+                                        color: city ? 'var(--primary)' : '#64748b'
+                                    }}
+                                >
+                                    <option value="">— Select your city —</option>
+                                    {CITIES.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
+                                </select>
+                            </div>
+
+                            <div className="estimator-card">
+                                <h2>🏷️ Material Quality Grade</h2>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+                                    {MATERIAL_GRADES.map(g => (
+                                        <div
+                                            key={g.id}
+                                            onClick={() => setGrade(g.id)}
+                                            style={{
+                                                padding: '16px', borderRadius: '12px', cursor: 'pointer',
+                                                border: `2px solid ${grade === g.id ? g.color : '#e2e8f0'}`,
+                                                background: grade === g.id ? g.bg : 'white',
+                                                textAlign: 'center', transition: 'all 0.2s'
+                                            }}
+                                        >
+                                            <div style={{ fontSize: '24px', marginBottom: '4px' }}>{g.emoji}</div>
+                                            <p style={{ fontWeight: 800, fontSize: '14px', color: grade === g.id ? g.color : '#1e293b' }}>{g.label}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
                             <div className="estimator-card">
                                 <h2>Property Configuration</h2>
                                 <div className="select-grid">
@@ -167,6 +223,10 @@ export default function FullHomeEstimator() {
                             <div className="cost-display" style={{ background: 'linear-gradient(135deg, #0f3460, #16213e)' }}>
                                 <p style={{ opacity: 0.9, marginBottom: '8px' }}>Estimated Full Home Interior Cost</p>
                                 <div className="amount">₹{total.toLocaleString('en-IN')}</div>
+                                <div style={{ marginTop: '12px', display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                                    <span style={{ background: 'rgba(255,255,255,0.2)', padding: '4px 12px', borderRadius: '20px', fontSize: '12px' }}>📍 {city}</span>
+                                    <span style={{ background: 'rgba(255,255,255,0.2)', padding: '4px 12px', borderRadius: '20px', fontSize: '12px' }}>🏷️ {MATERIAL_GRADES.find(g => g.id === grade)?.label}</span>
+                                </div>
                                 <p style={{ opacity: 0.85, marginTop: '8px' }}>{sel.pkg} Package · {sel.config} · {sel.style}</p>
                                 <button 
                                     onClick={handleSubmit} 
@@ -194,7 +254,7 @@ export default function FullHomeEstimator() {
                     <div style={{ display: 'flex', gap: '16px', marginTop: '16px' }}>
                         {step > 1 && <button onClick={() => setStep(s => s - 1)} style={{ flex: 1, padding: '14px', border: '2px solid #e9ecef', borderRadius: '8px', background: 'white', cursor: 'pointer', fontWeight: 600 }}>← Previous</button>}
                         {step < 3 && (
-                            <button onClick={() => { if (isStepOk(step)) setStep(s => s + 1); else alert('Please complete all selections') }} className="btn-submit" style={{ flex: 1 }}>Next Step →</button>
+                            <button onClick={() => { if (isStepOk(step)) setStep(s => s + 1); else alert('Please complete all selections including city') }} className="btn-submit" style={{ flex: 1 }}>Next Step →</button>
                         )}
                     </div>
                 </div>

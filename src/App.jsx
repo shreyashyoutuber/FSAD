@@ -15,6 +15,11 @@ import AuthSuccess from './pages/AuthSuccess'
 import NotFound from './pages/NotFound'
 import TermsAndConditions from './pages/TermsAndConditions'
 import PrivacyPolicy from './pages/PrivacyPolicy'
+import EmiCalculator from './pages/EmiCalculator'
+import ProjectGallery from './pages/ProjectGallery'
+import ContractorDirectory from './pages/ContractorDirectory'
+
+
 import PrivateRoute from './components/PrivateRoute'
 import AdminRoute from './components/AdminRoute'
 import { useEffect } from 'react'
@@ -38,6 +43,10 @@ function App() {
                 <Route path="/admin-login" element={<AdminLogin />} />
                 <Route path="/terms" element={<TermsAndConditions />} />
                 <Route path="/privacy" element={<PrivacyPolicy />} />
+                <Route path="/emi-calculator" element={<EmiCalculator />} />
+                <Route path="/gallery" element={<ProjectGallery />} />
+                <Route path="/contractors" element={<ContractorDirectory />} />
+
 
                 {/* ── Protected User Routes ──────────────────── */}
                 <Route path="/user-dashboard" element={

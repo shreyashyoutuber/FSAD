@@ -246,6 +246,50 @@ function ChatModal({ requestId, requestType, userName, onClose }) {
     )
 }
 
+// ─── Project Timeline Component ─────────────────────────────────────────────
+function ProjectTimeline({ status }) {
+    const steps = [
+        { id: 'submitted', label: 'Submitted', emoji: '📝' },
+        { id: 'under-review', label: 'Under Review', emoji: '🔍' },
+        { id: 'quote-sent', label: 'Quote Sent', emoji: '💰' },
+        { id: 'in-progress', label: 'In Progress', emoji: '🏗️' },
+        { id: 'completed', label: 'Completed', emoji: '✅' }
+    ]
+
+    const currentIndex = steps.findIndex(s => s.id === status) || 0
+
+    return (
+        <div style={{ marginTop: '24px', padding: '24px', background: 'white', borderRadius: '16px', border: '1px solid #e9ecef' }}>
+            <h4 style={{ fontSize: '14px', fontWeight: 800, color: '#64748b', marginBottom: '20px', textTransform: 'uppercase' }}>Project Progress Tracker</h4>
+            <div style={{ display: 'flex', justifyContent: 'space-between', position: 'relative' }}>
+                {/* Connecting Line */}
+                <div style={{ position: 'absolute', top: '15px', left: '0', right: '0', height: '3px', background: '#e9ecef', zIndex: 0 }}></div>
+                <div style={{ position: 'absolute', top: '15px', left: '0', width: `${(currentIndex / (steps.length - 1)) * 100}%`, height: '3px', background: 'var(--primary)', zIndex: 1, transition: '0.5s all' }}></div>
+
+                {steps.map((s, i) => {
+                    const isCompleted = i <= currentIndex
+                    const isActive = i === currentIndex
+                    return (
+                        <div key={s.id} style={{ zIndex: 2, textAlign: 'center', flex: 1 }}>
+                            <div style={{
+                                width: '32px', height: '32px', borderRadius: '50%', background: isCompleted ? 'var(--primary)' : 'white',
+                                border: `3px solid ${isCompleted ? 'var(--primary)' : '#e9ecef'}`,
+                                margin: '0 auto 8px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                transition: '0.3s all', fontSize: '14px',
+                                transform: isActive ? 'scale(1.2)' : 'none',
+                                boxShadow: isActive ? '0 0 15px rgba(230,126,34,0.4)' : 'none'
+                            }}>
+                                {isCompleted ? '✓' : ''}
+                            </div>
+                            <p style={{ fontSize: '11px', fontWeight: 800, color: isCompleted ? 'var(--primary)' : '#94a3b8' }}>{s.label}</p>
+                        </div>
+                    )
+                })}
+            </div>
+        </div>
+    )
+}
+
 export default function UserDashboard() {
     const navigate = useNavigate()
     const { toasts, toast, removeToast } = useToast()
@@ -262,6 +306,25 @@ export default function UserDashboard() {
     const [showExitConfirm, setShowExitConfirm] = useState(false)
     const [propertyPhotos, setPropertyPhotos] = useState([]) // Base64 images for submission
     const fileInputRef = useRef(null)
+    const [showNotifications, setShowNotifications] = useState(false)
+    const notificationRef = useRef(null)
+    const [showReviewModal, setShowReviewModal] = useState(false)
+    const [reviewRating, setReviewRating] = useState(5)
+    const [reviewText, setReviewText] = useState('')
+
+
+
+
+    // Close notifications on outside click
+    useEffect(() => {
+        const handleClick = (e) => {
+            if (notificationRef.current && !notificationRef.current.contains(e.target)) {
+                setShowNotifications(false)
+            }
+        }
+        document.addEventListener('mousedown', handleClick)
+        return () => document.removeEventListener('mousedown', handleClick)
+    }, [])
 
     // Handle Property Image Upload
     const handlePropertyPhotoUpload = (e) => {
@@ -407,6 +470,7 @@ export default function UserDashboard() {
 
     // Find the primary property for this user (most recent submission)
     const myProperties = allAdminRequests.filter(r => r.customerEmail === userEmail && r.type.startsWith('Property:'))
+    const myRequests = allAdminRequests.filter(r => r.customerEmail === userEmail)
     const activeProperty = myProperties.length > 0 ? myProperties[myProperties.length - 1] : null
 
     // Calculated metrics
@@ -507,7 +571,10 @@ export default function UserDashboard() {
         { icon: '💡', label: 'Recommendations', key: 'recommendations', badge: unreadChats },
         { icon: '🔖', label: 'Saved Ideas', key: 'saved', badge: savedIdeas.length },
         { icon: '🏠', label: 'Submit Property', key: 'submit' },
+        { icon: '🎁', label: 'Refer & Earn', key: 'referral' },
+        { icon: '👷', label: 'Contractors', key: 'contractors' },
     ]
+
 
     return (
         <div className="dashboard-layout">
@@ -525,7 +592,14 @@ export default function UserDashboard() {
                 </div>
                 <nav className="sidebar-nav">
                     {navLinks.map(l => (
-                        <SidebarLink key={l.key} icon={l.icon} label={l.label} active={view === l.key} onClick={() => { setView(l.key); setSidebarOpen(false) }} badge={l.badge} />
+                        <SidebarLink key={l.key} icon={l.icon} label={l.label} active={view === l.key} onClick={() => { 
+                            if (l.key === 'contractors') {
+                                navigate('/contractors');
+                            } else {
+                                setView(l.key); 
+                            }
+                            setSidebarOpen(false);
+                        }} badge={l.badge} />
                     ))}
                 </nav>
                 <div className="sidebar-footer">
@@ -542,7 +616,60 @@ export default function UserDashboard() {
                             {view === 'dashboard' ? 'Dashboard' : view === 'estimator' ? 'My Estimates' : view === 'new-estimator' ? 'New Estimate' : view === 'recommendations' ? 'Recommendations' : view === 'saved' ? 'Saved Ideas' : view === 'profile' ? 'Profile' : view === 'submit' ? 'Submit Property' : 'Dashboard'}
                         </h1>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                        {/* Notification Bell */}
+                        <div style={{ position: 'relative' }} ref={notificationRef}>
+                            <div 
+                                onClick={() => setShowNotifications(!showNotifications)}
+                                style={{ width: '40px', height: '40px', background: '#f8f9fa', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', border: '1px solid #e9ecef', position: 'relative' }}
+                                className="button-press"
+                            >
+                                <span style={{ fontSize: '20px' }}>🔔</span>
+                                {unreadChats > 0 && (
+                                    <span style={{ position: 'absolute', top: '-4px', right: '-4px', background: '#ef4444', color: 'white', width: '18px', height: '18px', borderRadius: '50%', fontSize: '10px', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid white' }}>
+                                        {unreadChats}
+                                    </span>
+                                )}
+                            </div>
+
+                            {showNotifications && (
+                                <div style={{ position: 'absolute', top: '50px', right: '0', width: '320px', background: 'white', borderRadius: '16px', boxShadow: '0 15px 40px rgba(0,0,0,0.15)', border: '1px solid #e9ecef', zIndex: 1000, overflow: 'hidden', animation: 'scaleIn 0.2s ease' }}>
+                                    <div style={{ padding: '16px', borderBottom: '1px solid #f1f5f9', background: '#f8fafc', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <h4 style={{ margin: 0, fontSize: '14px', fontWeight: 800 }}>Notifications</h4>
+                                        <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--primary)', cursor: 'pointer' }}>Mark all as read</span>
+                                    </div>
+                                    <div style={{ maxHeight: '360px', overflowY: 'auto' }}>
+                                        {unreadChats > 0 ? (
+                                            myRequests.filter(r => {
+                                                const msgs = JSON.parse(localStorage.getItem(`chat_${r.id}`) || '[]')
+                                                const adminMsgs = msgs.filter(m => m.sender === 'admin').length
+                                                const readCounts = JSON.parse(localStorage.getItem('chatReadCounts') || '{}')
+                                                return adminMsgs > (readCounts[r.id] || 0)
+                                            }).map(r => (
+                                                <div key={r.id} onClick={() => { setView('recommendations'); setChatReq({ id: r.id, type: r.type }); setShowNotifications(false) }} style={{ padding: '16px', borderBottom: '1px solid #f1f5f9', cursor: 'pointer', transition: '0.2s' }} onMouseEnter={e => e.currentTarget.style.background = '#f8fafc'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                                                    <div style={{ display: 'flex', gap: '12px' }}>
+                                                        <div style={{ width: '40px', height: '40px', background: '#fff7ed', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', flexShrink: 0 }}>💬</div>
+                                                        <div>
+                                                            <p style={{ fontSize: '13px', fontWeight: 700, color: '#1a1a1a', margin: '0 0 4px' }}>Expert replied to your request</p>
+                                                            <p style={{ fontSize: '12px', color: '#64748b', margin: 0 }}>{r.type} · {r.id}</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <div style={{ padding: '32px 16px', textAlign: 'center' }}>
+                                                <div style={{ fontSize: '24px', marginBottom: '8px' }}>📭</div>
+                                                <p style={{ fontSize: '13px', color: '#94a3b8', margin: 0 }}>No new notifications</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div style={{ padding: '12px', background: '#f8fafc', textAlign: 'center', borderTop: '1px solid #f1f5f9' }}>
+                                        <button onClick={() => { setView('recommendations'); setShowNotifications(false) }} style={{ background: 'none', border: 'none', color: '#64748b', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}>View All Recommendations</button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
                         <div
                             onClick={() => setShowProfile(true)}
                             style={{
@@ -616,7 +743,13 @@ export default function UserDashboard() {
                                                 </div>
                                             ))}
                                         </div>
+
                                     </div>
+                                    
+                                    <div className="animate-slideUp stagger-2" style={{ marginBottom: '32px' }}>
+                                        <ProjectTimeline status={activeProperty.responded ? 'quote-sent' : 'under-review'} />
+                                    </div>
+
 
                                     {/* Metric Cards */}
                                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', marginBottom: '32px' }}>
@@ -653,8 +786,9 @@ export default function UserDashboard() {
                                                 {[
                                                     { icon: '📐', title: 'New Estimate', sub: 'Calculate interior costs', action: () => setView('new-estimator'), primary: true },
                                                     { icon: '📋', title: 'View Estimates', sub: 'See saved estimates', action: () => setView('estimator') },
-                                                    { icon: '💬', title: 'Expert Consultation', sub: 'Talk to our experts', action: () => alert('Booking consultation...') },
+                                                    { icon: '🎁', title: 'Refer & Earn', sub: 'Invite friends, earn rewards', action: () => setView('referral') },
                                                 ].map((a, i) => (
+
                                                     <div key={i} onClick={a.action} className={`button-press ${a.primary ? 'animate-pulseGlow' : ''}`} style={{
                                                         display: 'flex', gap: '14px', alignItems: 'center', padding: '16px', borderRadius: '16px', cursor: 'pointer',
                                                         background: a.primary ? 'linear-gradient(135deg, var(--primary), var(--primary-dark))' : '#ffffff',
@@ -946,7 +1080,8 @@ export default function UserDashboard() {
                                                             💬 Chat &amp; Negotiate
                                                         </button>
                                                         {isResponded && (
-                                                            <button
+                                                            <>
+                                                                <button
                                                                 onClick={() => { navigator.clipboard?.writeText(`Quote: ₹${Number(res.quote || 0).toLocaleString('en-IN')} | Timeline: ${res.timeline} | Warranty: ${res.warranty}`); alert('Quote details copied!') }}
                                                                 className="button-press"
                                                                 style={{ 
@@ -960,6 +1095,74 @@ export default function UserDashboard() {
                                                                 onMouseLeave={e => { e.currentTarget.style.borderColor = '#e9ecef'; e.currentTarget.style.color = '#555' }}>
                                                                 📋 Copy Quote
                                                             </button>
+                                                            <button
+                                                                onClick={() => {
+                                                                    const printWindow = window.open('', '_blank');
+                                                                    const content = `
+                                                                        <html>
+                                                                            <head>
+                                                                                <title>BharatHome Value - Quote ${req.id}</title>
+                                                                                <style>
+                                                                                    body { font-family: 'Inter', sans-serif; padding: 40px; color: #1a1a1a; }
+                                                                                    .header { border-bottom: 3px solid #e67e22; padding-bottom: 20px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; }
+                                                                                    .logo { font-size: 24px; font-weight: 800; color: #1a1a1a; }
+                                                                                    .logo span { color: #e67e22; }
+                                                                                    .quote-info { margin-bottom: 30px; }
+                                                                                    .grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 30px; }
+                                                                                    .box { background: #f8f9fa; padding: 20px; border-radius: 12px; text-align: center; }
+                                                                                    .label { font-size: 12px; color: #666; text-transform: uppercase; margin-bottom: 5px; }
+                                                                                    .value { font-size: 18px; font-weight: 800; color: #e67e22; }
+                                                                                    .description { line-height: 1.8; color: #333; background: #fff; padding: 20px; border: 1px solid #eee; border-radius: 12px; }
+                                                                                    .footer { margin-top: 50px; font-size: 12px; color: #999; text-align: center; border-top: 1px solid #eee; padding-top: 20px; }
+                                                                                </style>
+                                                                            </head>
+                                                                            <body>
+                                                                                <div class="header">
+                                                                                    <div class="logo">BharatHome<span>Value</span></div>
+                                                                                    <div style="text-align: right">
+                                                                                        <p style="margin:0; font-weight:700">Official Project Quote</p>
+                                                                                        <p style="margin:0; font-size:12px; color:#666">Date: ${new Date().toLocaleDateString()}</p>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div class="quote-info">
+                                                                                    <h2>${req.type}</h2>
+                                                                                    <p><strong>Quote ID:</strong> ${req.id}</p>
+                                                                                    <p><strong>Customer:</strong> ${req.customerName}</p>
+                                                                                    <p><strong>Property:</strong> ${req.customerAddress}</p>
+                                                                                </div>
+                                                                                <div class="grid">
+                                                                                    <div class="box"><div class="label">Expert Quote</div><div class="value">₹${Number(res.quote || 0).toLocaleString('en-IN')}</div></div>
+                                                                                    <div class="box"><div class="label">Timeline</div><div class="value">${res.timeline}</div></div>
+                                                                                    <div class="box"><div class="label">Warranty</div><div class="value">${res.warranty}</div></div>
+                                                                                </div>
+                                                                                <div class="description">
+                                                                                    <h3 style="margin-top:0">Project Description & Scope</h3>
+                                                                                    <p>${res.description.replace(/\n/g, '<br>')}</p>
+                                                                                </div>
+                                                                                <div class="footer">
+                                                                                    <p>This is a computer-generated quote based on your requirements and expert analysis.</p>
+                                                                                    <p>BharatHome Value - Professional Interior Solutions</p>
+                                                                                </div>
+                                                                                <script>window.print();</script>
+                                                                            </body>
+                                                                        </html>
+                                                                    `;
+                                                                    printWindow.document.write(content);
+                                                                    printWindow.document.close();
+                                                                }}
+                                                                className="button-press"
+                                                                style={{ 
+                                                                    flex: 1, minWidth: '140px', padding: '13px 20px', 
+                                                                    background: 'white', border: '2px solid #e9ecef', 
+                                                                    borderRadius: '10px', cursor: 'pointer', fontWeight: 700, 
+                                                                    color: '#555', transition: '0.3s', display: 'flex', 
+                                                                    alignItems: 'center', justifyContent: 'center', gap: '8px' 
+                                                                }}
+                                                                onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.color = 'var(--primary)' }}
+                                                                onMouseLeave={e => { e.currentTarget.style.borderColor = '#e9ecef'; e.currentTarget.style.color = '#555' }}>
+                                                                📥 Download PDF
+                                                            </button>
+                                                            </>
                                                         )}
                                                     </div>
                                                 </div>
@@ -1004,8 +1207,41 @@ export default function UserDashboard() {
                     )}
 
 
+                    {/* ---- REFERRAL SYSTEM ---- */}
+                    {view === 'referral' && (
+                        <div className="animate-fadeIn" style={{ maxWidth: '900px', margin: '0 auto' }}>
+                            <div className="card" style={{ background: 'linear-gradient(135deg, #1e293b, #0f172a)', color: 'white', padding: '48px', textAlign: 'center', marginBottom: '32px' }}>
+                                <div style={{ fontSize: '64px', marginBottom: '24px' }}>🎁</div>
+                                <h2 style={{ fontSize: '36px', fontWeight: 800, marginBottom: '16px' }}>Refer a Friend, Get ₹2,000</h2>
+                                <p style={{ fontSize: '18px', opacity: 0.8, maxWidth: '600px', margin: '0 auto 32px' }}>
+                                    Help your friends transform their homes. When they complete their first project with us, you both get ₹2,000 in your BharatHome wallet.
+                                </p>
+                                <div style={{ background: 'rgba(255,255,255,0.1)', padding: '20px', borderRadius: '16px', border: '1px dashed rgba(255,255,255,0.3)', display: 'inline-flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
+                                    <span style={{ fontSize: '24px', fontWeight: 800, letterSpacing: '2px' }}>BHV-{userData.name?.split(' ')[0].toUpperCase()}77</span>
+                                    <button onClick={() => { navigator.clipboard.writeText(`BHV-${userData.name?.split(' ')[0].toUpperCase()}77`); alert('Referral code copied!') }} style={{ background: 'white', color: '#1e293b', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer' }}>Copy Code</button>
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
+                                {[
+                                    { label: 'Total Referrals', value: '0', icon: '👥' },
+                                    { label: 'Pending Rewards', value: '₹0', icon: '⏳' },
+                                    { label: 'Total Earned', value: '₹0', icon: '💰' }
+                                ].map((m, i) => (
+                                    <div key={i} className="card" style={{ textAlign: 'center', padding: '24px' }}>
+                                        <div style={{ fontSize: '32px', marginBottom: '12px' }}>{m.icon}</div>
+                                        <p style={{ fontSize: '14px', color: '#64748b', fontWeight: 700, textTransform: 'uppercase', marginBottom: '8px' }}>{m.label}</p>
+                                        <p style={{ fontSize: '28px', fontWeight: 800, color: '#1e293b' }}>{m.value}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+
                     {/* ---- SUBMIT PROPERTY ---- */}
                     {view === 'submit' && (
+
                         <div className="animate-fadeIn" style={{ maxWidth: '850px', margin: '0 auto' }}>
                             <h2 style={{ fontSize: '24px', fontWeight: 800, marginBottom: '8px' }}>Submit New Property</h2>
                             <p style={{ color: 'var(--muted)', marginBottom: '24px' }}>Tell us about your property to get personalized recommendations</p>
@@ -1221,6 +1457,35 @@ export default function UserDashboard() {
                     </div>
                 )
             })()}
+            {/* Review Modal */}
+            {showReviewModal && (
+                <div onClick={() => setShowReviewModal(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.7)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 3000, padding: '20px' }}>
+                    <div onClick={e => e.stopPropagation()} className="animate-scaleIn" style={{ background: 'white', borderRadius: '24px', width: '100%', maxWidth: '500px', padding: '40px', textAlign: 'center', boxShadow: '0 40px 100px rgba(0,0,0,0.3)' }}>
+                        <div style={{ fontSize: '64px', marginBottom: '20px' }}>⭐</div>
+                        <h2 style={{ fontSize: '24px', fontWeight: 800, color: '#1e293b' }}>Rate Your Experience</h2>
+                        <p style={{ color: '#64748b', marginTop: '12px', marginBottom: '32px' }}>How would you rate the service and quality of your recent project?</p>
+                        
+                        <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', marginBottom: '32px' }}>
+                            {[1, 2, 3, 4, 5].map(s => (
+                                <button key={s} onClick={() => setReviewRating(s)} style={{ background: 'none', border: 'none', fontSize: '32px', cursor: 'pointer', transition: '0.2s', transform: reviewRating >= s ? 'scale(1.2)' : 'scale(1)', opacity: reviewRating >= s ? 1 : 0.3 }}>⭐</button>
+                            ))}
+                        </div>
+
+                        <textarea 
+                            value={reviewText}
+                            onChange={e => setReviewText(e.target.value)}
+                            placeholder="Share your thoughts on the quality of work..."
+                            style={{ width: '100%', padding: '16px', borderRadius: '12px', border: '2px solid #e9ecef', fontSize: '15px', minHeight: '120px', marginBottom: '32px', outline: 'none' }}
+                        />
+
+                        <div style={{ display: 'flex', gap: '16px' }}>
+                            <button onClick={() => setShowReviewModal(false)} style={{ flex: 1, padding: '14px', borderRadius: '12px', border: '2px solid #e9ecef', background: 'white', fontWeight: 700, cursor: 'pointer' }}>Skip</button>
+                            <button onClick={() => { alert('Thank you for your feedback!'); setShowReviewModal(false) }} style={{ flex: 1, padding: '14px', borderRadius: '12px', background: 'linear-gradient(135deg, #e67e22, #d35400)', color: 'white', border: 'none', fontWeight: 800, cursor: 'pointer' }}>Submit Review</button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }
+

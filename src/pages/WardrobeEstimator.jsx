@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { saveEstimation } from '../api'
+import { CITIES, MATERIAL_GRADES } from '../config/estimatorConfig'
 
 const TYPES = ['Single Door', 'Double Door', 'Walk-in', 'Corner', 'Sliding', 'Custom']
 const MATERIALS = ['MDF with Laminate', 'HDHMR Board', 'Plywood', 'PVC', 'Solid Wood']
@@ -11,37 +12,56 @@ const BASE = 85000
 export default function WardrobeEstimator() {
     const navigate = useNavigate()
     const [sel, setSel] = useState({ type: '', material: '', width: '', finish: '', pkg: 'Standard', lights: false, mirror: false, pullout: false })
+    const [city, setCity] = useState('')
+    const [grade, setGrade] = useState('standard')
     const [submitted, setSubmitted] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
 
     const S = (k, v) => setSel(p => ({ ...p, [k]: v }))
-    const isComplete = sel.type && sel.material && sel.width && sel.finish
+    const isComplete = sel.type && sel.material && sel.width && sel.finish && city
+    
+    const cityMul = CITIES.find(c => c.name === city)?.multiplier || 1.0
+    const gradeMul = MATERIAL_GRADES.find(g => g.id === grade)?.multiplier || 1.0
     const sizeMul = { '3 ft': 0.8, '4 ft': 1, '5 ft': 1.2, '6 ft': 1.4, '7 ft': 1.65, '8 ft+': 1.9 }
     const pkgMul = { Standard: 1, Premium: 1.45, Luxury: 2 }
     const extras = (sel.lights ? 8000 : 0) + (sel.mirror ? 12000 : 0) + (sel.pullout ? 15000 : 0)
-    const total = isComplete ? Math.round(BASE * (sizeMul[sel.width] || 1) * (pkgMul[sel.pkg] || 1) + extras) : 0
+    
+    const baseEstimate = Math.round(BASE * (sizeMul[sel.width] || 1) * (pkgMul[sel.pkg] || 1))
+    const total = isComplete ? Math.round(baseEstimate * cityMul * gradeMul + extras) : 0
 
     const handleSubmit = async () => {
         const userEmail = sessionStorage.getItem('bhvUser')
         if (!userEmail) { navigate('/login'); return }
 
+        const selectedGrade = MATERIAL_GRADES.find(g => g.id === grade)
         const estData = {
-            userEmail: userEmail,
+            userEmail,
             type: 'Wardrobe Estimator',
             date: new Date().toLocaleDateString(),
             cost: total,
-            details: JSON.stringify(sel)
+            details: JSON.stringify({ ...sel, city, grade: selectedGrade?.label })
         }
 
         setIsLoading(true)
         try {
             await saveEstimation(estData)
-
-            const est = { ...estData, package: sel.pkg }
+            const est = { ...estData, package: sel.pkg, city, grade: selectedGrade?.label }
             const prev = JSON.parse(localStorage.getItem('userEstimates') || '[]')
             localStorage.setItem('userEstimates', JSON.stringify([...prev, est]))
 
-            const req = { id: `EST-W-${Date.now()}`, customerName: JSON.parse(localStorage.getItem('userData') || '{}').name || 'User', customerEmail: userEmail, type: 'Wardrobe Estimator', status: 'pending', dateSubmitted: new Date().toISOString().split('T')[0], description: `${sel.type} wardrobe, ${sel.width} wide, ${sel.material}`, budget: `₹${total.toLocaleString('en-IN')}`, responded: false }
+            const req = { 
+                id: `EST-W-${Date.now()}`, 
+                customerName: JSON.parse(localStorage.getItem('userData') || '{}').name || 'User', 
+                customerEmail: userEmail, 
+                type: 'Wardrobe Estimator', 
+                status: 'pending', 
+                dateSubmitted: new Date().toISOString().split('T')[0], 
+                description: `${sel.type} wardrobe, ${sel.width} wide, ${sel.material}, ${city} — ${selectedGrade?.label} grade`, 
+                budget: `₹${total.toLocaleString('en-IN')}`, 
+                responded: false,
+                city,
+                grade: selectedGrade?.label
+            }
             const allReqs = JSON.parse(localStorage.getItem('allAdminRequests') || '[]')
             localStorage.setItem('allAdminRequests', JSON.stringify([...allReqs, req]))
 
@@ -49,7 +69,6 @@ export default function WardrobeEstimator() {
             setTimeout(() => navigate('/user-dashboard'), 2500)
         } catch (err) {
             console.error("Error saving estimation:", err)
-            alert("Failed to save estimate to database. Please check your connection.")
         } finally {
             setIsLoading(false)
         }
@@ -72,6 +91,48 @@ export default function WardrobeEstimator() {
                 </div>
             ) : (
                 <div className="estimator-body">
+                    {/* ── City Selector ── */}
+                    <div className="estimator-card">
+                        <h2>📍 Your City</h2>
+                        <select
+                            value={city}
+                            onChange={e => setCity(e.target.value)}
+                            style={{
+                                width: '100%', padding: '12px 16px', borderRadius: '10px',
+                                border: `2px solid ${city ? 'var(--primary)' : '#e2e8f0'}`,
+                                fontSize: '15px', fontWeight: 600, outline: 'none',
+                                background: '#f8fafc', cursor: 'pointer',
+                                color: city ? 'var(--primary)' : '#64748b'
+                            }}
+                        >
+                            <option value="">— Select your city —</option>
+                            {CITIES.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
+                        </select>
+                    </div>
+
+                    {/* ── Material Grade ── */}
+                    <div className="estimator-card">
+                        <h2>🏷️ Material Quality Grade</h2>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+                            {MATERIAL_GRADES.map(g => (
+                                <div
+                                    key={g.id}
+                                    onClick={() => setGrade(g.id)}
+                                    style={{
+                                        padding: '16px', borderRadius: '12px', cursor: 'pointer',
+                                        border: `2px solid ${grade === g.id ? g.color : '#e2e8f0'}`,
+                                        background: grade === g.id ? g.bg : 'white',
+                                        textAlign: 'center', transition: 'all 0.2s'
+                                    }}
+                                >
+                                    <div style={{ fontSize: '24px', marginBottom: '4px' }}>{g.emoji}</div>
+                                    <p style={{ fontWeight: 800, fontSize: '14px', color: grade === g.id ? g.color : '#1e293b' }}>{g.label}</p>
+                                    <p style={{ fontSize: '11px', color: '#64748b' }}>{g.description}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
                     {[
                         { title: 'Wardrobe Type', opts: TYPES, key: 'type' },
                         { title: 'Material', opts: MATERIALS, key: 'material' },
@@ -121,27 +182,27 @@ export default function WardrobeEstimator() {
                     <div className="cost-display" style={{ background: 'linear-gradient(135deg, #1a1a2e, #2c3e50)' }}>
                         <p style={{ opacity: 0.9, marginBottom: '8px' }}>Estimated Wardrobe Cost</p>
                         <div className="amount">₹{total.toLocaleString('en-IN')}</div>
+                        {isComplete && (
+                            <div style={{ marginTop: '12px', display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                                <span style={{ background: 'rgba(255,255,255,0.2)', padding: '4px 12px', borderRadius: '20px', fontSize: '12px' }}>📍 {city}</span>
+                                <span style={{ background: 'rgba(255,255,255,0.2)', padding: '4px 12px', borderRadius: '20px', fontSize: '12px' }}>🏷️ {MATERIAL_GRADES.find(g => g.id === grade)?.label}</span>
+                            </div>
+                        )}
                         <p style={{ opacity: 0.85, marginTop: '8px' }}>
-                            {isComplete ? `${sel.pkg} Package · ${sel.type} · ${sel.width}` : 'Please select all options to see final estimate'}
+                            {isComplete ? `${sel.pkg} Package · ${sel.type} · ${sel.width}` : 'Please select all options including city to see final estimate'}
                         </p>
                         <button 
-                            onClick={() => {
-                                if (isComplete) handleSubmit();
-                                else alert('Please complete all selections (Type, Material, Width, Finish) before submitting.');
-                            }} 
-                            disabled={isLoading}
+                            onClick={() => { if (isComplete) handleSubmit() }} 
+                            disabled={isLoading || !isComplete}
                             style={{ 
                                 marginTop: '24px', 
                                 background: isLoading ? '#ccc' : (isComplete ? 'white' : 'rgba(255,255,255,0.3)'), 
                                 color: isComplete ? 'var(--primary)' : 'white', 
                                 border: isComplete ? 'none' : '1px solid white', 
-                                padding: '14px 40px', 
-                                borderRadius: '10px', 
-                                fontWeight: 800, 
-                                fontSize: '16px', 
-                                cursor: isLoading ? 'not-allowed' : 'pointer', 
-                                transition: '0.3s',
-                                opacity: isLoading ? 0.7 : 1
+                                padding: '14px 40px', borderRadius: '10px', 
+                                fontWeight: 800, fontSize: '16px', 
+                                cursor: (isLoading || !isComplete) ? 'not-allowed' : 'pointer', 
+                                transition: '0.3s', opacity: isLoading ? 0.7 : 1
                             }}
                         >
                             {isLoading ? 'Submitting...' : 'Submit & Get Expert Quote →'}

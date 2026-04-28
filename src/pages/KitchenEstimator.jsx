@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { saveEstimation } from '../api'
+import { CITIES, MATERIAL_GRADES } from '../config/estimatorConfig'
 
 const SIZES = ['7x6 ft', '8x7 ft', '10x8 ft', '12x9 ft', '14x10 ft', 'Custom']
 const LAYOUTS = ['L-Shaped', 'U-Shaped', 'Parallel', 'Straight', 'Island']
@@ -8,18 +9,26 @@ const SHUTTER_MATERIALS = ['Acrylic', 'PU (Polyurethane)', 'Membrane', 'Lacquere
 const COUNTERTOP = ['Granite', 'Marble', 'Quartz', 'Ceramic Tile', 'Stainless Steel']
 
 const BASE_COST = 120000
+const sizeMul = { '7x6 ft': 1, '8x7 ft': 1.15, '10x8 ft': 1.3, '12x9 ft': 1.5, '14x10 ft': 1.7, 'Custom': 1.4 }
+const pkgMul = { Essential: 1, Premium: 1.5, Luxury: 2.2 }
 
 export default function KitchenEstimator() {
     const navigate = useNavigate()
-    const [sel, setSel] = useState({ size: '', layout: '', shutter: '', countertop: '', package: 'Essential', appliances: false, sink: false, chimney: false })
+    const [sel, setSel] = useState({
+        size: '', layout: '', shutter: '', countertop: '',
+        package: 'Essential', appliances: false, sink: false, chimney: false
+    })
+    const [city, setCity] = useState('')
+    const [grade, setGrade] = useState('standard')
     const [submitted, setSubmitted] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
 
-    const isComplete = sel.size && sel.layout && sel.shutter && sel.countertop
-    const sizeMul = { '7x6 ft': 1, '8x7 ft': 1.15, '10x8 ft': 1.3, '12x9 ft': 1.5, '14x10 ft': 1.7, 'Custom': 1.4 }
-    const pkgMul = { Essential: 1, Premium: 1.5, Luxury: 2.2 }
+    const isComplete = sel.size && sel.layout && sel.shutter && sel.countertop && city
+    const cityMul = CITIES.find(c => c.name === city)?.multiplier || 1.0
+    const gradeMul = MATERIAL_GRADES.find(g => g.id === grade)?.multiplier || 1.0
     const extras = (sel.appliances ? 45000 : 0) + (sel.sink ? 15000 : 0) + (sel.chimney ? 20000 : 0)
-    const total = isComplete ? Math.round(BASE_COST * (sizeMul[sel.size] || 1) * (pkgMul[sel.package] || 1) + extras) : 0
+    const baseEstimate = Math.round(BASE_COST * (sizeMul[sel.size] || 1) * (pkgMul[sel.package] || 1))
+    const total = isComplete ? Math.round(baseEstimate * cityMul * gradeMul + extras) : 0
 
     const S = (k, v) => setSel(p => ({ ...p, [k]: v }))
 
@@ -27,33 +36,42 @@ export default function KitchenEstimator() {
         const userEmail = sessionStorage.getItem('bhvUser')
         if (!userEmail) { navigate('/login'); return }
 
+        const selectedGrade = MATERIAL_GRADES.find(g => g.id === grade)
         const estData = {
-            userEmail: userEmail,
+            userEmail,
             type: 'Kitchen Estimator',
             date: new Date().toLocaleDateString(),
             cost: total,
-            details: JSON.stringify(sel)
+            details: JSON.stringify({ ...sel, city, grade: selectedGrade?.label })
         }
 
         setIsLoading(true)
         try {
-            // Save to MySQL
             await saveEstimation(estData)
-
-            // Keep for local use if needed, but primary is DB now
-            const est = { ...estData, package: sel.package }
+            const est = { ...estData, package: sel.package, city, grade: selectedGrade?.label }
             const prev = JSON.parse(localStorage.getItem('userEstimates') || '[]')
             localStorage.setItem('userEstimates', JSON.stringify([...prev, est]))
 
-            const req = { id: `EST-${Date.now()}`, customerName: JSON.parse(localStorage.getItem('userData') || '{}').name || 'User', customerEmail: userEmail, type: 'Kitchen Estimator', status: 'pending', dateSubmitted: new Date().toISOString().split('T')[0], description: `Kitchen ${sel.layout} layout, ${sel.size}, ${sel.shutter} shutters`, budget: `₹${total.toLocaleString('en-IN')}`, responded: false }
+            const req = {
+                id: `EST-${Date.now()}`,
+                customerName: JSON.parse(localStorage.getItem('userData') || '{}').name || 'User',
+                customerEmail: userEmail,
+                type: 'Kitchen Estimator',
+                status: 'pending',
+                dateSubmitted: new Date().toISOString().split('T')[0],
+                description: `Kitchen ${sel.layout} layout, ${sel.size}, ${sel.shutter} shutters, ${city} — ${selectedGrade?.label} grade`,
+                budget: `₹${total.toLocaleString('en-IN')}`,
+                responded: false,
+                city,
+                grade: selectedGrade?.label
+            }
             const allReqs = JSON.parse(localStorage.getItem('allAdminRequests') || '[]')
             localStorage.setItem('allAdminRequests', JSON.stringify([...allReqs, req]))
 
             setSubmitted(true)
             setTimeout(() => navigate('/user-dashboard'), 2500)
         } catch (err) {
-            console.error("Error saving estimation:", err)
-            alert("Failed to save estimate to database. Please check your connection.")
+            console.error('Error saving estimation:', err)
         } finally {
             setIsLoading(false)
         }
@@ -64,7 +82,10 @@ export default function KitchenEstimator() {
             <header className="estimator-header">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                     <button onClick={() => navigate(-1)} style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.3)', color: 'white', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontWeight: 600 }}>← Back</button>
-                    <div><h1 style={{ color: 'white' }}>Kitchen Estimator</h1><p style={{ color: 'rgba(255,255,255,0.8)' }}>Get accurate cost estimates for your kitchen renovation</p></div>
+                    <div>
+                        <h1 style={{ color: 'white' }}>Kitchen Estimator</h1>
+                        <p style={{ color: 'rgba(255,255,255,0.8)' }}>Get accurate cost estimates for your kitchen renovation</p>
+                    </div>
                 </div>
             </header>
 
@@ -76,6 +97,68 @@ export default function KitchenEstimator() {
                 </div>
             ) : (
                 <div className="estimator-body">
+
+                    {/* ── City Selector ── */}
+                    <div className="estimator-card">
+                        <h2>📍 Your City</h2>
+                        <p style={{ color: 'var(--muted)', fontSize: '14px', marginBottom: '16px' }}>
+                            Labour and material costs vary by city. Select yours for an accurate estimate.
+                        </p>
+                        <select
+                            value={city}
+                            onChange={e => setCity(e.target.value)}
+                            style={{
+                                width: '100%', padding: '12px 16px', borderRadius: '10px',
+                                border: `2px solid ${city ? 'var(--primary)' : '#e2e8f0'}`,
+                                fontSize: '15px', fontWeight: 600, outline: 'none',
+                                background: '#f8fafc', cursor: 'pointer',
+                                color: city ? 'var(--primary)' : '#64748b',
+                                fontFamily: '"Plus Jakarta Sans", "Inter", sans-serif'
+                            }}
+                        >
+                            <option value="">— Select your city —</option>
+                            {CITIES.map(c => (
+                                <option key={c.name} value={c.name}>{c.name}</option>
+                            ))}
+                        </select>
+                        {city && (
+                            <p style={{ marginTop: '10px', fontSize: '13px', color: '#64748b', fontWeight: 600 }}>
+                                📊 {city} cost index: <span style={{ color: 'var(--primary)' }}>{(CITIES.find(c => c.name === city)?.multiplier * 100).toFixed(0)}% of base rate</span>
+                            </p>
+                        )}
+                    </div>
+
+                    {/* ── Material Grade ── */}
+                    <div className="estimator-card">
+                        <h2>🏷️ Material Quality Grade</h2>
+                        <p style={{ color: 'var(--muted)', fontSize: '14px', marginBottom: '16px' }}>
+                            Choose your preferred material quality. This affects the overall cost significantly.
+                        </p>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+                            {MATERIAL_GRADES.map(g => (
+                                <div
+                                    key={g.id}
+                                    onClick={() => setGrade(g.id)}
+                                    style={{
+                                        padding: '20px 16px', borderRadius: '12px', cursor: 'pointer',
+                                        border: `2px solid ${grade === g.id ? g.color : '#e2e8f0'}`,
+                                        background: grade === g.id ? g.bg : 'white',
+                                        textAlign: 'center', transition: 'all 0.2s',
+                                        transform: grade === g.id ? 'translateY(-2px)' : 'none',
+                                        boxShadow: grade === g.id ? `0 8px 20px ${g.color}30` : 'none'
+                                    }}
+                                >
+                                    <div style={{ fontSize: '28px', marginBottom: '8px' }}>{g.emoji}</div>
+                                    <p style={{ fontWeight: 800, fontSize: '15px', color: grade === g.id ? g.color : '#1e293b', marginBottom: '6px' }}>{g.label}</p>
+                                    <p style={{ fontSize: '12px', color: '#64748b', lineHeight: 1.4 }}>{g.description}</p>
+                                    <p style={{ marginTop: '10px', fontWeight: 800, fontSize: '14px', color: grade === g.id ? g.color : '#94a3b8' }}>
+                                        {g.multiplier < 1 ? `${((1 - g.multiplier) * 100).toFixed(0)}% less` : g.multiplier === 1 ? 'Base rate' : `+${((g.multiplier - 1) * 100).toFixed(0)}% more`}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
                     {/* Kitchen Size */}
                     <div className="estimator-card">
                         <h2>Kitchen Size</h2>
@@ -142,31 +225,32 @@ export default function KitchenEstimator() {
                         </div>
                     </div>
 
-                    {/* Cost */}
+                    {/* Cost Display */}
                     <div className="cost-display">
                         <p style={{ opacity: 0.9, marginBottom: '8px' }}>Estimated Kitchen Renovation Cost</p>
                         <div className="amount">₹{total.toLocaleString('en-IN')}</div>
+                        {isComplete && (
+                            <div style={{ marginTop: '12px', display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                                <span style={{ background: 'rgba(255,255,255,0.2)', padding: '4px 14px', borderRadius: '20px', fontSize: '13px', fontWeight: 600 }}>📍 {city}</span>
+                                <span style={{ background: 'rgba(255,255,255,0.2)', padding: '4px 14px', borderRadius: '20px', fontSize: '13px', fontWeight: 600 }}>🏷️ {MATERIAL_GRADES.find(g => g.id === grade)?.label} Grade</span>
+                                <span style={{ background: 'rgba(255,255,255,0.2)', padding: '4px 14px', borderRadius: '20px', fontSize: '13px', fontWeight: 600 }}>📦 {sel.package}</span>
+                            </div>
+                        )}
                         <p style={{ opacity: 0.85, marginTop: '8px' }}>
-                            {isComplete ? `${sel.package} Package · ${sel.size} · ${sel.layout}` : 'Please select all options to see final estimate'}
+                            {isComplete ? `${sel.size} · ${sel.layout} layout` : 'Please select all options including city to see final estimate'}
                         </p>
-                        <button 
-                            onClick={() => {
-                                if (isComplete) handleSubmit();
-                                else alert('Please complete all selections (Size, Layout, Material, Countertop) before submitting.');
-                            }} 
-                            disabled={isLoading}
-                            style={{ 
-                                marginTop: '24px', 
-                                background: isLoading ? '#ccc' : (isComplete ? 'white' : 'rgba(255,255,255,0.3)'), 
-                                color: isComplete ? 'var(--primary)' : 'white', 
-                                border: isComplete ? 'none' : '1px solid white', 
-                                padding: '14px 40px', 
-                                borderRadius: '10px', 
-                                fontWeight: 800, 
-                                fontSize: '16px', 
-                                cursor: isLoading ? 'not-allowed' : 'pointer', 
-                                transition: '0.3s',
-                                opacity: isLoading ? 0.7 : 1
+                        <button
+                            onClick={() => { if (isComplete) handleSubmit() }}
+                            disabled={isLoading || !isComplete}
+                            style={{
+                                marginTop: '24px',
+                                background: isLoading ? '#ccc' : (isComplete ? 'white' : 'rgba(255,255,255,0.3)'),
+                                color: isComplete ? 'var(--primary)' : 'white',
+                                border: isComplete ? 'none' : '1px solid white',
+                                padding: '14px 40px', borderRadius: '10px',
+                                fontWeight: 800, fontSize: '16px',
+                                cursor: (isLoading || !isComplete) ? 'not-allowed' : 'pointer',
+                                transition: '0.3s', opacity: isLoading ? 0.7 : 1
                             }}
                         >
                             {isLoading ? 'Submitting...' : 'Submit & Get Expert Quote →'}

@@ -2,6 +2,11 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { clearDatabaseData } from '../api'
 import { Toast, useToast } from '../components/Toast'
+import { Line, Bar } from 'react-chartjs-2'
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend, Filler } from 'chart.js'
+
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend, Filler)
+
 
 // ---- PROFESSIONAL STYLING & ANIMATIONS ----
 const theme = {
@@ -410,6 +415,9 @@ export default function AdminDashboard() {
                     <div className={`sidebar-item ${view === 'settings' ? 'active' : ''}`} onClick={() => setView('settings')}>
                         <span style={{ fontSize: '18px' }}>⚙️</span> System Management
                     </div>
+                    <div className="sidebar-item" onClick={() => navigate('/contractors')}>
+                        <span style={{ fontSize: '18px' }}>👷</span> Contractor Directory
+                    </div>
 
                     <div style={{ marginTop: '24px', padding: '0 16px' }}>
                         <p style={{ fontSize: '11px', color: '#475569', fontWeight: 800, textTransform: 'uppercase', marginBottom: '16px' }}>Performance Hub</p>
@@ -523,27 +531,73 @@ export default function AdminDashboard() {
                             {/* Popular Services */}
                             <div style={{ background: theme.slate, borderRadius: '24px', padding: '32px', color: 'white', alignSelf: 'start' }}>
                                 <h3 style={{ fontSize: '18px', fontWeight: 800, marginBottom: '24px' }}>Service Distribution</h3>
-                                {['Kitchen Estimator', 'Full Home Estimator', 'Wardrobe Estimator'].map(t => {
-                                    const count = requests.filter(r => r.type === t).length
-                                    const pct = ((count / requests.length) * 100).toFixed(0)
-                                    return (
-                                        <div key={t} style={{ marginBottom: '24px' }}>
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px', fontWeight: 700 }}>
-                                                <span>{t}</span>
-                                                <span>{pct}% ({count})</span>
+                                {requests.length > 0 ? (
+                                    ['Kitchen Estimator', 'Full Home Estimator', 'Wardrobe Estimator'].map(t => {
+                                        const count = requests.filter(r => r.type === t).length
+                                        const pct = ((count / requests.length) * 100).toFixed(0)
+                                        return (
+                                            <div key={t} style={{ marginBottom: '24px' }}>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px', fontWeight: 700 }}>
+                                                    <span>{t}</span>
+                                                    <span>{pct}% ({count})</span>
+                                                </div>
+                                                <div style={{ height: '8px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', overflow: 'hidden' }}>
+                                                    <div style={{ height: '100%', width: `${pct}%`, background: theme.primary, borderRadius: '4px', transition: '1s all' }}></div>
+                                                </div>
                                             </div>
-                                            <div style={{ height: '8px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', overflow: 'hidden' }}>
-                                                <div style={{ height: '100%', width: `${pct}%`, background: theme.primary, borderRadius: '4px', transition: '1s all' }}></div>
-                                            </div>
-                                        </div>
-                                    )
-                                })}
-                                <div style={{ marginTop: '40px', padding: '24px', background: 'rgba(255,255,255,0.03)', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                                    <p style={{ fontSize: '12px', color: '#94a3b8', lineHeight: 1.6 }}>Our data reveals that <strong>Kitchen Renovations</strong> currently drive 40% of the platform engagement.</p>
+                                        )
+                                    })
+                                ) : (
+                                    <p style={{ color: '#94a3b8', fontSize: '14px', textAlign: 'center', padding: '20px' }}>No data available yet</p>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Analytics Charts */}
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px', marginTop: '32px' }}>
+                            <div style={{ background: 'white', borderRadius: '24px', padding: '32px', border: `1px solid ${theme.border}` }}>
+                                <h3 style={{ fontSize: '18px', fontWeight: 800, marginBottom: '24px' }}>Revenue Growth Projection</h3>
+                                <div style={{ height: '300px' }}>
+                                    <Line 
+                                        data={{
+                                            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                                            datasets: [{
+                                                label: 'Revenue (₹)',
+                                                data: [revenue * 0.4, revenue * 0.5, revenue * 0.7, revenue * 0.8, revenue * 0.9, revenue],
+                                                borderColor: theme.primary,
+                                                backgroundColor: `${theme.primary}15`,
+                                                fill: true,
+                                                tension: 0.4
+                                            }]
+                                        }} 
+                                        options={{ responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }} 
+                                    />
+                                </div>
+                            </div>
+                            <div style={{ background: 'white', borderRadius: '24px', padding: '32px', border: `1px solid ${theme.border}` }}>
+                                <h3 style={{ fontSize: '18px', fontWeight: 800, marginBottom: '24px' }}>Request Volume by Service</h3>
+                                <div style={{ height: '300px' }}>
+                                    <Bar 
+                                        data={{
+                                            labels: ['Kitchen', 'Full Home', 'Wardrobe'],
+                                            datasets: [{
+                                                label: 'Requests',
+                                                data: [
+                                                    requests.filter(r => r.type.includes('Kitchen')).length,
+                                                    requests.filter(r => r.type.includes('Home')).length,
+                                                    requests.filter(r => r.type.includes('Wardrobe')).length
+                                                ],
+                                                backgroundColor: [theme.primary, '#3b82f6', '#8b5cf6'],
+                                                borderRadius: 8
+                                            }]
+                                        }} 
+                                        options={{ responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }} 
+                                    />
                                 </div>
                             </div>
                         </div>
                     </div>
+
                 )}
 
                 {/* ---- REQUESTS TABLE VIEW ---- */}
