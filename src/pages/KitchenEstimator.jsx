@@ -143,31 +143,35 @@ export default function KitchenEstimator() {
                     </div>
 
                     {/* Cost */}
-                    {isComplete && (
-                        <div className="cost-display">
-                            <p style={{ opacity: 0.9, marginBottom: '8px' }}>Estimated Kitchen Renovation Cost</p>
-                            <div className="amount">₹{total.toLocaleString('en-IN')}</div>
-                            <p style={{ opacity: 0.85, marginTop: '8px' }}>{sel.package} Package · {sel.size} · {sel.layout}</p>
-                            <button 
-                                onClick={handleSubmit} 
-                                disabled={isLoading}
-                                style={{ 
-                                    marginTop: '24px', 
-                                    background: isLoading ? '#ccc' : 'white', 
-                                    color: 'var(--primary)', 
-                                    border: 'none', 
-                                    padding: '14px 40px', 
-                                    borderRadius: '10px', 
-                                    fontWeight: 800, 
-                                    fontSize: '16px', 
-                                    cursor: isLoading ? 'not-allowed' : 'pointer', 
-                                    transition: '0.3s' 
-                                }}
-                            >
-                                {isLoading ? 'Submitting...' : 'Submit & Get Expert Quote →'}
-                            </button>
-                        </div>
-                    )}
+                    <div className="cost-display">
+                        <p style={{ opacity: 0.9, marginBottom: '8px' }}>Estimated Kitchen Renovation Cost</p>
+                        <div className="amount">₹{total.toLocaleString('en-IN')}</div>
+                        <p style={{ opacity: 0.85, marginTop: '8px' }}>
+                            {isComplete ? `${sel.package} Package · ${sel.size} · ${sel.layout}` : 'Please select all options to see final estimate'}
+                        </p>
+                        <button 
+                            onClick={() => {
+                                if (isComplete) handleSubmit();
+                                else alert('Please complete all selections (Size, Layout, Material, Countertop) before submitting.');
+                            }} 
+                            disabled={isLoading}
+                            style={{ 
+                                marginTop: '24px', 
+                                background: isLoading ? '#ccc' : (isComplete ? 'white' : 'rgba(255,255,255,0.3)'), 
+                                color: isComplete ? 'var(--primary)' : 'white', 
+                                border: isComplete ? 'none' : '1px solid white', 
+                                padding: '14px 40px', 
+                                borderRadius: '10px', 
+                                fontWeight: 800, 
+                                fontSize: '16px', 
+                                cursor: isLoading ? 'not-allowed' : 'pointer', 
+                                transition: '0.3s',
+                                opacity: isLoading ? 0.7 : 1
+                            }}
+                        >
+                            {isLoading ? 'Submitting...' : 'Submit & Get Expert Quote →'}
+                        </button>
+                    </div>
                 </div>
             )}
         </div>

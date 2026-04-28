@@ -118,31 +118,35 @@ export default function WardrobeEstimator() {
                         </div>
                     </div>
 
-                    {isComplete && (
-                        <div className="cost-display" style={{ background: 'linear-gradient(135deg, #1a1a2e, #2c3e50)' }}>
-                            <p style={{ opacity: 0.9, marginBottom: '8px' }}>Estimated Wardrobe Cost</p>
-                            <div className="amount">₹{total.toLocaleString('en-IN')}</div>
-                            <p style={{ opacity: 0.85, marginTop: '8px' }}>{sel.pkg} Package · {sel.type} · {sel.width}</p>
-                            <button 
-                                onClick={handleSubmit} 
-                                disabled={isLoading}
-                                style={{ 
-                                    marginTop: '24px', 
-                                    background: isLoading ? '#ccc' : 'white', 
-                                    color: 'var(--primary)', 
-                                    border: 'none', 
-                                    padding: '14px 40px', 
-                                    borderRadius: '10px', 
-                                    fontWeight: 800, 
-                                    fontSize: '16px', 
-                                    cursor: isLoading ? 'not-allowed' : 'pointer', 
-                                    transition: '0.3s' 
-                                }}
-                            >
-                                {isLoading ? 'Submitting...' : 'Submit & Get Expert Quote →'}
-                            </button>
-                        </div>
-                    )}
+                    <div className="cost-display" style={{ background: 'linear-gradient(135deg, #1a1a2e, #2c3e50)' }}>
+                        <p style={{ opacity: 0.9, marginBottom: '8px' }}>Estimated Wardrobe Cost</p>
+                        <div className="amount">₹{total.toLocaleString('en-IN')}</div>
+                        <p style={{ opacity: 0.85, marginTop: '8px' }}>
+                            {isComplete ? `${sel.pkg} Package · ${sel.type} · ${sel.width}` : 'Please select all options to see final estimate'}
+                        </p>
+                        <button 
+                            onClick={() => {
+                                if (isComplete) handleSubmit();
+                                else alert('Please complete all selections (Type, Material, Width, Finish) before submitting.');
+                            }} 
+                            disabled={isLoading}
+                            style={{ 
+                                marginTop: '24px', 
+                                background: isLoading ? '#ccc' : (isComplete ? 'white' : 'rgba(255,255,255,0.3)'), 
+                                color: isComplete ? 'var(--primary)' : 'white', 
+                                border: isComplete ? 'none' : '1px solid white', 
+                                padding: '14px 40px', 
+                                borderRadius: '10px', 
+                                fontWeight: 800, 
+                                fontSize: '16px', 
+                                cursor: isLoading ? 'not-allowed' : 'pointer', 
+                                transition: '0.3s',
+                                opacity: isLoading ? 0.7 : 1
+                            }}
+                        >
+                            {isLoading ? 'Submitting...' : 'Submit & Get Expert Quote →'}
+                        </button>
+                    </div>
                 </div>
             )}
         </div>
