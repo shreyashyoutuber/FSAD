@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { adminLogin } from '../api'
 
 function generateCaptcha() {
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
@@ -11,17 +12,39 @@ export default function AdminLogin() {
     const [form, setForm] = useState({ email: '', password: '', captchaInput: '' })
     const [captcha, setCaptcha] = useState(generateCaptcha())
     const [error, setError] = useState('')
+    const [isLoading, setIsLoading] = useState(false)
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault()
+        setError('')
+
+        // Step 1: Verify captcha first (client-side)
         if (form.captchaInput.toUpperCase() !== captcha) {
-            setError('Verification failed. Please try again.')
-            setCaptcha(generateCaptcha()); setForm(f => ({ ...f, captchaInput: '' })); return
+            setError('Verification code does not match. Please try again.')
+            setCaptcha(generateCaptcha())
+            setForm(f => ({ ...f, captchaInput: '' }))
+            return
         }
-        localStorage.setItem('adminLoggedIn', 'true')
-        localStorage.setItem('adminEmail', form.email)
-        localStorage.setItem('adminLoginTime', Date.now())
-        navigate('/admin-dashboard')
+
+        // Step 2: Call real backend admin login
+        setIsLoading(true)
+        try {
+            const data = await adminLogin({ email: form.email, password: form.password })
+
+            // Store admin session info
+            localStorage.setItem('adminLoggedIn', 'true')
+            localStorage.setItem('adminEmail', data.email)
+            localStorage.setItem('adminToken', data.token)
+            localStorage.setItem('adminLoginTime', Date.now())
+
+            navigate('/admin-dashboard')
+        } catch (err) {
+            setError(err.message || 'Login failed. Please check your credentials.')
+            setCaptcha(generateCaptcha())
+            setForm(f => ({ ...f, captchaInput: '' }))
+        } finally {
+            setIsLoading(false)
+        }
     }
 
     return (
@@ -73,7 +96,7 @@ export default function AdminLogin() {
                         🔐
                     </div>
                     <h2 style={{ color: '#1e293b', fontSize: '24px', fontWeight: 800, marginBottom: '8px' }}>Admin Access</h2>
-                    <p style={{ color: '#64748b', fontSize: '15px' }}>Management Portal Secure Login</p>
+                    <p style={{ color: '#64748b', fontSize: '15px' }}>Management Portal — Secure Login</p>
                 </div>
 
                 {error && (
@@ -88,19 +111,21 @@ export default function AdminLogin() {
                         textAlign: 'center',
                         fontWeight: 600
                     }}>
-                        {error}
+                        ⚠️ {error}
                     </div>
                 )}
 
                 <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                    {/* Email */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         <label style={{ color: '#475569', fontSize: '13px', fontWeight: 700 }}>Admin Email</label>
                         <input
                             type="email"
                             value={form.email}
                             onChange={e => setForm({ ...form, email: e.target.value })}
-                            placeholder="admin@example.com"
+                            placeholder="admin@bharathomevalue.com"
                             required
+                            disabled={isLoading}
                             style={{
                                 width: '100%',
                                 background: '#f8fafc',
@@ -110,13 +135,15 @@ export default function AdminLogin() {
                                 color: '#1e293b',
                                 fontSize: '15px',
                                 outline: 'none',
-                                transition: '0.3s'
+                                transition: '0.3s',
+                                boxSizing: 'border-box'
                             }}
                             onFocus={e => (e.target.style.borderColor = '#e67e22')}
                             onBlur={e => (e.target.style.borderColor = '#e2e8f0')}
                         />
                     </div>
 
+                    {/* Password */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         <label style={{ color: '#475569', fontSize: '13px', fontWeight: 700 }}>Access Password</label>
                         <input
@@ -125,6 +152,7 @@ export default function AdminLogin() {
                             onChange={e => setForm({ ...form, password: e.target.value })}
                             placeholder="••••••••••••"
                             required
+                            disabled={isLoading}
                             style={{
                                 width: '100%',
                                 background: '#f8fafc',
@@ -134,13 +162,15 @@ export default function AdminLogin() {
                                 color: '#1e293b',
                                 fontSize: '15px',
                                 outline: 'none',
-                                transition: '0.3s'
+                                transition: '0.3s',
+                                boxSizing: 'border-box'
                             }}
                             onFocus={e => (e.target.style.borderColor = '#e67e22')}
                             onBlur={e => (e.target.style.borderColor = '#e2e8f0')}
                         />
                     </div>
 
+                    {/* Captcha */}
                     <div style={{ background: '#fffaf5', padding: '20px', borderRadius: '12px', border: '1px solid #ffedd5' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                             <span style={{ fontSize: '12px', color: '#9a3412', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Security Check</span>
@@ -158,12 +188,13 @@ export default function AdminLogin() {
                             type="text"
                             value={form.captchaInput}
                             onChange={e => setForm({ ...form, captchaInput: e.target.value.toUpperCase() })}
-                            placeholder="Enter the 5 characters"
+                            placeholder="Enter the 5 characters above"
                             required
                             style={{
                                 width: '100%', background: 'white', border: '2px solid #ffedd5',
                                 padding: '10px 14px', borderRadius: '8px', color: '#1e293b',
-                                fontSize: '14px', outline: 'none', textTransform: 'uppercase'
+                                fontSize: '14px', outline: 'none', textTransform: 'uppercase',
+                                boxSizing: 'border-box'
                             }}
                             onFocus={e => (e.target.style.borderColor = '#e67e22')}
                             onBlur={e => (e.target.style.borderColor = '#ffedd5')}
@@ -172,17 +203,17 @@ export default function AdminLogin() {
 
                     <button
                         type="submit"
+                        disabled={isLoading}
                         style={{
                             padding: '14px', borderRadius: '10px', border: 'none',
-                            background: 'linear-gradient(135deg, #e67e22, #d35400)',
+                            background: isLoading ? '#bdc3c7' : 'linear-gradient(135deg, #e67e22, #d35400)',
                             color: 'white', fontSize: '15px',
-                            fontWeight: 800, cursor: 'pointer', transition: '0.3s',
-                            marginTop: '8px', boxShadow: '0 4px 15px rgba(230, 126, 34, 0.3)'
+                            fontWeight: 800, cursor: isLoading ? 'not-allowed' : 'pointer',
+                            transition: '0.3s', marginTop: '8px',
+                            boxShadow: isLoading ? 'none' : '0 4px 15px rgba(230, 126, 34, 0.3)'
                         }}
-                        onMouseEnter={e => { e.target.style.transform = 'translateY(-1px)'; e.target.style.boxShadow = '0 6px 20px rgba(230, 126, 34, 0.4)'; }}
-                        onMouseLeave={e => { e.target.style.transform = 'translateY(0)'; e.target.style.boxShadow = '0 4px 15px rgba(230, 126, 34, 0.3)'; }}
                     >
-                        Login as Admin
+                        {isLoading ? 'Verifying...' : 'Login as Admin'}
                     </button>
                 </form>
 

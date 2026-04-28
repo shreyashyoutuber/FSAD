@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { clearDatabaseData } from '../api'
+import { Toast, useToast } from '../components/Toast'
 
 // ---- PROFESSIONAL STYLING & ANIMATIONS ----
 const theme = {
@@ -167,9 +168,9 @@ function AdminChatModal({ req, onClose }) {
     }, [req.id])
 
     const handleFiles = (files) => {
-        if (images.length + files.length > 5) { alert('Max 5 images allowed'); return }
+        if (images.length + files.length > 5) { window._adminToast?.warning('Max 5 images allowed'); return }
         Array.from(files).forEach(file => {
-            if (!file.type.startsWith('image/')) { alert('Only images allowed'); return }
+            if (!file.type.startsWith('image/')) { window._adminToast?.warning('Only images allowed'); return }
             const reader = new FileReader()
             reader.onload = (e) => setImages(prev => [...prev, { name: file.name, data: e.target.result }])
             reader.readAsDataURL(file)
@@ -294,19 +295,25 @@ function AdminChatModal({ req, onClose }) {
 
 export default function AdminDashboard() {
     const navigate = useNavigate()
-    const [view, setView] = useState('overview') // overview, requests, customers, settings
+    const { toasts, toast, removeToast } = useToast()
+    const [view, setView] = useState('overview')
     const [requests, setRequests] = useState([])
     const [search, setSearch] = useState('')
+    const [currentPage, setCurrentPage] = useState(1)
+    const PAGE_SIZE = 10
     const [selectedReq, setSelectedReq] = useState(null)
     const [selectedCustomer, setSelectedCustomer] = useState(null)
     const [chatReq, setChatReq] = useState(null)
     const [respondReq, setRespondReq] = useState(null)
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
     const [showResetConfirm, setShowResetConfirm] = useState(false)
-    const [resetStep, setResetStep] = useState(1) // 1 for first confirm, 2 for final
+    const [resetStep, setResetStep] = useState(1)
     const [isResetting, setIsResetting] = useState(false)
     const [showProfileModal, setShowProfileModal] = useState(false)
     const adminEmail = localStorage.getItem('adminEmail') || 'admin@bharathomevalue.com'
+
+    // Expose toast to AdminResponseModal (sibling component)
+    useEffect(() => { window._adminToast = toast }, [toast])
 
     useEffect(() => {
         const style = document.createElement('style')
@@ -326,6 +333,10 @@ export default function AdminDashboard() {
         r.id.toLowerCase().includes(search.toLowerCase()) ||
         r.type.toLowerCase().includes(search.toLowerCase())
     )
+
+    // Pagination
+    const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
+    const paginatedRequests = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
 
     const revenue = requests.reduce((acc, r) => acc + parseInt(r.budget.replace(/[^0-9]/g, '') || 0), 0)
     const pending = requests.filter(r => !r.responded).length
@@ -357,13 +368,13 @@ export default function AdminDashboard() {
         setIsResetting(true)
         try {
             await clearDatabaseData()
-            alert('Database cleared successfully! Users and estimations have been removed.')
+            toast.success('Database cleared. All users and estimations removed.')
             localStorage.removeItem('allAdminRequests')
             setRequests([])
             setView('overview')
         } catch (error) {
             console.error('Reset error:', error)
-            alert('Error: ' + error.message)
+            toast.error('Error: ' + error.message)
         } finally {
             setIsResetting(false)
             setShowResetConfirm(false)
@@ -373,6 +384,7 @@ export default function AdminDashboard() {
 
     return (
         <div style={{ minHeight: '100vh', background: theme.bg, display: 'flex', color: theme.text, fontFamily: "'Inter', sans-serif" }}>
+            <Toast toasts={toasts} removeToast={removeToast} />
 
             {/* ---- SIDEBAR ---- */}
             <aside style={{
@@ -547,7 +559,7 @@ export default function AdminDashboard() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {filtered.map((r, i) => (
+                                    {paginatedRequests.map((r, i) => (
                                         <tr key={r.id} className="hover-row" style={{ borderBottom: `1px solid ${theme.border}`, transition: '0.2s' }}>
                                             <td style={{ padding: '16px 12px', fontWeight: 800, color: theme.primary, fontSize: '13px' }}>{r.id}</td>
                                             <td style={{ padding: '16px 12px' }}>
@@ -580,6 +592,33 @@ export default function AdminDashboard() {
                                 </tbody>
                             </table>
                         </div>
+
+                        {/* ── Pagination Controls ── */}
+                        {totalPages > 1 && (
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px', padding: '0 4px' }}>
+                                <p style={{ fontSize: '13px', color: theme.textMuted, fontWeight: 600 }}>
+                                    Showing {((currentPage - 1) * PAGE_SIZE) + 1}–{Math.min(currentPage * PAGE_SIZE, filtered.length)} of {filtered.length} requests
+                                </p>
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                    <button
+                                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                        disabled={currentPage === 1}
+                                        style={{ padding: '8px 16px', borderRadius: '8px', border: `1px solid ${theme.border}`, background: currentPage === 1 ? '#f8fafc' : 'white', color: currentPage === 1 ? theme.textMuted : theme.text, fontWeight: 700, cursor: currentPage === 1 ? 'not-allowed' : 'pointer', fontSize: '13px' }}
+                                    >← Prev</button>
+                                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+                                        <button key={p} onClick={() => setCurrentPage(p)}
+                                            style={{ padding: '8px 14px', borderRadius: '8px', border: 'none', background: p === currentPage ? theme.primary : '#f1f5f9', color: p === currentPage ? 'white' : theme.text, fontWeight: 800, cursor: 'pointer', fontSize: '13px' }}>
+                                            {p}
+                                        </button>
+                                    ))}
+                                    <button
+                                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                        disabled={currentPage === totalPages}
+                                        style={{ padding: '8px 16px', borderRadius: '8px', border: `1px solid ${theme.border}`, background: currentPage === totalPages ? '#f8fafc' : 'white', color: currentPage === totalPages ? theme.textMuted : theme.text, fontWeight: 700, cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', fontSize: '13px' }}
+                                    >Next →</button>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 )}
 

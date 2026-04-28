@@ -334,7 +334,7 @@ export default function Signup() {
                     </div>
                     <div style={{...styles.inputGroup, display: 'flex', alignItems: 'center', gap: '10px'}}>
                         <input type="checkbox" checked={form.terms} onChange={set('terms')} style={{width: '18px', height: '18px', cursor: 'pointer', accentColor: '#f59e0b'}} />
-                        <span style={{color: '#94a3b8', fontSize: '13px'}}>I agree to the <span style={{color: '#f59e0b', cursor: 'pointer'}}>Terms of Service</span></span>
+                        <span style={{color: '#94a3b8', fontSize: '13px'}}>I agree to the <span style={{color: '#f59e0b', cursor: 'pointer', textDecoration: 'underline'}} onClick={() => window.open('/terms', '_blank')}>Terms of Service</span> and <span style={{color: '#f59e0b', cursor: 'pointer', textDecoration: 'underline'}} onClick={() => window.open('/privacy', '_blank')}>Privacy Policy</span></span>
                     </div>
                     <button style={styles.button} disabled={isLoading}>{isLoading ? 'Starting...' : 'Send OTP →'}</button>
                 </form>

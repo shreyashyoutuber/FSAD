@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Toast, useToast } from '../components/Toast'
 import { Line } from 'react-chartjs-2'
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js'
 
@@ -247,6 +248,7 @@ function ChatModal({ requestId, requestType, userName, onClose }) {
 
 export default function UserDashboard() {
     const navigate = useNavigate()
+    const { toasts, toast, removeToast } = useToast()
     const [view, setView] = useState('dashboard') // dashboard | estimator | new-estimator | recommendations | saved | profile | submit
     const [userData, setUserData] = useState(null)
     const [savedIdeas, setSavedIdeas] = useState([])
@@ -371,11 +373,11 @@ export default function UserDashboard() {
 
     const saveIdea = (rec) => {
         const already = savedIdeas.find(s => s.title === rec.title)
-        if (already) { alert('Already saved!'); return }
+        if (already) { toast.warning('Already saved!'); return }
         const updated = [...savedIdeas, rec]
         setSavedIdeas(updated)
         localStorage.setItem('savedIdeas', JSON.stringify(updated))
-        alert(`"${rec.title}" saved for later!`)
+        toast.success(`"${rec.title}" saved for later!`)
     }
 
     const removeIdea = (title) => {
@@ -509,6 +511,7 @@ export default function UserDashboard() {
 
     return (
         <div className="dashboard-layout">
+            <Toast toasts={toasts} removeToast={removeToast} />
             {showProfile && <ProfileModal userData={userData} onClose={() => setShowProfile(false)} onSave={saveProfile} />}
             {/* Overlay for mobile */}
             {sidebarOpen && <div onClick={() => setSidebarOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 199 }} />}

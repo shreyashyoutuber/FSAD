@@ -1,6 +1,8 @@
-const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? "http://localhost:8080/api"
-    : "https://fsad-tpxy.onrender.com/api";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ||
+    (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        ? "http://localhost:8080/api"
+        : "https://fsad-tpxy.onrender.com/api");
+
 
 export const warmUpBackend = () => {
     // Just a simple ping to wake up the Render server
@@ -151,6 +153,27 @@ export const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     window.location.href = "/login";
+};
+
+// ── Admin Auth ────────────────────────────────────────────────────────────────
+export const adminLogin = async (credentials) => {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/admin/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(credentials),
+    });
+
+    const clone = response.clone();
+    if (!response.ok) {
+        try {
+            const text = await clone.text();
+            throw new Error(text || "Admin login failed");
+        } catch (e) {
+            throw new Error("Invalid admin credentials. Please try again.");
+        }
+    }
+
+    return response.json();
 };
 
 // ── Password Reset ────────────────────────────────────────────────────────────

@@ -10,9 +10,13 @@ import KitchenEstimator from './pages/KitchenEstimator'
 import WardrobeEstimator from './pages/WardrobeEstimator'
 import FullHomeEstimator from './pages/FullHomeEstimator'
 import ThankYou from './pages/ThankYou'
-import DatabaseTest from './pages/DatabaseTest'
 import ProfilePage from './pages/ProfilePage'
 import AuthSuccess from './pages/AuthSuccess'
+import NotFound from './pages/NotFound'
+import TermsAndConditions from './pages/TermsAndConditions'
+import PrivacyPolicy from './pages/PrivacyPolicy'
+import PrivateRoute from './components/PrivateRoute'
+import AdminRoute from './components/AdminRoute'
 import { useEffect } from 'react'
 import { warmUpBackend } from './api'
 
@@ -24,6 +28,7 @@ function App() {
     return (
         <BrowserRouter>
             <Routes>
+                {/* ── Public Routes ──────────────────────────── */}
                 <Route path="/" element={<Home />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
@@ -31,15 +36,36 @@ function App() {
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/forgot-password" element={<ResetPassword />} />
                 <Route path="/admin-login" element={<AdminLogin />} />
-                <Route path="/admin-dashboard" element={<AdminDashboard />} />
-                <Route path="/user-dashboard" element={<UserDashboard />} />
-                <Route path="/kitchen-estimator" element={<KitchenEstimator />} />
-                <Route path="/wardrobe-estimator" element={<WardrobeEstimator />} />
-                <Route path="/full-home-estimator" element={<FullHomeEstimator />} />
-                <Route path="/thankyou" element={<ThankYou />} />
-                <Route path="/db-test" element={<DatabaseTest />} />
-                <Route path="/profile" element={<ProfilePage />} />
-                <Route path="*" element={<Navigate to="/" replace />} />
+                <Route path="/terms" element={<TermsAndConditions />} />
+                <Route path="/privacy" element={<PrivacyPolicy />} />
+
+                {/* ── Protected User Routes ──────────────────── */}
+                <Route path="/user-dashboard" element={
+                    <PrivateRoute><UserDashboard /></PrivateRoute>
+                } />
+                <Route path="/profile" element={
+                    <PrivateRoute><ProfilePage /></PrivateRoute>
+                } />
+                <Route path="/kitchen-estimator" element={
+                    <PrivateRoute><KitchenEstimator /></PrivateRoute>
+                } />
+                <Route path="/wardrobe-estimator" element={
+                    <PrivateRoute><WardrobeEstimator /></PrivateRoute>
+                } />
+                <Route path="/full-home-estimator" element={
+                    <PrivateRoute><FullHomeEstimator /></PrivateRoute>
+                } />
+                <Route path="/thankyou" element={
+                    <PrivateRoute><ThankYou /></PrivateRoute>
+                } />
+
+                {/* ── Protected Admin Routes ─────────────────── */}
+                <Route path="/admin-dashboard" element={
+                    <AdminRoute><AdminDashboard /></AdminRoute>
+                } />
+
+                {/* ── 404 Not Found ──────────────────────────── */}
+                <Route path="*" element={<NotFound />} />
             </Routes>
         </BrowserRouter>
     )
