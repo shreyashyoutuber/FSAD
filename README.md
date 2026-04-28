@@ -68,8 +68,8 @@ SPRING_DATASOURCE_USERNAME=root
 SPRING_DATASOURCE_PASSWORD=yourpassword
 BREVO_API_KEY=your_brevo_api_key
 FRONTEND_URL=http://localhost:5173
-ADMIN_EMAIL=bharthomevalue@gmail.com
-ADMIN_PASSWORD=Admin@2006
+ADMIN_EMAIL=your_admin_email_here
+ADMIN_PASSWORD=your_secure_password_here
 GOOGLE_CLIENT_ID=your_google_client_id
 GOOGLE_CLIENT_SECRET=your_google_client_secret
 
@@ -94,8 +94,8 @@ mvn spring-boot:run
 | `SPRING_DATASOURCE_PASSWORD` | DB password |
 | `BREVO_API_KEY` | Brevo email service API key |
 | `FRONTEND_URL` | Frontend URL (for email links) |
-| `ADMIN_EMAIL` | bharthomevalue@gmail.com |
-| `ADMIN_PASSWORD` | Admin@2006 |
+| `ADMIN_EMAIL` | (Set this in your environment) |
+| `ADMIN_PASSWORD` | (Set this in your environment) |
 | `GOOGLE_CLIENT_ID` | Google OAuth2 client ID |
 | `GOOGLE_CLIENT_SECRET` | Google OAuth2 client secret |
 | `JWT_SECRET` | Secret key for JWT signing |

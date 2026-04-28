@@ -310,7 +310,7 @@ export default function AdminDashboard() {
     const [resetStep, setResetStep] = useState(1)
     const [isResetting, setIsResetting] = useState(false)
     const [showProfileModal, setShowProfileModal] = useState(false)
-    const adminEmail = localStorage.getItem('adminEmail') || 'bharthomevalue@gmail.com'
+    const adminEmail = localStorage.getItem('adminEmail') || ''
 
     // Expose toast to AdminResponseModal (sibling component)
     useEffect(() => { window._adminToast = toast }, [toast])
