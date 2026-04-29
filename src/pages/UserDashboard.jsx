@@ -104,6 +104,189 @@ function ProfileModal({ userData, onClose, onSave }) {
     )
 }
 
+// ---- EMI CALCULATOR VIEW ----
+function EmiView() {
+    const [amount, setAmount] = useState(500000)
+    const [rate, setRate] = useState(10.5)
+    const [tenure, setTenure] = useState(12)
+    const [customTenure, setCustomTenure] = useState('')
+    const [useCustom, setUseCustom] = useState(false)
+    const [emi, setEmi] = useState(0)
+    const [totalInterest, setTotalInterest] = useState(0)
+
+    const activeTenure = useCustom ? (parseInt(customTenure) || 0) : tenure
+
+    useEffect(() => {
+        if (activeTenure <= 0 || rate <= 0) { setEmi(0); setTotalInterest(0); return }
+        const r = rate / 12 / 100
+        const n = activeTenure
+        const emiVal = (amount * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1)
+        setEmi(Math.round(emiVal))
+        setTotalInterest(Math.round(emiVal * n - amount))
+    }, [amount, rate, activeTenure])
+
+    const fmt = (v) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(v)
+    const PRESETS = [6, 12, 24, 36, 48, 60, 84, 120]
+    const principalPct = emi > 0 ? Math.round(amount / (amount + totalInterest) * 100) : 0
+    const interestPct = 100 - principalPct
+
+    return (
+        <div className="animate-fadeIn" style={{ maxWidth: '980px', margin: '0 auto' }}>
+            {/* Header banner */}
+            <div style={{ background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', borderRadius: '24px', padding: '36px 40px', marginBottom: '28px', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px' }}>
+                <div>
+                    <div style={{ fontSize: '36px', marginBottom: '8px' }}>🧮</div>
+                    <h2 style={{ fontSize: '26px', fontWeight: 800, margin: 0 }}>Renovation EMI Calculator</h2>
+                    <p style={{ opacity: 0.7, margin: '6px 0 0', fontSize: '14px' }}>Plan your monthly installments before starting your renovation</p>
+                </div>
+                {emi > 0 && (
+                    <div style={{ textAlign: 'right', background: 'rgba(255,255,255,0.08)', padding: '20px 28px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                        <p style={{ fontSize: '13px', opacity: 0.6, margin: '0 0 4px', textTransform: 'uppercase', letterSpacing: '1px' }}>Monthly EMI</p>
+                        <p style={{ fontSize: '38px', fontWeight: 800, color: '#e67e22', margin: 0 }}>{fmt(emi)}</p>
+                    </div>
+                )}
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 1fr', gap: '24px' }}>
+                {/* ── Input Card ── */}
+                <div className="card" style={{ margin: 0, padding: '36px' }}>
+                    <h3 style={{ fontSize: '18px', fontWeight: 800, marginBottom: '32px', color: '#1e293b' }}>Loan Parameters</h3>
+
+                    {/* Loan Amount */}
+                    <div style={{ marginBottom: '32px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                            <label style={{ fontWeight: 700, fontSize: '14px', color: '#475569' }}>Loan Amount</label>
+                            <span style={{ color: '#e67e22', fontWeight: 800, fontSize: '18px', background: '#fff7ed', padding: '4px 14px', borderRadius: '10px' }}>{fmt(amount)}</span>
+                        </div>
+                        <input type="range" min="50000" max="5000000" step="50000" value={amount}
+                            onChange={e => setAmount(Number(e.target.value))}
+                            style={{ width: '100%', accentColor: '#e67e22', cursor: 'pointer' }} />
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px', fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>
+                            <span>₹50K</span><span>₹50L</span>
+                        </div>
+                        {/* Quick amounts */}
+                        <div style={{ display: 'flex', gap: '8px', marginTop: '12px', flexWrap: 'wrap' }}>
+                            {[200000, 500000, 1000000, 2000000].map(a => (
+                                <button key={a} onClick={() => setAmount(a)}
+                                    style={{ padding: '5px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 700, cursor: 'pointer', transition: '0.2s', border: `1.5px solid ${amount === a ? '#e67e22' : '#e2e8f0'}`, background: amount === a ? '#fff7ed' : 'white', color: amount === a ? '#e67e22' : '#64748b' }}>
+                                    {a >= 100000 ? `₹${a / 100000}L` : `₹${a / 1000}K`}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Interest Rate — starts from 0 */}
+                    <div style={{ marginBottom: '32px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                            <label style={{ fontWeight: 700, fontSize: '14px', color: '#475569' }}>Interest Rate (p.a.)</label>
+                            <span style={{ color: '#e67e22', fontWeight: 800, fontSize: '18px', background: '#fff7ed', padding: '4px 14px', borderRadius: '10px' }}>{rate}%</span>
+                        </div>
+                        <input type="range" min="0" max="30" step="0.5" value={rate}
+                            onChange={e => setRate(Number(e.target.value))}
+                            style={{ width: '100%', accentColor: '#e67e22', cursor: 'pointer' }} />
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px', fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>
+                            <span>0%</span>
+                            <span style={{ color: '#10b981', fontWeight: 700 }}>Typical: 8–14%</span>
+                            <span>30%</span>
+                        </div>
+                    </div>
+
+                    {/* Loan Tenure */}
+                    <div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                            <label style={{ fontWeight: 700, fontSize: '14px', color: '#475569' }}>Loan Tenure</label>
+                            <span style={{ color: '#e67e22', fontWeight: 800, fontSize: '18px', background: '#fff7ed', padding: '4px 14px', borderRadius: '10px' }}>{activeTenure}M</span>
+                        </div>
+                        {/* Slider */}
+                        <input type="range" min="1" max="360" step="1"
+                            value={useCustom ? (parseInt(customTenure) || 1) : tenure}
+                            onChange={e => { setTenure(Number(e.target.value)); setUseCustom(false); setCustomTenure('') }}
+                            style={{ width: '100%', accentColor: '#e67e22', cursor: 'pointer', marginBottom: '8px' }} />
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px', fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>
+                            <span>1 Month</span><span>360 Months (30 yrs)</span>
+                        </div>
+                        {/* Preset chips */}
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '16px' }}>
+                            {PRESETS.map(t => (
+                                <button key={t} onClick={() => { setTenure(t); setUseCustom(false); setCustomTenure('') }}
+                                    style={{ padding: '6px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 700, cursor: 'pointer', transition: '0.2s', border: `1.5px solid ${!useCustom && tenure === t ? '#e67e22' : '#e2e8f0'}`, background: !useCustom && tenure === t ? '#fff7ed' : 'white', color: !useCustom && tenure === t ? '#e67e22' : '#64748b' }}>
+                                    {t}M
+                                </button>
+                            ))}
+                        </div>
+                        {/* Custom input */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: '#f8fafc', borderRadius: '12px', padding: '12px 16px', border: `2px solid ${useCustom ? '#e67e22' : '#e2e8f0'}`, transition: '0.2s' }}>
+                            <span style={{ fontSize: '16px' }}>✏️</span>
+                            <input type="number" placeholder="Custom months e.g. 18" value={customTenure} min="1" max="600"
+                                onChange={e => { setCustomTenure(e.target.value); setUseCustom(true) }}
+                                style={{ border: 'none', background: 'transparent', outline: 'none', fontSize: '14px', fontWeight: 700, color: '#1e293b', width: '100%' }} />
+                            <span style={{ color: '#94a3b8', fontSize: '12px', whiteSpace: 'nowrap', fontWeight: 600 }}>months</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* ── Results Card ── */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                    {/* EMI breakdown */}
+                    <div style={{ background: 'linear-gradient(160deg, #1e293b, #0f172a)', padding: '36px', borderRadius: '24px', color: 'white', flex: 1 }}>
+                        <p style={{ opacity: 0.6, fontSize: '12px', letterSpacing: '1.5px', textTransform: 'uppercase', fontWeight: 700, margin: '0 0 8px' }}>Monthly Payment</p>
+                        <p style={{ fontSize: '48px', fontWeight: 800, color: '#e67e22', margin: '0 0 28px', textShadow: '0 4px 20px rgba(230,126,34,0.35)' }}>
+                            {emi > 0 ? fmt(emi) : <span style={{ opacity: 0.3, fontSize: '32px' }}>Calculating...</span>}
+                        </p>
+
+                        {/* Principal vs Interest bar */}
+                        {emi > 0 && (
+                            <div style={{ marginBottom: '28px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '12px', opacity: 0.6 }}>
+                                    <span>Principal ({principalPct}%)</span>
+                                    <span>Interest ({interestPct}%)</span>
+                                </div>
+                                <div style={{ height: '8px', background: 'rgba(255,255,255,0.1)', borderRadius: '8px', overflow: 'hidden', display: 'flex' }}>
+                                    <div style={{ width: `${principalPct}%`, background: 'linear-gradient(90deg, #e67e22, #f39c12)', transition: '0.5s' }} />
+                                    <div style={{ flex: 1, background: 'rgba(248,113,113,0.5)' }} />
+                                </div>
+                            </div>
+                        )}
+
+                        <div style={{ height: '1px', background: 'rgba(255,255,255,0.07)', marginBottom: '20px' }} />
+
+                        {[
+                            { label: 'Principal Amount', value: fmt(amount), color: 'white' },
+                            { label: 'Total Interest', value: fmt(totalInterest), color: '#f87171' },
+                        ].map(r => (
+                            <div key={r.label} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '14px', fontSize: '15px' }}>
+                                <span style={{ opacity: 0.65 }}>{r.label}</span>
+                                <span style={{ fontWeight: 700, color: r.color }}>{r.value}</span>
+                            </div>
+                        ))}
+
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '18px', borderTop: '2px dashed rgba(255,255,255,0.1)', paddingTop: '18px', marginTop: '6px' }}>
+                            <span style={{ fontWeight: 800 }}>Total Payable</span>
+                            <span style={{ fontWeight: 800, color: '#e67e22' }}>{fmt(amount + totalInterest)}</span>
+                        </div>
+                        {activeTenure > 0 && (
+                            <p style={{ opacity: 0.45, fontSize: '12px', marginTop: '10px', textAlign: 'right' }}>Over {activeTenure} months @ {rate}% p.a.</p>
+                        )}
+                    </div>
+
+                    {/* CTA */}
+                    <div className="card" style={{ margin: 0, padding: '24px' }}>
+                        <p style={{ fontSize: '14px', color: '#64748b', marginBottom: '16px', lineHeight: 1.6 }}>
+                            🏦 Ready to apply? Get instant pre-approval from our banking partners with zero paperwork.
+                        </p>
+                        <button style={{ width: '100%', padding: '16px', borderRadius: '14px', background: 'linear-gradient(135deg, #e67e22, #d35400)', color: 'white', border: 'none', fontWeight: 800, fontSize: '15px', cursor: 'pointer', boxShadow: '0 8px 20px rgba(230,126,34,0.3)', transition: '0.2s' }}
+                            onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+                            onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}>
+                            Apply for Instant Loan →
+                        </button>
+                        <p style={{ textAlign: 'center', marginTop: '10px', fontSize: '11px', color: '#94a3b8' }}>*Indicative rates. Subject to credit approval by partner banks.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+}
+
 // ---- CONFIRM MODAL ----
 function ConfirmModal({ title, message, onConfirm, onCancel }) {
     return (
@@ -670,7 +853,6 @@ export default function UserDashboard() {
                 <nav className="sidebar-nav" style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', paddingBottom: '8px', scrollbarWidth: 'thin', scrollbarColor: 'rgba(230,126,34,0.3) transparent' }}>
                     {navLinks.map(l => (
                         <SidebarLink key={l.key} icon={l.icon} label={l.label} active={view === l.key} onClick={() => { 
-                            if (l.key === 'emi') { navigate('/emi-calculator'); return }
                             setView(l.key); 
                             setSidebarOpen(false);
                         }} badge={l.badge} />
@@ -688,7 +870,7 @@ export default function UserDashboard() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                         <button onClick={() => setSidebarOpen(!sidebarOpen)} style={{ display: 'none', background: 'none', border: 'none', cursor: 'pointer', fontSize: '24px' }} className="mobile-menu-btn">☰</button>
                         <h1 style={{ fontSize: '20px', fontWeight: 700 }}>
-                            {view === 'dashboard' ? 'Dashboard' : view === 'estimator' ? 'My Estimates' : view === 'new-estimator' ? 'New Estimate' : view === 'recommendations' ? 'Recommendations' : view === 'saved' ? 'Saved Ideas' : view === 'profile' ? 'Profile' : view === 'submit' ? 'Submit Property' : 'Dashboard'}
+                            {view === 'dashboard' ? 'Dashboard' : view === 'estimator' ? 'My Estimates' : view === 'new-estimator' ? 'New Estimate' : view === 'recommendations' ? 'Recommendations' : view === 'saved' ? 'Saved Ideas' : view === 'profile' ? 'Profile' : view === 'submit' ? 'Submit Property' : view === 'contractors' ? 'Contractor Directory' : view === 'referral' ? 'Refer & Earn' : view === 'emi' ? '🧮 EMI Calculator' : 'Dashboard'}
                         </h1>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -1634,6 +1816,11 @@ export default function UserDashboard() {
                                 </div>
                             )}
                         </div>
+                    )}
+
+                    {/* ---- EMI CALCULATOR VIEW ---- */}
+                    {view === 'emi' && (
+                        <EmiView />
                     )}
                 </main>
             </div>
