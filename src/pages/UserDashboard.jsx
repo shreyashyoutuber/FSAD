@@ -650,6 +650,7 @@ export default function UserDashboard() {
         { icon: '🏠', label: 'Submit Property', key: 'submit' },
         { icon: '🎁', label: 'Refer & Earn', key: 'referral' },
         { icon: '👷', label: 'Contractor Directory', key: 'contractors' },
+        { icon: '🧮', label: 'EMI Calculator', key: 'emi' },
     ]
 
 
@@ -669,6 +670,7 @@ export default function UserDashboard() {
                 <nav className="sidebar-nav">
                     {navLinks.map(l => (
                         <SidebarLink key={l.key} icon={l.icon} label={l.label} active={view === l.key} onClick={() => { 
+                            if (l.key === 'emi') { navigate('/emi-calculator'); return }
                             setView(l.key); 
                             setSidebarOpen(false);
                         }} badge={l.badge} />
@@ -858,6 +860,7 @@ export default function UserDashboard() {
                                                 {[
                                                     { icon: '📐', title: 'New Estimate', sub: 'Calculate interior costs', action: () => setView('new-estimator'), primary: true },
                                                     { icon: '📋', title: 'View Estimates', sub: 'See saved estimates', action: () => setView('estimator') },
+                                                    { icon: '🧮', title: 'EMI Calculator', sub: 'Plan your renovation loan', action: () => navigate('/emi-calculator') },
                                                     { icon: '🎁', title: 'Refer & Earn', sub: 'Invite friends, earn rewards', action: () => setView('referral') },
                                                 ].map((a, i) => (
 
