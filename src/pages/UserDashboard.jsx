@@ -572,7 +572,7 @@ export default function UserDashboard() {
         { icon: '🔖', label: 'Saved Ideas', key: 'saved', badge: savedIdeas.length },
         { icon: '🏠', label: 'Submit Property', key: 'submit' },
         { icon: '🎁', label: 'Refer & Earn', key: 'referral' },
-        { icon: '👷', label: 'Contractors', key: 'contractors' },
+        { icon: '👷', label: 'Contractor Directory', key: 'contractors' },
     ]
 
 
@@ -593,11 +593,7 @@ export default function UserDashboard() {
                 <nav className="sidebar-nav">
                     {navLinks.map(l => (
                         <SidebarLink key={l.key} icon={l.icon} label={l.label} active={view === l.key} onClick={() => { 
-                            if (l.key === 'contractors') {
-                                navigate('/contractors');
-                            } else {
-                                setView(l.key); 
-                            }
+                            setView(l.key); 
                             setSidebarOpen(false);
                         }} badge={l.badge} />
                     ))}
@@ -1348,6 +1344,224 @@ export default function UserDashboard() {
                             </div>
                         </div>
                     )}
+                    {/* ---- CONTRACTOR DIRECTORY ---- */}
+                    {view === 'contractors' && (() => {
+                        const [search, setSearch] = useState('');
+                        const [filter, setFilter] = useState('All');
+                        const [selectedContractor, setSelectedContractor] = useState(null);
+                        
+                        const CONTRACTORS = [
+                            { id: 1, category: 'Interior', name: 'Apex Interiors', rating: 4.8, reviews: 124, expertise: ['Modular Kitchen', 'Wardrobes'], location: 'Mumbai, MH', image: '/Photos/apex_kitchen.png', verified: true, about: 'Premium interior solutions with a focus on modern modular designs and ergonomic spaces.' },
+                            { id: 2, category: 'Renovation', name: 'Royal Spaces', rating: 4.9, reviews: 89, expertise: ['Full Home', 'Luxury Design'], location: 'Bangalore, KA', image: '/Photos/royal_living.png', verified: true, about: 'Boutique design firm specializing in end-to-end luxury home transformations.' },
+                            { id: 3, category: 'Renovation', name: 'Modern Living', rating: 4.7, reviews: 210, expertise: ['Flooring', 'Painting'], location: 'Delhi, NCR', image: '/Photos/modern_bedroom.png', verified: false, about: 'Budget-friendly renovation experts with over 10 years of experience in the NCR region.' },
+                            { id: 4, category: 'Interior', name: 'Elite Woodworks', rating: 4.6, reviews: 56, expertise: ['Wardrobes', 'Furniture'], location: 'Pune, MH', image: '/Photos/elite_woodwork.png', verified: true, about: 'Custom woodworking and bespoke furniture pieces for high-end residential projects.' },
+                            { id: 5, category: 'Design', name: 'Design Studio', rating: 4.5, reviews: 42, expertise: ['False Ceiling', 'Lighting'], location: 'Hyderabad, TS', image: '/Photos/design_lighting.png', verified: true, about: 'Specialists in modern lighting solutions and designer false ceiling concepts.' },
+                            { id: 6, category: 'Garden', name: 'Green Spaces', rating: 4.4, reviews: 31, expertise: ['Terrace Garden', 'Landscaping'], location: 'Chennai, TN', image: '/Photos/green_garden.png', verified: false, about: 'Creating sustainable and beautiful outdoor spaces for urban homes.' },
+                        ];
+
+                        const filtered = CONTRACTORS.filter(c => 
+                            (filter === 'All' || c.category === filter) &&
+                            (c.name.toLowerCase().includes(search.toLowerCase()) || 
+                             c.expertise.some(e => e.toLowerCase().includes(search.toLowerCase())) ||
+                             c.location.toLowerCase().includes(search.toLowerCase()))
+                        );
+
+                        return (
+                            <div className="animate-fadeIn">
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px', flexWrap: 'wrap', gap: '20px' }}>
+                                    <div>
+                                        <h2 style={{ fontSize: '28px', fontWeight: 800 }}>Verified Contractor Directory</h2>
+                                        <p style={{ color: 'var(--muted)', marginTop: '4px' }}>Hand-picked partners vetted for quality, reliability, and fair pricing.</p>
+                                    </div>
+                                    <div style={{ position: 'relative', width: '350px', minWidth: '300px' }}>
+                                        <span style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', fontSize: '18px' }}>🔍</span>
+                                        <input 
+                                            type="text" 
+                                            placeholder="Search expertise, name or location..." 
+                                            value={search}
+                                            onChange={(e) => setSearch(e.target.value)}
+                                            style={{ width: '100%', padding: '14px 16px 14px 48px', borderRadius: '16px', border: '2px solid #e9ecef', fontSize: '14px', outline: 'none', transition: '0.3s', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}
+                                            onFocus={(e) => e.target.style.borderColor = 'var(--primary)'}
+                                            onBlur={(e) => e.target.style.borderColor = '#e9ecef'}
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Filter Tabs */}
+                                <div style={{ display: 'flex', gap: '12px', marginBottom: '32px', overflowX: 'auto', paddingBottom: '8px', scrollbarWidth: 'none' }}>
+                                    {['All', 'Interior', 'Renovation', 'Design', 'Garden'].map(t => (
+                                        <button 
+                                            key={t}
+                                            onClick={() => setFilter(t)}
+                                            style={{ 
+                                                padding: '10px 24px', borderRadius: '30px', border: 'none', 
+                                                background: filter === t ? 'var(--primary)' : 'white',
+                                                color: filter === t ? 'white' : '#64748b',
+                                                fontWeight: 700, cursor: 'pointer', transition: '0.3s',
+                                                boxShadow: filter === t ? '0 8px 16px rgba(230,126,34,0.3)' : '0 2px 8px rgba(0,0,0,0.05)',
+                                                whiteSpace: 'nowrap'
+                                            }}
+                                        >
+                                            {t}
+                                        </button>
+                                    ))}
+                                </div>
+
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '32px' }}>
+                                    {filtered.map(c => (
+                                        <div key={c.id} className="card hover-lift" style={{ margin: 0, padding: 0, overflow: 'hidden', border: '1px solid #edf2f7', display: 'flex', flexDirection: 'column' }}>
+                                            <div style={{ height: '200px', position: 'relative' }}>
+                                                <img src={c.image} alt={c.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(transparent, rgba(0,0,0,0.4))' }}></div>
+                                                {c.verified && (
+                                                    <div style={{ position: 'absolute', top: '16px', right: '16px', background: '#10b981', color: 'white', padding: '6px 14px', borderRadius: '30px', fontSize: '11px', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '6px', boxShadow: '0 4px 10px rgba(16,185,129,0.4)' }}>
+                                                        <span style={{ fontSize: '14px' }}>✓</span> VERIFIED
+                                                    </div>
+                                                )}
+                                                <div style={{ position: 'absolute', bottom: '16px', left: '16px' }}>
+                                                    <span style={{ background: 'rgba(255,255,255,0.9)', color: 'var(--primary)', padding: '4px 12px', borderRadius: '20px', fontSize: '11px', fontWeight: 800 }}>{c.category}</span>
+                                                </div>
+                                            </div>
+                                            <div style={{ padding: '24px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
+                                                    <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#1a202c' }}>{c.name}</h3>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: '#fff7ed', padding: '4px 8px', borderRadius: '8px' }}>
+                                                        <span style={{ color: '#e67e22', fontWeight: 800 }}>★</span>
+                                                        <span style={{ fontWeight: 800, fontSize: '14px', color: '#9a3412' }}>{c.rating}</span>
+                                                    </div>
+                                                </div>
+                                                <p style={{ color: 'var(--muted)', fontSize: '14px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                    <span style={{ fontSize: '16px' }}>📍</span> {c.location}
+                                                </p>
+                                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '20px' }}>
+                                                    {c.expertise.map(e => (
+                                                        <span key={e} style={{ background: '#f1f5f9', color: '#475569', padding: '5px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: 600 }}>{e}</span>
+                                                    ))}
+                                                </div>
+                                                
+                                                <div style={{ marginTop: 'auto', display: 'flex', gap: '12px' }}>
+                                                    <button 
+                                                        onClick={() => setSelectedContractor(c)}
+                                                        className="button-press"
+                                                        style={{ flex: 1, padding: '14px', borderRadius: '12px', background: '#f8fafc', color: '#1e293b', border: '2px solid #e2e8f0', fontWeight: 700, fontSize: '14px', cursor: 'pointer', transition: '0.3s' }}
+                                                        onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--primary)'}
+                                                        onMouseLeave={e => e.currentTarget.style.borderColor = '#e2e8f0'}
+                                                    >
+                                                        View Profile
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => {
+                                                            const newReq = {
+                                                                id: `CONS-${Date.now().toString().slice(-6)}`,
+                                                                customerName: userData.name,
+                                                                customerEmail: userEmail,
+                                                                type: `Consultation: ${c.name}`,
+                                                                status: 'pending',
+                                                                dateSubmitted: new Date().toISOString().split('T')[0],
+                                                                budget: 'N/A',
+                                                                responded: false
+                                                            };
+                                                            const allReqs = JSON.parse(localStorage.getItem('allAdminRequests') || '[]');
+                                                            localStorage.setItem('allAdminRequests', JSON.stringify([...allReqs, newReq]));
+                                                            toast.success(`Request sent! ${c.name} will contact you soon.`);
+                                                        }}
+                                                        className="button-press" 
+                                                        style={{ flex: 1.5, padding: '14px', borderRadius: '12px', background: 'linear-gradient(135deg, var(--primary), var(--primary-dark))', color: 'white', border: 'none', fontWeight: 800, fontSize: '14px', cursor: 'pointer', boxShadow: '0 6px 12px rgba(230,126,34,0.3)' }}
+                                                    >
+                                                        Book Free Call
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* Contractor Detail Modal */}
+                                {selectedContractor && (
+                                    <div 
+                                        onClick={e => { if (e.target === e.currentTarget) setSelectedContractor(null) }}
+                                        style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.7)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000, padding: '20px' }}
+                                    >
+                                        <div className="animate-scaleIn" style={{ background: 'white', borderRadius: '32px', maxWidth: '850px', width: '100%', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 40px 100px rgba(0,0,0,0.4)', position: 'relative' }}>
+                                            <button 
+                                                onClick={() => setSelectedContractor(null)}
+                                                style={{ position: 'absolute', top: '24px', right: '24px', background: 'white', border: 'none', color: '#1e293b', width: '44px', height: '44px', borderRadius: '50%', cursor: 'pointer', fontSize: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                                            >
+                                                ×
+                                            </button>
+                                            
+                                            <div style={{ height: '300px', width: '100%', position: 'relative' }}>
+                                                <img src={selectedContractor.image} alt={selectedContractor.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(transparent, rgba(0,0,0,0.7))' }}></div>
+                                                <div style={{ position: 'absolute', bottom: '32px', left: '40px', color: 'white' }}>
+                                                    <h2 style={{ fontSize: '36px', fontWeight: 800, marginBottom: '8px' }}>{selectedContractor.name}</h2>
+                                                    <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                                                        <span style={{ background: 'var(--primary)', color: 'white', padding: '6px 16px', borderRadius: '30px', fontSize: '13px', fontWeight: 700 }}>{selectedContractor.category}</span>
+                                                        <span style={{ fontSize: '15px', fontWeight: 600 }}>📍 {selectedContractor.location}</span>
+                                                        <span style={{ fontSize: '15px', fontWeight: 600 }}>★ {selectedContractor.rating} ({selectedContractor.reviews} reviews)</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div style={{ padding: '40px' }}>
+                                                <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '48px' }}>
+                                                    <div>
+                                                        <h4 style={{ fontSize: '18px', fontWeight: 800, marginBottom: '16px', color: '#1e293b' }}>About the Expert</h4>
+                                                        <p style={{ fontSize: '16px', lineHeight: 1.8, color: '#64748b', marginBottom: '32px' }}>{selectedContractor.about}</p>
+                                                        
+                                                        <h4 style={{ fontSize: '18px', fontWeight: 800, marginBottom: '16px', color: '#1e293b' }}>Core Expertise</h4>
+                                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
+                                                            {selectedContractor.expertise.map(e => (
+                                                                <span key={e} style={{ background: '#f8fafc', border: '1.5px solid #e2e8f0', color: '#1e293b', padding: '10px 20px', borderRadius: '12px', fontSize: '14px', fontWeight: 700 }}>{e}</span>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                    <div style={{ background: '#f8fafc', padding: '32px', borderRadius: '24px', border: '1px solid #e2e8f0' }}>
+                                                        <h4 style={{ fontSize: '20px', fontWeight: 800, marginBottom: '12px', color: '#1e293b' }}>Book Consultation</h4>
+                                                        <p style={{ fontSize: '14px', color: '#64748b', marginBottom: '24px' }}>Get a detailed site visit and customized estimate from {selectedContractor.name}.</p>
+                                                        
+                                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                                            <div style={{ background: 'white', padding: '16px', borderRadius: '12px', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                                                <span style={{ fontSize: '20px' }}>🎁</span>
+                                                                <div>
+                                                                    <p style={{ fontSize: '13px', fontWeight: 800, color: '#16a34a' }}>First Call Free</p>
+                                                                    <p style={{ fontSize: '11px', color: '#64748b' }}>BharatHome User Exclusive</p>
+                                                                </div>
+                                                            </div>
+                                                            
+                                                            <button 
+                                                                onClick={() => {
+                                                                    const newReq = {
+                                                                        id: `CONS-${Date.now().toString().slice(-6)}`,
+                                                                        customerName: userData.name,
+                                                                        customerEmail: userEmail,
+                                                                        type: `Consultation: ${selectedContractor.name}`,
+                                                                        status: 'pending',
+                                                                        dateSubmitted: new Date().toISOString().split('T')[0],
+                                                                        budget: 'N/A',
+                                                                        responded: false
+                                                                    };
+                                                                    const allReqs = JSON.parse(localStorage.getItem('allAdminRequests') || '[]');
+                                                                    localStorage.setItem('allAdminRequests', JSON.stringify([...allReqs, newReq]));
+                                                                    toast.success(`Priority request sent to ${selectedContractor.name}!`);
+                                                                    setSelectedContractor(null);
+                                                                }}
+                                                                className="button-press"
+                                                                style={{ width: '100%', padding: '16px', borderRadius: '12px', background: 'var(--primary)', color: 'white', border: 'none', fontWeight: 800, fontSize: '16px', cursor: 'pointer', boxShadow: '0 8px 20px rgba(230,126,34,0.3)' }}
+                                                            >
+                                                                Confirm Priority Booking
+                                                            </button>
+                                                            <p style={{ fontSize: '11px', color: '#94a3b8', textAlign: 'center', marginTop: '8px' }}>Our experts usually respond within 4 business hours.</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })()}
                 </main>
             </div>
 
