@@ -661,13 +661,13 @@ export default function UserDashboard() {
             {sidebarOpen && <div onClick={() => setSidebarOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 199 }} />}
 
             {/* Sidebar */}
-            <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
-                <div className="sidebar-header" onClick={() => setView('dashboard')} style={{ cursor: 'pointer', transition: 'all 0.3s' }}>
+            <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`} style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                <div className="sidebar-header" onClick={() => setView('dashboard')} style={{ cursor: 'pointer', transition: 'all 0.3s', flexShrink: 0 }}>
                     <h2 className="sidebar-brand" id="BharatHomeValue" style={{ fontSize: '22px', fontWeight: 800 }}>
                         BharatHome<span>Value</span>
                     </h2>
                 </div>
-                <nav className="sidebar-nav">
+                <nav className="sidebar-nav" style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', paddingBottom: '8px', scrollbarWidth: 'thin', scrollbarColor: 'rgba(230,126,34,0.3) transparent' }}>
                     {navLinks.map(l => (
                         <SidebarLink key={l.key} icon={l.icon} label={l.label} active={view === l.key} onClick={() => { 
                             if (l.key === 'emi') { navigate('/emi-calculator'); return }
@@ -676,10 +676,11 @@ export default function UserDashboard() {
                         }} badge={l.badge} />
                     ))}
                 </nav>
-                <div className="sidebar-footer">
+                <div className="sidebar-footer" style={{ flexShrink: 0, borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '8px' }}>
                     <div className="sidebar-link" onClick={() => setShowExitConfirm(true)}>← Back to Home</div>
                 </div>
             </aside>
+
 
             {/* Main */}
             <div className="dashboard-wrapper">
