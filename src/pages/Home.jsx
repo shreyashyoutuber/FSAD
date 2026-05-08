@@ -172,7 +172,12 @@ export default function Home() {
 
     const handleSubmit = (e) => {
         e.preventDefault()
-        alert('Thank you! Our designer will contact you shortly.')
+        const user = localStorage.getItem('user')
+        if (user) {
+            navigate('/user-dashboard')
+        } else {
+            navigate('/signup', { state: { from: 'hero', ...form } })
+        }
         setModalOpen(false)
     }
 

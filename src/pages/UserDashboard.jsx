@@ -852,7 +852,6 @@ export default function UserDashboard() {
 
     const getUnreadCount = () => {
         const readCounts = JSON.parse(localStorage.getItem('chatReadCounts') || '{}')
-        const userEmail = sessionStorage.getItem('bhvUser')
         if (!userEmail) return 0
         
         return estimates.reduce((acc, req) => {
@@ -1244,11 +1243,7 @@ export default function UserDashboard() {
 
                     {/* ---- RECOMMENDATIONS (Admin Responses) ---- */}
                     {view === 'recommendations' && (() => {
-                        const userEmail = sessionStorage.getItem('bhvUser')
-                        const allReqs = JSON.parse(localStorage.getItem('allAdminRequests') || '[]')
-                        const allResponses = JSON.parse(localStorage.getItem('adminResponses') || '{}')
-                        // Get all of this user's requests
-                        const myRequests = allReqs.filter(r => r.customerEmail === userEmail)
+                        const myRequests = estimates.filter(r => r.responded)
                         return (
                             <div className="animate-fadeIn">
                                 <div style={{ marginBottom: '28px' }}>
@@ -1266,8 +1261,16 @@ export default function UserDashboard() {
                                 ) : (
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                                         {myRequests.map((req, i) => {
-                                            const res = adminResponses[req.id]
-                                            const isResponded = req.responded && res
+                                            const isResponded = req.responded
+                                            // The backend Estimation object now contains response fields directly
+                                            const res = {
+                                                quote: req.adminQuote,
+                                                description: req.adminDescription,
+                                                timeline: req.adminTimeline,
+                                                warranty: req.adminWarranty,
+                                                notes: req.adminNotes,
+                                                responseDate: req.date // Or use createdAt
+                                            }
                                             return (
                                                 <div key={req.id} className={`card animate-slideUp stagger-${(i % 5) + 1}`} style={{ margin: 0, borderLeft: '4px solid ' + (isResponded ? '#10b981' : '#f59e0b'), borderRadius: '16px', padding: '28px' }}>
                                                     {/* Header */}
@@ -1576,8 +1579,12 @@ export default function UserDashboard() {
 
                                     setIsLoadingData(true)
                                     try {
+                                        if (!userEmail) throw new Error("User session expired. Please login again.");
+                                        console.log('Submitting property with email:', userEmail);
+                                        
                                         await saveEstimation(estData);
                                         toast.success('Property submitted successfully!');
+                                        
                                         // Refresh estimations
                                         const updated = await fetchUserEstimations(userEmail);
                                         setEstimates(updated);
@@ -1760,20 +1767,23 @@ export default function UserDashboard() {
                                                     View Profile
                                                 </button>
                                                 <button 
-                                                    onClick={() => {
+                                                    onClick={async () => {
                                                         const newReq = {
-                                                            id: `CONS-${Date.now().toString().slice(-6)}`,
-                                                            customerName: userData.name,
-                                                            customerEmail: userEmail,
+                                                            userEmail: userEmail,
                                                             type: `Consultation: ${c.name}`,
-                                                            status: 'pending',
-                                                            dateSubmitted: new Date().toISOString().split('T')[0],
-                                                            budget: 'N/A',
-                                                            responded: false
+                                                            date: new Date().toLocaleDateString(),
+                                                            cost: 0,
+                                                            details: JSON.stringify({ category: c.category, contractorName: c.name, status: 'PENDING' })
                                                         };
-                                                        const allReqs = JSON.parse(localStorage.getItem('allAdminRequests') || '[]');
-                                                        localStorage.setItem('allAdminRequests', JSON.stringify([...allReqs, newReq]));
-                                                        toast.success(`Request sent! ${c.name} will contact you soon.`);
+                                                        try {
+                                                            await saveEstimation(newReq);
+                                                            const updated = await fetchUserEstimations(userEmail);
+                                                            setEstimates(updated);
+                                                            toast.success(`Request sent! ${c.name} will contact you soon.`);
+                                                        } catch (err) {
+                                                            console.error('Failed to send contractor request:', err);
+                                                            toast.error('Failed to send request to server');
+                                                        }
                                                     }}
                                                     className="button-press" 
                                                     style={{ flex: 1.5, padding: '14px', borderRadius: '12px', background: 'linear-gradient(135deg, var(--primary), var(--primary-dark))', color: 'white', border: 'none', fontWeight: 800, fontSize: '14px', cursor: 'pointer', boxShadow: '0 6px 12px rgba(230,126,34,0.3)' }}
@@ -1840,21 +1850,24 @@ export default function UserDashboard() {
                                                         </div>
                                                         
                                                         <button 
-                                                            onClick={() => {
+                                                            onClick={async () => {
                                                                 const newReq = {
-                                                                    id: `CONS-${Date.now().toString().slice(-6)}`,
-                                                                    customerName: userData.name,
-                                                                    customerEmail: userEmail,
+                                                                    userEmail: userEmail,
                                                                     type: `Consultation: ${selectedContractor.name}`,
-                                                                    status: 'pending',
-                                                                    dateSubmitted: new Date().toISOString().split('T')[0],
-                                                                    budget: 'N/A',
-                                                                    responded: false
+                                                                    date: new Date().toLocaleDateString(),
+                                                                    cost: 0,
+                                                                    details: JSON.stringify({ category: selectedContractor.category, contractorName: selectedContractor.name, priority: true })
                                                                 };
-                                                                const allReqs = JSON.parse(localStorage.getItem('allAdminRequests') || '[]');
-                                                                localStorage.setItem('allAdminRequests', JSON.stringify([...allReqs, newReq]));
-                                                                toast.success(`Priority request sent to ${selectedContractor.name}!`);
-                                                                setSelectedContractor(null);
+                                                                try {
+                                                                    await saveEstimation(newReq);
+                                                                    const updated = await fetchUserEstimations(userEmail);
+                                                                    setEstimates(updated);
+                                                                    toast.success(`Priority request sent to ${selectedContractor.name}!`);
+                                                                    setSelectedContractor(null);
+                                                                } catch (err) {
+                                                                    console.error('Failed to send priority request:', err);
+                                                                    toast.error('Failed to send request to server');
+                                                                }
                                                             }}
                                                             className="button-press"
                                                             style={{ width: '100%', padding: '16px', borderRadius: '12px', background: 'var(--primary)', color: 'white', border: 'none', fontWeight: 800, fontSize: '16px', cursor: 'pointer', boxShadow: '0 8px 20px rgba(230,126,34,0.3)' }}
@@ -1894,13 +1907,20 @@ export default function UserDashboard() {
                 <ProfileModal
                     userData={userData}
                     onClose={() => setShowProfile(false)}
-                    onSave={(newVal) => {
-                        const updated = { ...userData, ...newVal }
-                        localStorage.setItem('userData', JSON.stringify(updated))
-                        setUserData(updated)
-                        setProfileForm(newVal)
-                        setShowProfile(false)
-                        alert('Profile updated successfully!')
+                    onSave={async (newVal) => {
+                        try {
+                            const updatedUser = await updateProfile(newVal)
+                            // Standardized 'user' key
+                            localStorage.setItem('user', JSON.stringify(updatedUser))
+                            // Legacy 'userData' key for compatibility if needed elsewhere
+                            localStorage.setItem('userData', JSON.stringify(updatedUser))
+                            setUserData(updatedUser)
+                            setShowProfile(false)
+                            toast.success('Profile updated successfully!')
+                        } catch (err) {
+                            console.error('Profile update failed:', err)
+                            toast.error('Failed to update profile on server')
+                        }
                     }}
                 />
             )}

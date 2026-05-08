@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { saveEstimation } from '../api'
 import { CITIES, MATERIAL_GRADES } from '../config/estimatorConfig'
+import { Toast, useToast } from '../components/Toast'
 
 const TYPES = ['Single Door', 'Double Door', 'Walk-in', 'Corner', 'Sliding', 'Custom']
 const MATERIALS = ['MDF with Laminate', 'HDHMR Board', 'Plywood', 'PVC', 'Solid Wood']
@@ -11,6 +12,7 @@ const BASE = 85000
 
 export default function WardrobeEstimator() {
     const navigate = useNavigate()
+    const { toasts, toast, removeToast } = useToast()
     const [sel, setSel] = useState({ type: '', material: '', width: '', finish: '', pkg: 'Standard', lights: false, mirror: false, pullout: false })
     const [city, setCity] = useState('')
     const [grade, setGrade] = useState('standard')
@@ -31,9 +33,9 @@ export default function WardrobeEstimator() {
 
     const handleSubmit = async () => {
         const storedUser = localStorage.getItem('user')
-        if (!storedUser) { navigate('/login'); return }
+        if (!storedUser) { navigate('/signup'); return }
         const userEmail = JSON.parse(storedUser).email
-        if (!userEmail) { navigate('/login'); return }
+        if (!userEmail) { navigate('/signup'); return }
 
         const selectedGrade = MATERIAL_GRADES.find(g => g.id === grade)
         const estData = {
@@ -46,11 +48,12 @@ export default function WardrobeEstimator() {
 
         setIsLoading(true)
         try {
-            await saveEstimation(estData)
+            toast.success('Wardrobe estimation saved successfully!');
             setSubmitted(true)
             setTimeout(() => navigate('/user-dashboard'), 2500)
         } catch (err) {
             console.error("Error saving estimation:", err)
+            toast.error('Failed to save estimation to server');
         } finally {
             setIsLoading(false)
         }
@@ -192,6 +195,7 @@ export default function WardrobeEstimator() {
                     </div>
                 </div>
             )}
+            <Toast toasts={toasts} removeToast={removeToast} />
         </div>
     )
 }

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { saveEstimation } from '../api'
 import { CITIES, MATERIAL_GRADES } from '../config/estimatorConfig'
+import { Toast, useToast } from '../components/Toast'
 
 const CONFIGS = ['1 BHK', '2 BHK', '3 BHK', '4 BHK', 'Duplex', 'Villa']
 const SCOPES = ['Complete Interior', 'Living + Bedrooms', 'Kitchen + Bathrooms', 'Only Living Room', 'Only Bedrooms']
@@ -13,6 +14,7 @@ const CONFIG_MUL = { '1 BHK': 0.6, '2 BHK': 1, '3 BHK': 1.4, '4 BHK': 1.8, 'Dupl
 
 export default function FullHomeEstimator() {
     const navigate = useNavigate()
+    const { toasts, toast, removeToast } = useToast()
     const [step, setStep] = useState(1)
     const [sel, setSel] = useState({ config: '', scope: '', style: '', floor: '', pkg: 'Premium', painting: false, lighting: false, furnishing: false })
     const [city, setCity] = useState('')
@@ -35,9 +37,9 @@ export default function FullHomeEstimator() {
 
     const handleSubmit = async () => {
         const storedUser = localStorage.getItem('user')
-        if (!storedUser) { navigate('/login'); return }
+        if (!storedUser) { navigate('/signup'); return }
         const userEmail = JSON.parse(storedUser).email
-        if (!userEmail) { navigate('/login'); return }
+        if (!userEmail) { navigate('/signup'); return }
 
         const selectedGrade = MATERIAL_GRADES.find(g => g.id === grade)
         const estData = {
@@ -51,11 +53,12 @@ export default function FullHomeEstimator() {
         setIsLoading(true)
         try {
             await saveEstimation(estData)
+            toast.success('Full home estimation saved successfully!');
             setSubmitted(true)
             setTimeout(() => navigate('/thankyou'), 1500)
         } catch (err) {
             console.error("Error saving estimation:", err)
-            // The objective is persistent backend storage
+            toast.error('Failed to save estimation to server');
         } finally {
             setIsLoading(false)
         }
@@ -242,6 +245,7 @@ export default function FullHomeEstimator() {
                     </div>
                 </div>
             )}
+            <Toast toasts={toasts} removeToast={removeToast} />
         </div>
     )
 }

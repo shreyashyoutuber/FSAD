@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { saveEstimation } from '../api'
 import { CITIES, MATERIAL_GRADES } from '../config/estimatorConfig'
+import { Toast, useToast } from '../components/Toast'
 
 const SIZES = ['7x6 ft', '8x7 ft', '10x8 ft', '12x9 ft', '14x10 ft', 'Custom']
 const LAYOUTS = ['L-Shaped', 'U-Shaped', 'Parallel', 'Straight', 'Island']
@@ -14,6 +15,7 @@ const pkgMul = { Essential: 1, Premium: 1.5, Luxury: 2.2 }
 
 export default function KitchenEstimator() {
     const navigate = useNavigate()
+    const { toasts, toast, removeToast } = useToast()
     const [sel, setSel] = useState({
         size: '', layout: '', shutter: '', countertop: '',
         package: 'Essential', appliances: false, sink: false, chimney: false
@@ -34,9 +36,9 @@ export default function KitchenEstimator() {
 
     const handleSubmit = async () => {
         const storedUser = localStorage.getItem('user')
-        if (!storedUser) { navigate('/login'); return }
+        if (!storedUser) { navigate('/signup'); return }
         const userEmail = JSON.parse(storedUser).email
-        if (!userEmail) { navigate('/login'); return }
+        if (!userEmail) { navigate('/signup'); return }
 
         const selectedGrade = MATERIAL_GRADES.find(g => g.id === grade)
         const estData = {
@@ -242,6 +244,7 @@ export default function KitchenEstimator() {
                     </div>
                 </div>
             )}
+            <Toast toasts={toasts} removeToast={removeToast} />
         </div>
     )
 }
