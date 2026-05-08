@@ -33,7 +33,9 @@ export default function KitchenEstimator() {
     const S = (k, v) => setSel(p => ({ ...p, [k]: v }))
 
     const handleSubmit = async () => {
-        const userEmail = sessionStorage.getItem('bhvUser')
+        const storedUser = localStorage.getItem('user')
+        if (!storedUser) { navigate('/login'); return }
+        const userEmail = JSON.parse(storedUser).email
         if (!userEmail) { navigate('/login'); return }
 
         const selectedGrade = MATERIAL_GRADES.find(g => g.id === grade)

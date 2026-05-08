@@ -34,7 +34,9 @@ export default function FullHomeEstimator() {
     const total = Math.round((base * (CONFIG_MUL[sel.config] || 1) * cityMul * gradeMul) + extras)
 
     const handleSubmit = async () => {
-        const userEmail = sessionStorage.getItem('bhvUser')
+        const storedUser = localStorage.getItem('user')
+        if (!storedUser) { navigate('/login'); return }
+        const userEmail = JSON.parse(storedUser).email
         if (!userEmail) { navigate('/login'); return }
 
         const selectedGrade = MATERIAL_GRADES.find(g => g.id === grade)
