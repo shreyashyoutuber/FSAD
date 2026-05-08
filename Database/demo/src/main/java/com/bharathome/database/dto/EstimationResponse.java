@@ -12,6 +12,13 @@ public record EstimationResponse(
     String date,
     Double cost,
     String details,
+    Double adminQuote,
+    String adminDescription,
+    String adminTimeline,
+    String adminWarranty,
+    String adminNotes,
+    Boolean responded,
+    String status,
     LocalDateTime createdAt
 ) {
     public static EstimationResponse fromEntity(Estimation estimation) {
@@ -22,6 +29,13 @@ public record EstimationResponse(
             estimation.getDate(),
             estimation.getCost(),
             estimation.getDetails(),
+            estimation.getAdminQuote(),
+            estimation.getAdminDescription(),
+            estimation.getAdminTimeline(),
+            estimation.getAdminWarranty(),
+            estimation.getAdminNotes(),
+            estimation.getResponded(),
+            estimation.getStatus(),
             estimation.getCreatedAt()
         );
     }

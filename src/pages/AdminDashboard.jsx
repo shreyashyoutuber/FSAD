@@ -160,17 +160,16 @@ function AdminChatModal({ req, onClose }) {
     const fileRef = useRef(null)
 
     useEffect(() => {
-        const responses = JSON.parse(localStorage.getItem('adminResponses') || '{}')
-        if (responses[req.id]) {
-            const r = responses[req.id]
-            setQuote(r.quote || '')
-            setDescription(r.description || '')
-            setTimeline(r.timeline || '')
-            setWarranty(r.warranty || '')
-            setNotes(r.notes || '')
-            setImages(r.images || [])
+        if (req) {
+            setQuote(req.adminQuote?.toString() || '')
+            setDescription(req.adminDescription || '')
+            setTimeline(req.adminTimeline || '')
+            setWarranty(req.adminWarranty || '')
+            setNotes(req.adminNotes || '')
+            // Note: images/photos might need special handling if stored in details
+            setImages([]) 
         }
-    }, [req.id])
+    }, [req])
 
     const handleFiles = (files) => {
         if (images.length + files.length > 5) { window._adminToast?.warning('Max 5 images allowed'); return }
@@ -182,26 +181,26 @@ function AdminChatModal({ req, onClose }) {
         })
     }
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault()
         setSaving(true)
-        setTimeout(() => {
-            const responses = JSON.parse(localStorage.getItem('adminResponses') || '{}')
-            responses[req.id] = {
-                quote, description, timeline, warranty, notes, images,
-                requestId: req.id, responseDate: new Date().toISOString().split('T')[0]
+        try {
+            const responseData = {
+                adminQuote: parseFloat(quote),
+                adminDescription: description,
+                adminTimeline: timeline,
+                adminWarranty: warranty,
+                adminNotes: notes
             }
-            localStorage.setItem('adminResponses', JSON.stringify(responses))
-
-            const stored = localStorage.getItem('allAdminRequests')
-            const allReqs = stored ? JSON.parse(stored) : []
-            const updated = allReqs.map(r => r.id === req.id ? { ...r, responded: true, status: 'responded' } : r)
-            localStorage.setItem('allAdminRequests', JSON.stringify(updated))
-
-            setSaving(false)
-            onSave(updated)
+            const updatedEst = await respondToEstimation(req.id, responseData)
+            onSave(updatedEst)
             onClose()
-        }, 600)
+        } catch (err) {
+            console.error('Error saving response:', err)
+            window._adminToast?.error('Failed to save response to backend')
+        } finally {
+            setSaving(false)
+        }
     }
 
     const labelStyle = { display: 'block', fontSize: '11px', fontWeight: 800, color: theme.textMuted, textTransform: 'uppercase', marginBottom: '8px' }
@@ -327,23 +326,54 @@ export default function AdminDashboard() {
         return () => { if (document.head.contains(style)) document.head.removeChild(style) }
     }, [])
 
+    const [isLoading, setIsLoading] = useState(true)
+
     useEffect(() => {
         if (!localStorage.getItem('adminLoggedIn')) { navigate('/admin-login'); return }
-        const stored = localStorage.getItem('allAdminRequests')
-        setRequests(stored ? JSON.parse(stored) : [])
+        const loadRequests = async () => {
+            setIsLoading(true)
+            try {
+                const data = await fetchAllEstimations()
+                // Map backend data to frontend request format
+                const mapped = data.map(r => {
+                    let details = r.details
+                    if (typeof details === 'string') {
+                        try { details = JSON.parse(details) } catch(e) { details = {} }
+                    }
+                    
+                    return {
+                        ...r,
+                        customerName: details?.firstName ? `${details.firstName} ${details.lastName || ''}` : (r.userEmail?.split('@')[0] || 'User'),
+                        customerEmail: r.userEmail,
+                        customerPhone: details?.phone || 'N/A',
+                        customerAddress: details?.address || details?.city || 'N/A',
+                        budget: `₹${r.cost?.toLocaleString('en-IN')}`,
+                        dateSubmitted: r.date || r.createdAt?.split('T')[0],
+                        details: details // Store as object
+                    }
+                })
+                setRequests(mapped)
+            } catch (err) {
+                console.error('Error fetching estimations:', err)
+                toast.error('Failed to load requests from server')
+            } finally {
+                setIsLoading(false)
+            }
+        }
+        loadRequests()
     }, [])
 
     const filtered = requests.filter(r =>
-        r.customerName.toLowerCase().includes(search.toLowerCase()) ||
-        r.id.toLowerCase().includes(search.toLowerCase()) ||
-        r.type.toLowerCase().includes(search.toLowerCase())
+        (r.customerName || '').toLowerCase().includes(search.toLowerCase()) ||
+        (r.id?.toString() || '').toLowerCase().includes(search.toLowerCase()) ||
+        (r.type || '').toLowerCase().includes(search.toLowerCase())
     )
 
     // Pagination
     const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
     const paginatedRequests = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
 
-    const revenue = requests.reduce((acc, r) => acc + parseInt(r.budget.replace(/[^0-9]/g, '') || 0), 0)
+    const revenue = requests.reduce((acc, r) => acc + (r.cost || 0), 0)
     const pending = requests.filter(r => !r.responded).length
     const conversion = requests.length > 0
         ? ((requests.filter(r => r.responded).length / requests.length) * 100).toFixed(1)
@@ -352,20 +382,22 @@ export default function AdminDashboard() {
     // Derive Customers
     const customerMap = {}
     requests.forEach(r => {
-        if (!customerMap[r.customerEmail]) {
-            customerMap[r.customerEmail] = {
-                name: r.customerName, email: r.customerEmail, phone: r.customerPhone,
+        const email = r.customerEmail || 'anonymous'
+        if (!customerMap[email]) {
+            customerMap[email] = {
+                name: r.customerName, email: email, phone: r.customerPhone,
                 address: r.customerAddress, count: 0, totalValue: 0, requests: []
             }
         }
-        customerMap[r.customerEmail].count++
-        customerMap[r.customerEmail].totalValue += parseInt(r.budget.replace(/[^0-9]/g, '') || 0)
-        customerMap[r.customerEmail].requests.push(r)
+        customerMap[email].count++
+        customerMap[email].totalValue += (r.cost || 0)
+        customerMap[email].requests.push(r)
     })
     const customers = Object.values(customerMap)
 
     const logout = () => {
         localStorage.removeItem('adminLoggedIn')
+        localStorage.removeItem('token')
         navigate('/admin-login')
     }
 

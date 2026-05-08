@@ -40,6 +40,9 @@ public class User {
     @JsonIgnore
     private List<Estimation> estimations = new ArrayList<>();
 
+    @Column(columnDefinition = "TEXT")
+    private String savedIdeas; // Stores JSON array of saved recommendations
+
     // --- Getters and Setters ---
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -58,4 +61,7 @@ public class User {
 
     public List<Estimation> getEstimations() { return estimations; }
     public void setEstimations(List<Estimation> estimations) { this.estimations = estimations; }
+
+    public String getSavedIdeas() { return savedIdeas; }
+    public void setSavedIdeas(String savedIdeas) { this.savedIdeas = savedIdeas; }
 }

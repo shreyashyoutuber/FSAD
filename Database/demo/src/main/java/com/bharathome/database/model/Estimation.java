@@ -35,6 +35,21 @@ public class Estimation {
     @Column(columnDefinition = "TEXT")
     private String details; // Stores the JSON details of the estimate
 
+    // --- Admin Response Fields ---
+    private Double adminQuote;
+    
+    @Column(columnDefinition = "TEXT")
+    private String adminDescription;
+    
+    private String adminTimeline;
+    private String adminWarranty;
+    
+    @Column(columnDefinition = "TEXT")
+    private String adminNotes;
+    
+    private Boolean responded = false;
+    private String status = "PENDING"; // PENDING, RESPONDED, IN_PROGRESS, COMPLETED
+
     private LocalDateTime createdAt = LocalDateTime.now();
 
     // --- Getters and Setters ---
@@ -62,6 +77,22 @@ public class Estimation {
     public void setCost(Double cost) { this.cost = cost; }
     public String getDetails() { return details; }
     public void setDetails(String details) { this.details = details; }
+
+    public Double getAdminQuote() { return adminQuote; }
+    public void setAdminQuote(Double adminQuote) { this.adminQuote = adminQuote; }
+    public String getAdminDescription() { return adminDescription; }
+    public void setAdminDescription(String adminDescription) { this.adminDescription = adminDescription; }
+    public String getAdminTimeline() { return adminTimeline; }
+    public void setAdminTimeline(String adminTimeline) { this.adminTimeline = adminTimeline; }
+    public String getAdminWarranty() { return adminWarranty; }
+    public void setAdminWarranty(String adminWarranty) { this.adminWarranty = adminWarranty; }
+    public String getAdminNotes() { return adminNotes; }
+    public void setAdminNotes(String adminNotes) { this.adminNotes = adminNotes; }
+    public Boolean getResponded() { return responded; }
+    public void setResponded(Boolean responded) { this.responded = responded; }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }

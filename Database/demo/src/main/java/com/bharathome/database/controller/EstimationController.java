@@ -25,6 +25,12 @@ public class EstimationController {
         this.userRepository = userRepository;
     }
 
+    @GetMapping
+    public ResponseEntity<List<EstimationResponse>> getAllEstimations() {
+        List<Estimation> estimations = estimationRepository.findAll();
+        return ResponseEntity.ok(EstimationResponse.fromEntities(estimations));
+    }
+
     @GetMapping("/{userEmail}")
     public ResponseEntity<List<EstimationResponse>> getEstimations(@PathVariable String userEmail) {
         List<Estimation> estimations = estimationRepository.findByUser_Email(userEmail);
@@ -41,6 +47,23 @@ public class EstimationController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
         
         estimation.setUser(user);
+        Estimation savedEstimation = estimationRepository.save(estimation);
+        return ResponseEntity.ok(EstimationResponse.fromEntity(savedEstimation));
+    }
+
+    @PutMapping("/{id}/response")
+    public ResponseEntity<EstimationResponse> updateEstimationResponse(@PathVariable Long id, @RequestBody Estimation responseData) {
+        Estimation estimation = estimationRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Estimation not found"));
+        
+        estimation.setAdminQuote(responseData.getAdminQuote());
+        estimation.setAdminDescription(responseData.getAdminDescription());
+        estimation.setAdminTimeline(responseData.getAdminTimeline());
+        estimation.setAdminWarranty(responseData.getAdminWarranty());
+        estimation.setAdminNotes(responseData.getAdminNotes());
+        estimation.setResponded(true);
+        estimation.setStatus("RESPONDED");
+        
         Estimation savedEstimation = estimationRepository.save(estimation);
         return ResponseEntity.ok(EstimationResponse.fromEntity(savedEstimation));
     }

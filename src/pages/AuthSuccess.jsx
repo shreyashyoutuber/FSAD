@@ -16,16 +16,14 @@ export default function AuthSuccess() {
             // 1. JWT for API calls
             localStorage.setItem('token', token)
             
-            // 2. Email for session tracking (Required by UserDashboard.jsx)
-            sessionStorage.setItem('bhvUser', email)
-            
-            // 3. Complete user object (Required by UserDashboard.jsx)
-            const userData = { 
+            // 2. Complete user object (Standardized key 'user')
+            const user = { 
                 name: name || 'Google User', 
                 email: email,
-                phone: '0000000000' // Placeholder as it is mandatory in DB
+                phone: '0000000000',
+                savedIdeas: '[]'
             }
-            localStorage.setItem('userData', JSON.stringify(userData))
+            localStorage.setItem('user', JSON.stringify(user))
 
             // Success redirect
             navigate('/user-dashboard')

@@ -119,7 +119,7 @@ public class AuthController {
             User user = userOptional.get();
             if (passwordEncoder.matches(password, user.getPassword())) {
                 String token = jwtUtils.generateToken(email);
-                UserResponse response = new UserResponse(user.getId(), user.getName(), user.getEmail(), user.getPhone(), token);
+                UserResponse response = new UserResponse(user.getId(), user.getName(), user.getEmail(), user.getPhone(), user.getSavedIdeas(), token);
                 return ResponseEntity.ok(response);
             }
         }

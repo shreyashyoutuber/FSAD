@@ -48,30 +48,12 @@ export default function KitchenEstimator() {
         setIsLoading(true)
         try {
             await saveEstimation(estData)
-            const est = { ...estData, package: sel.package, city, grade: selectedGrade?.label }
-            const prev = JSON.parse(localStorage.getItem('userEstimates') || '[]')
-            localStorage.setItem('userEstimates', JSON.stringify([...prev, est]))
-
-            const req = {
-                id: `EST-${Date.now()}`,
-                customerName: JSON.parse(localStorage.getItem('userData') || '{}').name || 'User',
-                customerEmail: userEmail,
-                type: 'Kitchen Estimator',
-                status: 'pending',
-                dateSubmitted: new Date().toISOString().split('T')[0],
-                description: `Kitchen ${sel.layout} layout, ${sel.size}, ${sel.shutter} shutters, ${city} — ${selectedGrade?.label} grade`,
-                budget: `₹${total.toLocaleString('en-IN')}`,
-                responded: false,
-                city,
-                grade: selectedGrade?.label
-            }
-            const allReqs = JSON.parse(localStorage.getItem('allAdminRequests') || '[]')
-            localStorage.setItem('allAdminRequests', JSON.stringify([...allReqs, req]))
-
             setSubmitted(true)
             setTimeout(() => navigate('/user-dashboard'), 2500)
         } catch (err) {
             console.error('Error saving estimation:', err)
+            // Fallback for user experience if needed, but the objective is backend persistence
+            toast.error('Failed to save estimation to server')
         } finally {
             setIsLoading(false)
         }

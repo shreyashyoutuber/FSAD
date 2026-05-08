@@ -30,15 +30,7 @@ export default function Login() {
 
         setIsLoading(true)
         try {
-            const user = await login({ email: form.email, password: form.password })
-
-            sessionStorage.setItem('bhvUser', user.email)
-            localStorage.setItem('userData', JSON.stringify({
-                name: user.name,
-                email: user.email,
-                phone: user.phone || '+91 98765 43210',
-                property: { type: '2BHK Apartment', location: 'Sector 62, Noida', currentValue: 5000000, size: 1250, age: 8, locationRating: 4.2 }
-            }))
+            await login({ email: form.email, password: form.password })
             navigate('/user-dashboard')
         } catch (err) {
             console.error('Login error:', err)

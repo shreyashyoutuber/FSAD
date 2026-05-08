@@ -9,6 +9,7 @@ public record UserResponse(
     String name,
     String email,
     String phone,
+    String savedIdeas,
     String token
 ) {
     public static UserResponse fromEntity(User user) {
@@ -17,6 +18,7 @@ public record UserResponse(
             user.getName(),
             user.getEmail(),
             user.getPhone(),
+            user.getSavedIdeas(),
             null
         );
     }

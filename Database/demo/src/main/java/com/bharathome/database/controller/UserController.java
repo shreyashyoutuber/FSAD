@@ -42,4 +42,16 @@ public class UserController {
         User savedUser = userRepository.save(user);
         return ResponseEntity.ok(UserResponse.fromEntity(savedUser));
     }
+
+    @PutMapping("/saved-ideas")
+    public ResponseEntity<UserResponse> updateSavedIdeas(Principal principal, @RequestBody String savedIdeas) {
+        if (principal == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        
+        User user = userRepository.findByEmail(principal.getName())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        
+        user.setSavedIdeas(savedIdeas);
+        User savedUser = userRepository.save(user);
+        return ResponseEntity.ok(UserResponse.fromEntity(savedUser));
+    }
 }

@@ -572,8 +572,9 @@ export default function UserDashboard() {
     const [contractorFilter, setContractorFilter] = useState('All')
     const [selectedContractor, setSelectedContractor] = useState(null)
 
-
-
+    // NEW Persistent States
+    const [estimates, setEstimates] = useState([])
+    const [isLoadingData, setIsLoadingData] = useState(true)
 
     // Close notifications on outside click
     useEffect(() => {
@@ -615,8 +616,15 @@ export default function UserDashboard() {
     const generateAIRecommendations = (property) => {
         if (!property) return []
         const typeStr = property.type?.replace('Property: ', '') || 'Property'
-        const valueNum = parseInt(property.details?.marketValue?.replace(/[^0-9]/g, '') || 5000000)
-        const sizeNum = parseInt(property.details?.area || property.details?.size || 1200)
+        
+        // Handle potentially stringified details
+        let details = property.details
+        if (typeof details === 'string') {
+            try { details = JSON.parse(details) } catch(e) { details = {} }
+        }
+
+        const valueNum = parseInt(details?.marketValue?.replace(/[^0-9]/g, '') || 5000000)
+        const sizeNum = parseInt(details?.area || details?.size || 1200)
         const locationStr = property.customerAddress?.split(',').pop().trim() || 'your location'
         
         const recommendations = []
@@ -667,22 +675,45 @@ export default function UserDashboard() {
     }, [])
 
     useEffect(() => {
-        const user = sessionStorage.getItem('bhvUser')
-        if (!user) { navigate('/login'); return }
-        const data = JSON.parse(localStorage.getItem('userData') || '{}')
-        setUserData(data)
-        setProfileForm({ name: data.name || '', email: data.email || '', phone: data.phone || '' })
-        setSavedIdeas(JSON.parse(localStorage.getItem('savedIdeas') || '[]'))
+        const userStr = localStorage.getItem('user')
+        if (!userStr) { navigate('/login'); return }
+        const user = JSON.parse(userStr)
+        const email = user.email
+        
+        // Fetch User Profile and Estimations from API
+        const loadData = async () => {
+            setIsLoadingData(true)
+            try {
+                // Fetch estimations
+                const apiEstimates = await fetchUserEstimations(email)
+                setEstimates(apiEstimates)
+                
+                // Fetch profile to get savedIdeas
+                const profile = await getCurrentUser()
+                setUserData(profile)
+                setProfileForm({ name: profile.name || '', email: profile.email || '', phone: profile.phone || '' })
+                setSavedIdeas(JSON.parse(profile.savedIdeas || '[]'))
+            } catch (err) {
+                console.error('Error loading data:', err)
+                // Fallback to localStorage if API fails (optional)
+                const data = JSON.parse(localStorage.getItem('user') || '{}')
+                setUserData(data || { name: 'User' })
+                setSavedIdeas(JSON.parse(localStorage.getItem('savedIdeas') || '[]'))
+            } finally {
+                setIsLoadingData(false)
+            }
+        }
+        loadData()
     }, [])
 
     // Clear unread counts when recommendations view is opened
     useEffect(() => {
         const count = getUnreadCount()
         if (view === 'recommendations' && count > 0) {
-            const allReqs = JSON.parse(localStorage.getItem('allAdminRequests') || '[]')
+            // Mark all as read locally for now
             const readCounts = JSON.parse(localStorage.getItem('chatReadCounts') || '{}')
-            allReqs.forEach(req => {
-                if (req.customerEmail === userEmail) {
+            estimates.forEach(req => {
+                if (req.responded) {
                     const chatMsgs = JSON.parse(localStorage.getItem(`chat_${req.id}`) || '[]')
                     readCounts[req.id] = chatMsgs.filter(m => m.sender === 'admin').length
                 }
@@ -692,53 +723,63 @@ export default function UserDashboard() {
         } else {
             setUnreadChats(count)
         }
-    }, [view, chatReq])
+    }, [view, chatReq, estimates])
 
-    const saveIdea = (rec) => {
+    const saveIdea = async (rec) => {
         const already = savedIdeas.find(s => s.title === rec.title)
         if (already) { toast.warning('Already saved!'); return }
         const updated = [...savedIdeas, rec]
         setSavedIdeas(updated)
-        localStorage.setItem('savedIdeas', JSON.stringify(updated))
-        toast.success(`"${rec.title}" saved for later!`)
+        try {
+            await updateSavedIdeas(JSON.stringify(updated))
+            toast.success(`"${rec.title}" saved for later!`)
+        } catch (err) {
+            console.error('Error saving idea:', err)
+            localStorage.setItem('savedIdeas', JSON.stringify(updated))
+        }
     }
 
-    const removeIdea = (title) => {
+    const removeIdea = async (title) => {
         const updated = savedIdeas.filter(s => s.title !== title)
         setSavedIdeas(updated)
-        localStorage.setItem('savedIdeas', JSON.stringify(updated))
+        try {
+            await updateSavedIdeas(JSON.stringify(updated))
+        } catch (err) {
+            console.error('Error removing idea:', err)
+            localStorage.setItem('savedIdeas', JSON.stringify(updated))
+        }
     }
 
-    const logout = () => {
-        sessionStorage.removeItem('bhvUser')
-        navigate('/')
+    const logoutHandler = () => {
+        logout()
     }
 
-    const saveProfile = (newInfo) => {
-        const updated = { ...userData, ...newInfo }
-        setUserData(updated)
-        localStorage.setItem('userData', JSON.stringify(updated))
-        setShowProfile(false)
+    const saveProfile = async (newInfo) => {
+        try {
+            const updated = await updateProfile(newInfo)
+            setUserData(updated)
+            setShowProfile(false)
+            toast.success('Profile updated!')
+        } catch (err) {
+            console.error('Error updating profile:', err)
+            toast.error('Failed to update profile')
+        }
     }
 
     // Data Derivation
-    const allEstimates = JSON.parse(localStorage.getItem('userEstimates') || '[]')
-    const userEmail = sessionStorage.getItem('bhvUser')
-    const estimates = allEstimates.filter(est => est.userEmail === userEmail || est.customerEmail === userEmail)
-    const allAdminRequests = JSON.parse(localStorage.getItem('allAdminRequests') || '[]')
-    const adminResponses = JSON.parse(localStorage.getItem('adminResponses') || '{}')
-
+    const userFromStore = JSON.parse(localStorage.getItem('user') || '{}')
+    const userEmail = userFromStore.email
+    
     // Find the primary property for this user (most recent submission)
-    const myProperties = allAdminRequests.filter(r => r.customerEmail === userEmail && r.type.startsWith('Property:'))
-    const myRequests = allAdminRequests.filter(r => r.customerEmail === userEmail)
+    const myProperties = estimates.filter(r => r.type.startsWith('Property:'))
     const activeProperty = myProperties.length > 0 ? myProperties[myProperties.length - 1] : null
 
     // Calculated metrics
     const dynamicRecs = generateAIRecommendations(activeProperty)
-    const activeRecsCount = allAdminRequests.filter(r => r.customerEmail === userEmail && r.responded).length
-    const totalInvestment = Object.values(adminResponses)
-        .filter(res => allAdminRequests.find(req => req.id === res.requestId && req.customerEmail === userEmail))
-        .reduce((sum, res) => sum + parseInt(res.quote || 0), 0)
+    const activeRecsCount = estimates.filter(r => r.responded).length
+    const totalInvestment = estimates
+        .filter(res => res.responded)
+        .reduce((sum, res) => sum + parseInt(res.adminQuote || 0), 0)
 
     const potentialValueIncrease = totalInvestment > 0 ? Math.round(totalInvestment * 1.8) : 0 
     
@@ -751,14 +792,18 @@ export default function UserDashboard() {
     const displayValueIncrease = potentialValueIncrease > 0 ? potentialValueIncrease : (activeProperty ? fallbackTotalValue : 0)
     const displayRecsCount = activeRecsCount > 0 ? activeRecsCount : (activeProperty ? RECS.length : 0)
 
-    const baseValue = parseInt(activeProperty?.details?.marketValue?.replace(/[^0-9]/g, '') || 5000000)
+    const activePropertyDetails = typeof activeProperty?.details === 'string' 
+        ? (JSON.parse(activeProperty.details) || {}) 
+        : (activeProperty?.details || {})
+    
+    const baseValue = parseInt(activePropertyDetails?.marketValue?.toString().replace(/[^0-9]/g, '') || 5000000)
 
     const prop = activeProperty ? {
         type: activeProperty.type?.replace('Property: ', '') || 'Residential',
-        location: activeProperty.customerAddress || 'Location',
+        location: activePropertyDetails?.address || activePropertyDetails?.city || 'Location',
         currentValue: baseValue,
-        size: activeProperty.details?.size || '1,250',
-        age: activeProperty.details?.year ? (new Date().getFullYear() - activeProperty.details.year) : 10,
+        size: activePropertyDetails?.propertySize || activePropertyDetails?.size || '1,250',
+        age: activePropertyDetails?.yearBuilt ? (new Date().getFullYear() - activePropertyDetails.yearBuilt) : (activePropertyDetails?.year ? (new Date().getFullYear() - activePropertyDetails.year) : 10),
         locationRating: 4.5
     } : (userData?.property || {})
 
@@ -806,19 +851,19 @@ export default function UserDashboard() {
     }
 
     const getUnreadCount = () => {
-        const allReqs = JSON.parse(localStorage.getItem('allAdminRequests') || '[]')
         const readCounts = JSON.parse(localStorage.getItem('chatReadCounts') || '{}')
         const userEmail = sessionStorage.getItem('bhvUser')
-        let total = 0
-        allReqs.forEach(req => {
-            if (req.customerEmail === userEmail) {
+        if (!userEmail) return 0
+        
+        return estimates.reduce((acc, req) => {
+            if (req.responded) {
                 const chatMsgs = JSON.parse(localStorage.getItem(`chat_${req.id}`) || '[]')
-                const adminMsgs = chatMsgs.filter(m => m.sender === 'admin').length
-                const lastRead = readCounts[req.id] || 0
-                total += Math.max(0, adminMsgs - lastRead)
+                const totalAdmin = chatMsgs.filter(m => m.sender === 'admin').length
+                const read = readCounts[req.id] || 0
+                return acc + Math.max(0, totalAdmin - read)
             }
-        })
-        return total
+            return acc
+        }, 0)
     }
 
     if (!userData) return <div style={{ padding: '40px', textAlign: 'center' }}>Loading...</div>
@@ -897,7 +942,7 @@ export default function UserDashboard() {
                                     </div>
                                     <div style={{ maxHeight: '360px', overflowY: 'auto' }}>
                                         {unreadChats > 0 ? (
-                                            myRequests.filter(r => {
+                                            estimates.filter(r => {
                                                 const msgs = JSON.parse(localStorage.getItem(`chat_${r.id}`) || '[]')
                                                 const adminMsgs = msgs.filter(m => m.sender === 'admin').length
                                                 const readCounts = JSON.parse(localStorage.getItem('chatReadCounts') || '{}')
@@ -959,7 +1004,7 @@ export default function UserDashboard() {
                             </div>
                             <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text)' }}>Profile</span>
                         </div>
-                        <button onClick={logout} className="button-press" style={{ padding: '8px 20px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, transition: '0.3s' }} onMouseEnter={e => e.target.style.background = '#fecaca'} onMouseLeave={e => e.target.style.background = '#fee2e2'}>Logout</button>
+                        <button onClick={logoutHandler} className="button-press" style={{ padding: '8px 20px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, transition: '0.3s' }} onMouseEnter={e => e.target.style.background = '#fecaca'} onMouseLeave={e => e.target.style.background = '#fee2e2'}>Logout</button>
                     </div>
                 </header>
 
@@ -1504,36 +1549,45 @@ export default function UserDashboard() {
                             <h2 style={{ fontSize: '24px', fontWeight: 800, marginBottom: '8px' }}>Submit New Property</h2>
                             <p style={{ color: 'var(--muted)', marginBottom: '24px' }}>Tell us about your property to get personalized recommendations</p>
                             <div className="card" style={{ margin: 0 }}>
-                                <form onSubmit={(e) => {
+                                <form onSubmit={async (e) => {
                                     e.preventDefault();
                                     const fd = new FormData(e.target);
                                     const data = Object.fromEntries(fd.entries());
 
-                                    const newReq = {
-                                        id: `PROP-${Date.now().toString().slice(-6)}`,
-                                        customerName: `${data.firstName} ${data.lastName}`,
-                                        customerEmail: data.email,
-                                        customerPhone: data.phone,
-                                        customerAddress: `${data.address}, ${data.city}`,
+                                    const estData = {
+                                        userEmail: userEmail,
                                         type: `Property: ${data.propertyType}`,
-                                        status: 'pending',
-                                        dateSubmitted: new Date().toISOString().split('T')[0],
-                                        description: data.description || 'New property submission for review',
-                                        budget: `₹${data.improvementBudget}`,
-                                        responded: false,
-                                        propertyPhotos: propertyPhotos, // New property photos
-                                        details: {
-                                            size: data.propertySize,
-                                            year: data.yearBuilt,
-                                            marketValue: `₹${data.marketValue}`
-                                        }
+                                        date: new Date().toLocaleDateString(),
+                                        cost: parseFloat(data.improvementBudget || 0),
+                                        details: JSON.stringify({
+                                            firstName: data.firstName,
+                                            lastName: data.lastName,
+                                            phone: data.phone,
+                                            address: data.address,
+                                            city: data.city,
+                                            propertyType: data.propertyType,
+                                            propertySize: data.propertySize,
+                                            yearBuilt: data.yearBuilt,
+                                            marketValue: data.marketValue,
+                                            description: data.description || 'New property submission for review',
+                                            propertyPhotos: propertyPhotos
+                                        })
                                     };
 
-                                    const allReqs = JSON.parse(localStorage.getItem('allAdminRequests') || '[]');
-                                    localStorage.setItem('allAdminRequests', JSON.stringify([...allReqs, newReq]));
-
-                                    alert('Property submitted! Our team will review and provide recommendations within 48 hours.');
-                                    setView('dashboard');
+                                    setIsLoadingData(true)
+                                    try {
+                                        await saveEstimation(estData);
+                                        toast.success('Property submitted successfully!');
+                                        // Refresh estimations
+                                        const updated = await fetchUserEstimations(userEmail);
+                                        setEstimates(updated);
+                                        setView('dashboard');
+                                    } catch (err) {
+                                        console.error('Error submitting property:', err);
+                                        toast.error('Failed to submit property to server');
+                                    } finally {
+                                        setIsLoadingData(false)
+                                    }
                                 }}>
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                                         <div className="form-group"><label>First Name</label><input name="firstName" type="text" defaultValue={userData?.name?.split(' ')[0] || ''} required /></div>

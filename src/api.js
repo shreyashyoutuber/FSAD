@@ -142,7 +142,8 @@ export const login = async (credentials) => {
             id: data.id, 
             name: data.name, 
             email: data.email, 
-            phone: data.phone 
+            phone: data.phone,
+            savedIdeas: data.savedIdeas
         };
         localStorage.setItem("user", JSON.stringify(user));
     }
@@ -210,9 +211,25 @@ export const saveEstimation = async (estimationData) => {
     return response.json();
 };
 
+export const fetchAllEstimations = async () => {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/estimations`);
+    if (!response.ok) throw new Error("Failed to fetch estimations");
+    return response.json();
+};
+
 export const fetchUserEstimations = async (email) => {
     const response = await fetchWithTimeout(`${API_BASE_URL}/estimations/${email}`);
     if (!response.ok) throw new Error("Failed to fetch estimations");
+    return response.json();
+};
+
+export const respondToEstimation = async (id, responseData) => {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/estimations/${id}/response`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(responseData),
+    });
+    if (!response.ok) throw new Error("Failed to save response");
     return response.json();
 };
 
@@ -252,6 +269,16 @@ export const updateProfile = async (userData) => {
     // Update local storage with new user data
     localStorage.setItem("user", JSON.stringify(data));
     return data;
+};
+
+export const updateSavedIdeas = async (savedIdeas) => {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/users/saved-ideas`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(savedIdeas),
+    });
+    if (!response.ok) throw new Error("Failed to save ideas");
+    return response.json();
 };
 
 export const clearDatabaseData = async () => {

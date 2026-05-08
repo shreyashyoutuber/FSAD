@@ -34,7 +34,7 @@ export default function AdminLogin() {
             // Store admin session info
             localStorage.setItem('adminLoggedIn', 'true')
             localStorage.setItem('adminEmail', data.email)
-            localStorage.setItem('adminToken', data.token)
+            localStorage.setItem('token', data.token)
             localStorage.setItem('adminLoginTime', Date.now())
 
             navigate('/admin-dashboard')
