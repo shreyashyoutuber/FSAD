@@ -217,8 +217,8 @@ export const fetchAllEstimations = async () => {
     return response.json();
 };
 
-export const fetchUserEstimations = async (email) => {
-    const response = await fetchWithTimeout(`${API_BASE_URL}/estimations/${email}`);
+export const fetchUserEstimations = async (userEmail) => {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/estimations/user?email=${encodeURIComponent(userEmail)}`);
     if (!response.ok) throw new Error("Failed to fetch estimations");
     return response.json();
 };

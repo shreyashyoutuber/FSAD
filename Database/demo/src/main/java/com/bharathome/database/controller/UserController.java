@@ -24,7 +24,7 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<UserResponse> getCurrentUser(Principal principal) {
         if (principal == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-        User user = userRepository.findByEmail(principal.getName())
+        User user = userRepository.findByEmailIgnoreCase(principal.getName())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
         return ResponseEntity.ok(UserResponse.fromEntity(user));
     }
@@ -33,7 +33,7 @@ public class UserController {
     public ResponseEntity<UserResponse> updateProfile(Principal principal, @Valid @RequestBody User updatedData) {
         if (principal == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         
-        User user = userRepository.findByEmail(principal.getName())
+        User user = userRepository.findByEmailIgnoreCase(principal.getName())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
         
         user.setName(updatedData.getName());
@@ -47,7 +47,7 @@ public class UserController {
     public ResponseEntity<UserResponse> updateSavedIdeas(Principal principal, @RequestBody String savedIdeas) {
         if (principal == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         
-        User user = userRepository.findByEmail(principal.getName())
+        User user = userRepository.findByEmailIgnoreCase(principal.getName())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
         
         user.setSavedIdeas(savedIdeas);

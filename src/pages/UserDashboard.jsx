@@ -685,7 +685,9 @@ export default function UserDashboard() {
             setIsLoadingData(true)
             try {
                 // Fetch estimations
+                console.log('Loading dashboard data for:', email);
                 const apiEstimates = await fetchUserEstimations(email)
+                console.log('Fetched estimations:', apiEstimates.length, apiEstimates);
                 setEstimates(apiEstimates)
                 
                 // Fetch profile to get savedIdeas

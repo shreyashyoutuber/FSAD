@@ -31,9 +31,11 @@ public class EstimationController {
         return ResponseEntity.ok(EstimationResponse.fromEntities(estimations));
     }
 
-    @GetMapping("/{userEmail}")
-    public ResponseEntity<List<EstimationResponse>> getEstimations(@PathVariable String userEmail) {
-        List<Estimation> estimations = estimationRepository.findByUser_Email(userEmail);
+    @GetMapping("/user")
+    public ResponseEntity<List<EstimationResponse>> getEstimations(@RequestParam String email) {
+        System.out.println("Fetching estimations for email: " + email);
+        List<Estimation> estimations = estimationRepository.findByUser_EmailIgnoreCase(email);
+        System.out.println("Found " + estimations.size() + " estimations");
         return ResponseEntity.ok(EstimationResponse.fromEntities(estimations));
     }
 
@@ -43,7 +45,7 @@ public class EstimationController {
         String email = estimation.getUserEmail();
         if (email == null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "userEmail is required");
         
-        User user = userRepository.findByEmail(email)
+        User user = userRepository.findByEmailIgnoreCase(email.trim())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
         
         estimation.setUser(user);

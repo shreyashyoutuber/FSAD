@@ -46,7 +46,7 @@ public class AuthController {
         if (email == null || email.isBlank()) {
             return ResponseEntity.badRequest().body("Email is required.");
         }
-        if (userRepository.findByEmail(email).isPresent()) {
+        if (userRepository.findByEmailIgnoreCase(email.trim()).isPresent()) {
             return ResponseEntity.badRequest().body("This email is already registered.");
         }
 
@@ -81,7 +81,7 @@ public class AuthController {
     // ─────────────────────────────────────────────────────────────────────────
     @PostMapping("/signup")
     public ResponseEntity<UserResponse> signup(@Valid @RequestBody SignupRequest request) {
-        if (userRepository.findByEmail(request.email()).isPresent()) {
+        if (userRepository.findByEmailIgnoreCase(request.email().trim()).isPresent()) {
             return ResponseEntity.badRequest().build();
         }
 
@@ -114,7 +114,7 @@ public class AuthController {
         String email = body.get("email");
         String password = body.get("password");
 
-        Optional<User> userOptional = userRepository.findByEmail(email);
+        Optional<User> userOptional = userRepository.findByEmailIgnoreCase(email != null ? email.trim() : null);
         if (userOptional.isPresent()) {
             User user = userOptional.get();
             if (passwordEncoder.matches(password, user.getPassword())) {
@@ -132,7 +132,7 @@ public class AuthController {
     @PostMapping("/forgot-password")
     public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> body) {
         String email = body.get("email");
-        Optional<User> userOptional = userRepository.findByEmail(email);
+        Optional<User> userOptional = userRepository.findByEmailIgnoreCase(email != null ? email.trim() : null);
 
         // Always return OK to avoid email enumeration
         if (userOptional.isPresent()) {
