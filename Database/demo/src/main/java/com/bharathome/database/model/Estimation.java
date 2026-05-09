@@ -32,19 +32,19 @@ public class Estimation {
     private Double cost;
     
     @NotBlank(message = "Details are required")
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "LONGTEXT")
     private String details; // Stores the JSON details of the estimate
 
     // --- Admin Response Fields ---
     private Double adminQuote;
     
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "LONGTEXT")
     private String adminDescription;
     
     private String adminTimeline;
     private String adminWarranty;
     
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "LONGTEXT")
     private String adminNotes;
     
     private Boolean responded = false;

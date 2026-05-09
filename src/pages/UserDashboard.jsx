@@ -1593,7 +1593,7 @@ export default function UserDashboard() {
                                         setView('dashboard');
                                     } catch (err) {
                                         console.error('Error submitting property:', err);
-                                        toast.error('Failed to submit property to server');
+                                        toast.error(err.message || 'Failed to submit property to server');
                                     } finally {
                                         setIsLoadingData(false)
                                     }

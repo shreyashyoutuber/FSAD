@@ -40,7 +40,7 @@ public class User {
     @JsonIgnore
     private List<Estimation> estimations = new ArrayList<>();
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "LONGTEXT")
     private String savedIdeas; // Stores JSON array of saved recommendations
 
     // --- Getters and Setters ---

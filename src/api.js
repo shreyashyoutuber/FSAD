@@ -207,7 +207,19 @@ export const saveEstimation = async (estimationData) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(estimationData),
     });
-    if (!response.ok) throw new Error("Failed to save estimation");
+    if (!response.ok) {
+        let errorMsg = "Failed to save estimation";
+        try {
+            const errorData = await response.json();
+            errorMsg = errorData.message || errorMsg;
+        } catch (e) {
+            try {
+                const text = await response.clone().text();
+                errorMsg = text || errorMsg;
+            } catch (e2) {}
+        }
+        throw new Error(errorMsg);
+    }
     return response.json();
 };
 
