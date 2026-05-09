@@ -5,6 +5,21 @@ import { Line } from 'react-chartjs-2'
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js'
 import { fetchUserEstimations, getCurrentUser, saveEstimation, updateProfile } from '../api'
 
+const Icons = {
+    Dashboard: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>,
+    Estimator: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>,
+    New: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>,
+    Sparkles: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3l1.912 3.874L18 7.5l-3 2.923L15.708 15 12 13.126 8.292 15 9 10.423 6 7.5l4.088-.626L12 3z"/></svg>,
+    Bookmark: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>,
+    Home: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
+    Gift: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>,
+    Users: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
+    Calculator: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="16" y1="14" x2="16" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg>,
+    Search: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>,
+    User: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
+    Logout: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>,
+}
+
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler)
 
 const RECS = [
@@ -77,9 +92,9 @@ function ProfileModal({ userData, onClose, onSave }) {
                     </div>
                     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                         {[
-                            { label: 'Full Name', key: 'name', type: 'text', icon: '👤' },
-                            { label: 'Email Address', key: 'email', type: 'email', icon: '✉️' },
-                            { label: 'Phone Number', key: 'phone', type: 'tel', icon: '📞' }
+                            { label: 'Full Name', key: 'name', type: 'text', icon: <Icons.User /> },
+                            { label: 'Email Address', key: 'email', type: 'email', icon: <Icons.Search /> },
+                            { label: 'Phone Number', key: 'phone', type: 'tel', icon: <Icons.User /> }
                         ].map(({ label, key, type, icon }) => (
                             <div key={key}>
                                 <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>{label}</label>
@@ -675,6 +690,13 @@ export default function UserDashboard() {
         }
     }, [])
 
+    const logout = () => {
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
+        localStorage.removeItem('userData')
+        navigate('/login')
+    }
+
     useEffect(() => {
         const userStr = localStorage.getItem('user')
         if (!userStr) { navigate('/login'); return }
@@ -872,15 +894,15 @@ export default function UserDashboard() {
 
 
     const navLinks = [
-        { icon: '📊', label: 'Dashboard', key: 'dashboard' },
-        { icon: '💰', label: 'My Estimator', key: 'estimator' },
-        { icon: '📄', label: 'New Estimate', key: 'new-estimator' },
-        { icon: '💡', label: 'Recommendations', key: 'recommendations', badge: unreadChats },
-        { icon: '🔖', label: 'Saved Ideas', key: 'saved', badge: savedIdeas.length },
-        { icon: '🏠', label: 'Submit Property', key: 'submit' },
-        { icon: '🎁', label: 'Refer & Earn', key: 'referral' },
-        { icon: '👷', label: 'Contractor Directory', key: 'contractors' },
-        { icon: '🧮', label: 'EMI Calculator', key: 'emi' },
+        { icon: <Icons.Dashboard />, label: 'Dashboard', key: 'dashboard' },
+        { icon: <Icons.Estimator />, label: 'My Estimator', key: 'estimator' },
+        { icon: <Icons.New />, label: 'New Estimate', key: 'new-estimator' },
+        { icon: <Icons.Sparkles />, label: 'Recommendations', key: 'recommendations', badge: unreadChats },
+        { icon: <Icons.Bookmark />, label: 'Saved Ideas', key: 'saved', badge: savedIdeas.length },
+        { icon: <Icons.Home />, label: 'Submit Property', key: 'submit' },
+        { icon: <Icons.Gift />, label: 'Refer & Earn', key: 'referral' },
+        { icon: <Icons.Users />, label: 'Contractor Directory', key: 'contractors' },
+        { icon: <Icons.Calculator />, label: 'EMI Calculator', key: 'emi' },
     ]
 
 
@@ -1015,7 +1037,7 @@ export default function UserDashboard() {
                     {view === 'dashboard' && (
                         <div className="animate-fadeIn">
                             <div style={{ marginBottom: '24px' }}>
-                                <h2 style={{ fontSize: '26px', fontWeight: 800 }}>Welcome back, {userData.name}! 👋</h2>
+                                <h2 style={{ fontSize: '26px', fontWeight: 800 }}>Welcome back, {userData.name}!</h2>
                                 <p style={{ color: 'var(--muted)' }}>Here's an overview of your property improvement journey</p>
                             </div>
 
@@ -1032,13 +1054,13 @@ export default function UserDashboard() {
                                             </div>
                                             <div style={{ textAlign: 'right' }}>
                                                 <p style={{ opacity: 0.7, fontSize: '13px' }}>Current Market Value</p>
-                                                <p style={{ fontSize: '28px', fontWeight: 800, color: '#ffd700' }}>₹{activeProperty.details?.marketValue || '₹50,00,000'}</p>
+                                                <p style={{ fontSize: '28px', fontWeight: 800, color: '#ffd700' }}>{activeProperty.details?.marketValue || 'Pending Review'}</p>
                                             </div>
                                         </div>
                                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '16px', marginTop: '24px' }}>
                                             {[
-                                                ['Property Size', `${activeProperty.details?.size || '1,250'} sq ft`],
-                                                ['Property Age', `${activeProperty.details?.age || '10'} years`],
+                                                ['Property Size', activeProperty.details?.size ? `${activeProperty.details.size} sq ft` : 'N/A'],
+                                                ['Property Age', activeProperty.details?.age ? `${activeProperty.details.age} years` : 'N/A'],
                                                 ['Location Rating', `4.5/5.0`]
                                             ].map(([k, v]) => (
                                                 <div key={k} style={{ background: 'rgba(255,255,255,0.1)', borderRadius: '10px', padding: '14px' }}>
@@ -1058,9 +1080,9 @@ export default function UserDashboard() {
                                     {/* Metric Cards */}
                                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', marginBottom: '32px' }}>
                                         {[
-                                            { label: 'Potential Value Increase', value: `+₹${(displayValueIncrease / 100000).toFixed(2)}L`, sub: activeRecsCount > 0 ? 'With all recommendations' : 'Initial AI Projection', color: '#3b82f6', icon: '📊' },
-                                            { label: 'Total Investment', value: `₹${(displayInvestment / 100000).toFixed(2)}L`, sub: activeRecsCount > 0 ? 'Estimated renovation cost' : 'Initial AI Estimate', color: '#f59e0b', icon: '₹' },
-                                            { label: 'Active Recommendations', value: displayRecsCount, sub: activeRecsCount > 0 ? 'Personalized for you' : 'Projected for your property', color: '#10b981', icon: '💡' },
+                                            { label: 'Potential Value Increase', value: `+₹${(displayValueIncrease / 100000).toFixed(2)}L`, sub: activeRecsCount > 0 ? 'With all recommendations' : 'Initial AI Projection', color: '#3b82f6', icon: <Icons.Dashboard /> },
+                                            { label: 'Total Investment', value: `₹${(displayInvestment / 100000).toFixed(2)}L`, sub: activeRecsCount > 0 ? 'Estimated renovation cost' : 'Initial AI Estimate', color: '#f59e0b', icon: <Icons.Estimator /> },
+                                            { label: 'Active Recommendations', value: displayRecsCount, sub: activeRecsCount > 0 ? 'Personalized for you' : 'Projected for your property', color: '#10b981', icon: <Icons.Sparkles /> },
                                         ].map((m, i) => (
                                             <div key={i} className={`card animate-slideUp stagger-${i + 2}`} style={{ margin: 0, padding: '24px', border: '1px solid #f0f0f0', borderRadius: '20px' }}>
                                                 <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '16px' }}>
@@ -1088,10 +1110,10 @@ export default function UserDashboard() {
                                             <div className="card" style={{ margin: 0, padding: '32px' }}>
                                                 <h3 style={{ fontSize: '20px', fontWeight: 800, marginBottom: '20px' }}>Quick Actions</h3>
                                                 {[
-                                                    { icon: '📐', title: 'New Estimate', sub: 'Calculate interior costs', action: () => setView('new-estimator'), primary: true },
-                                                    { icon: '📋', title: 'View Estimates', sub: 'See saved estimates', action: () => setView('estimator') },
-                                                    { icon: '🧮', title: 'EMI Calculator', sub: 'Plan your renovation loan', action: () => navigate('/emi-calculator') },
-                                                    { icon: '🎁', title: 'Refer & Earn', sub: 'Invite friends, earn rewards', action: () => setView('referral') },
+                                                    { icon: <Icons.New />, title: 'New Estimate', sub: 'Calculate interior costs', action: () => setView('new-estimator'), primary: true },
+                                                    { icon: <Icons.Estimator />, title: 'View Estimates', sub: 'See saved estimates', action: () => setView('estimator') },
+                                                    { icon: <Icons.Calculator />, title: 'EMI Calculator', sub: 'Plan your renovation loan', action: () => setView('emi') },
+                                                    { icon: <Icons.Gift />, title: 'Refer & Earn', sub: 'Invite friends, earn rewards', action: () => setView('referral') },
                                                 ].map((a, i) => (
 
                                                     <div key={i} onClick={a.action} className={`button-press ${a.primary ? 'animate-pulseGlow' : ''}`} style={{
@@ -1153,7 +1175,7 @@ export default function UserDashboard() {
                                             </div>
                                         ) : (
                                             <div style={{ textAlign: 'center', padding: '40px 20px', background: '#f8fafc', borderRadius: '16px', border: '1px dashed #e2e8f0' }}>
-                                                <div style={{ fontSize: '32px', marginBottom: '16px' }}>⏳</div>
+                                                <div style={{ color: 'var(--primary)', marginBottom: '16px', display: 'flex', justifyContent: 'center' }}><Icons.Calculator /></div>
                                                 <h4 style={{ fontSize: '16px', fontWeight: 700, color: '#475569' }}>Expert Analysis in Progress</h4>
                                                 <p style={{ color: '#94a3b8', fontSize: '14px', maxWidth: '300px', margin: '8px auto 0', lineHeight: 1.5 }}>
                                                     Our experts are reviewing your property details. Personalized recommendations will appear here shortly.
@@ -1164,7 +1186,7 @@ export default function UserDashboard() {
                                 </>
                             ) : (
                                 <div className="card animate-fadeIn" style={{ margin: 0, padding: '80px 40px', textAlign: 'center', background: 'linear-gradient(135deg, #ffffff, #f8fafc)', border: '2px dashed #e2e8f0', borderRadius: '32px', boxShadow: '0 20px 40px rgba(0,0,0,0.05)' }}>
-                                    <div style={{ fontSize: '72px', marginBottom: '32px' }}>🏡</div>
+                                    <div style={{ color: 'var(--primary)', marginBottom: '32px', transform: 'scale(3)', display: 'inline-block' }}><Icons.Home /></div>
                                     <h2 style={{ fontSize: '32px', fontWeight: 800, color: '#1a1a1a', marginBottom: '16px' }}>Maximize Your Property Potential</h2>
                                     <p style={{ color: '#64748b', fontSize: '18px', maxWidth: '600px', margin: '0 auto 40px', lineHeight: 1.6 }}>
                                         Unlock personalized renovation recommendations, market value projections, and expert insights. Submit your property details to get started.
@@ -1682,7 +1704,7 @@ export default function UserDashboard() {
                                     <p style={{ color: 'var(--muted)', marginTop: '4px' }}>Hand-picked partners vetted for quality, reliability, and fair pricing.</p>
                                 </div>
                                 <div style={{ position: 'relative', width: '350px', minWidth: '300px' }}>
-                                    <span style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', fontSize: '18px' }}>🔍</span>
+                                    <span style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', fontSize: '18px', color: 'var(--primary)' }}><Icons.Search /></span>
                                     <input 
                                         type="text" 
                                         placeholder="Search expertise, name or location..." 
