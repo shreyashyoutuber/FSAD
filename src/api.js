@@ -9,7 +9,8 @@ export const warmUpBackend = () => {
     fetch(`${API_BASE_URL}/users`).catch(() => {});
 };
 
-const fetchWithTimeout = async (url, options = {}, timeout = 60000) => {
+export const fetchWithTimeout = async (url, options = {}) => {
+    const { timeout = 30000 } = options;
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), timeout);
     
