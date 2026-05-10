@@ -1776,10 +1776,13 @@ export default function UserDashboard() {
                                         })
                                     };
 
-                                    setIsSubmitting(true)
+                                    setIsSubmitting(true);
+                                    console.log('Submission started. Preparing data...');
                                     try {
                                         if (!userEmail) throw new Error("User session expired. Please login again.");
-                                        console.log('Submitting property with email:', userEmail);
+                                        
+                                        toast.info("Uploading property details & photos...");
+                                        console.log('Submitting property data:', estData);
 
                                         await saveEstimation(estData);
                                         toast.success('Property submitted successfully!');
