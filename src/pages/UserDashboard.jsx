@@ -792,6 +792,7 @@ export default function UserDashboard() {
         localStorage.removeItem('token')
         localStorage.removeItem('user')
         localStorage.removeItem('userData')
+        sessionStorage.clear()
         navigate('/login')
     }
 
@@ -2094,7 +2095,7 @@ export default function UserDashboard() {
                 <ConfirmModal
                     title="Exit Dashboard?"
                     message="Are you sure you want to go back to the home page? This will log you out of your current session."
-                    onConfirm={() => { logout(); navigate('/') }}
+                    onConfirm={() => { logout() }}
                     onCancel={() => setShowExitConfirm(false)}
                 />
             )}
