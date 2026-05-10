@@ -69,4 +69,18 @@ public class EstimationController {
         Estimation savedEstimation = estimationRepository.save(estimation);
         return ResponseEntity.ok(EstimationResponse.fromEntity(savedEstimation));
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteEstimation(@PathVariable Long id, @RequestParam String email) {
+        Estimation estimation = estimationRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Estimation not found"));
+
+        // Ensure only the owner can delete
+        if (!estimation.getUser().getEmail().equalsIgnoreCase(email)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not authorized to delete this estimation");
+        }
+
+        estimationRepository.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
 }

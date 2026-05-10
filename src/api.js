@@ -246,6 +246,14 @@ export const respondToEstimation = async (id, responseData) => {
     return response.json();
 };
 
+export const deleteEstimation = async (id, email) => {
+    const response = await fetchWithTimeout(
+        `${API_BASE_URL}/estimations/${id}?email=${encodeURIComponent(email)}`,
+        { method: "DELETE" }
+    );
+    if (!response.ok) throw new Error("Failed to delete estimation");
+};
+
 export const createUser = async (user) => {
     const response = await fetchWithTimeout(`${API_BASE_URL}/users`, {
         method: "POST",
