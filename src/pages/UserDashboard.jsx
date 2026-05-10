@@ -636,6 +636,7 @@ export default function UserDashboard() {
     const [isLoadingData, setIsLoadingData] = useState(true)
     const [deleteConfirm, setDeleteConfirm] = useState(null) // est object to delete
     const [isDeleting, setIsDeleting] = useState(false)
+    const [isSubmitting, setIsSubmitting] = useState(false)
 
     // Close notifications on outside click
     useEffect(() => {
@@ -1775,7 +1776,7 @@ export default function UserDashboard() {
                                         })
                                     };
 
-                                    setIsLoadingData(true)
+                                    setIsSubmitting(true)
                                     try {
                                         if (!userEmail) throw new Error("User session expired. Please login again.");
                                         console.log('Submitting property with email:', userEmail);
@@ -1791,7 +1792,7 @@ export default function UserDashboard() {
                                         console.error('Error submitting property:', err);
                                         toast.error(err.message || 'Failed to submit property to server');
                                     } finally {
-                                        setIsLoadingData(false)
+                                        setIsSubmitting(false)
                                     }
                                 }}>
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
@@ -1862,7 +1863,15 @@ export default function UserDashboard() {
                                         <label>Additional Notes</label>
                                         <textarea name="description" rows={3} placeholder="Any special requirements or details..." style={{ width: '100%', padding: '12px 16px', border: '2px solid #e9ecef', borderRadius: '8px', fontSize: '15px', outline: 'none', resize: 'vertical' }} />
                                     </div>
-                                    <button type="submit" className="btn-submit button-press" style={{ marginTop: '24px', padding: '16px' }}>Submit Property for Review →</button>
+                                    <button 
+                                        type="submit" 
+                                        className="btn-submit button-press" 
+                                        style={{ marginTop: '24px', padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', opacity: isSubmitting ? 0.7 : 1, cursor: isSubmitting ? 'not-allowed' : 'pointer' }}
+                                        disabled={isSubmitting}
+                                    >
+                                        {isSubmitting ? <Spinner color="white" size={20} /> : null}
+                                        {isSubmitting ? 'Submitting Property...' : 'Submit Property for Review →'}
+                                    </button>
                                 </form>
                             </div>
                         </div>

@@ -10,7 +10,7 @@ export const warmUpBackend = () => {
 };
 
 export const fetchWithTimeout = async (url, options = {}) => {
-    const { timeout = 30000 } = options;
+    const { timeout = 60000 } = options;
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), timeout);
     
@@ -207,6 +207,7 @@ export const saveEstimation = async (estimationData) => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(estimationData),
+        timeout: 300000 // 5 minutes for property photo uploads (5 images can be large)
     });
     if (!response.ok) {
         let errorMsg = "Failed to save estimation";
