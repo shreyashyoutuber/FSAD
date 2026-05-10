@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Toast, useToast } from '../components/Toast'
 import { Line } from 'react-chartjs-2'
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js'
-import { fetchUserEstimations, getCurrentUser, saveEstimation, updateProfile, deleteEstimation } from '../api'
+import { fetchUserEstimations, getCurrentUser, saveEstimation, updateProfile, deleteEstimation, warmUpBackend } from '../api'
 
 const Icons = {
     Dashboard: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="9" /><rect x="14" y="3" width="7" height="5" /><rect x="14" y="12" width="7" height="9" /><rect x="3" y="16" width="7" height="5" /></svg>,
@@ -803,6 +803,7 @@ export default function UserDashboard() {
         const user = JSON.parse(userStr)
         const email = user.email
 
+        warmUpBackend();
         // Fetch User Profile and Estimations from API
         const loadData = async () => {
             setIsLoadingData(true)
