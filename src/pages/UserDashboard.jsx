@@ -6,19 +6,19 @@ import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement
 import { fetchUserEstimations, getCurrentUser, saveEstimation, updateProfile, deleteEstimation } from '../api'
 
 const Icons = {
-    Dashboard: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>,
-    Estimator: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>,
-    New: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>,
-    Sparkles: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3l1.912 3.874L18 7.5l-3 2.923L15.708 15 12 13.126 8.292 15 9 10.423 6 7.5l4.088-.626L12 3z"/></svg>,
-    Bookmark: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>,
-    Home: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
-    Gift: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>,
-    Users: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
-    Calculator: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="16" y1="14" x2="16" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg>,
-    Search: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>,
-    User: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
-    Logout: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>,
-    Trash: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>,
+    Dashboard: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="9" /><rect x="14" y="3" width="7" height="5" /><rect x="14" y="12" width="7" height="9" /><rect x="3" y="16" width="7" height="5" /></svg>,
+    Estimator: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg>,
+    New: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="12" y1="18" x2="12" y2="12" /><line x1="9" y1="15" x2="15" y2="15" /></svg>,
+    Sparkles: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3l1.912 3.874L18 7.5l-3 2.923L15.708 15 12 13.126 8.292 15 9 10.423 6 7.5l4.088-.626L12 3z" /></svg>,
+    Bookmark: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" /></svg>,
+    Home: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>,
+    Gift: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 12 20 22 4 22 4 12" /><rect x="2" y="7" width="20" height="5" /><line x1="12" y1="22" x2="12" y2="7" /><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z" /><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z" /></svg>,
+    Users: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>,
+    Calculator: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2" /><line x1="8" y1="6" x2="16" y2="6" /><line x1="16" y1="14" x2="16" y2="18" /><path d="M16 10h.01" /><path d="M12 10h.01" /><path d="M8 10h.01" /><path d="M12 14h.01" /><path d="M8 14h.01" /><path d="M12 18h.01" /><path d="M8 18h.01" /></svg>,
+    Search: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>,
+    User: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>,
+    Logout: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>,
+    Trash: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" /><path d="M10 11v6" /><path d="M14 11v6" /><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" /></svg>,
 }
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler)
@@ -41,11 +41,23 @@ const animations = `
     70% { box-shadow: 0 0 0 10px rgba(230,126,34,0); } 
     100% { box-shadow: 0 0 0 0 rgba(230,126,34,0); } 
 }
+@keyframes shimmer {
+    0% { background-position: -800px 0; }
+    100% { background-position: 800px 0; }
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 
 .animate-fadeIn { animation: fadeIn 0.5s ease forwards; }
 .animate-slideUp { animation: slideUp 0.5s ease forwards; }
 .animate-scaleIn { animation: scaleIn 0.4s ease forwards; }
 .animate-pulseGlow { animation: pulseGlow 2s infinite; }
+
+.skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
+    background-size: 800px 100%;
+    animation: shimmer 1.5s infinite linear;
+    border-radius: 8px;
+}
 
 .hover-lift { transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
 .hover-lift:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 12px 24px -8px rgba(0,0,0,0.15); }
@@ -57,6 +69,36 @@ const animations = `
 .stagger-4 { animation-delay: 0.4s; }
 .stagger-5 { animation-delay: 0.5s; }
 `
+
+const Spinner = ({ size = 18, color = 'white' }) => (
+    <span style={{ width: size, height: size, border: `2.5px solid ${color}40`, borderTopColor: color, borderRadius: '50%', display: 'inline-block', animation: 'spin 0.7s linear infinite', flexShrink: 0 }} />
+)
+
+const Skeleton = ({ w = '100%', h = 20, mb = 0, radius = 8 }) => (
+    <div className="skeleton" style={{ width: w, height: h, marginBottom: mb, borderRadius: radius }} />
+)
+
+const DashboardSkeleton = () => (
+    <div className="animate-fadeIn" style={{ padding: '0' }}>
+        <div style={{ marginBottom: '28px' }}>
+            <Skeleton w="260px" h={32} mb={10} />
+            <Skeleton w="380px" h={18} />
+        </div>
+        {/* Property card skeleton */}
+        <div className="skeleton" style={{ borderRadius: '24px', height: '200px', marginBottom: '32px' }} />
+        {/* Timeline skeleton */}
+        <div className="skeleton" style={{ borderRadius: '16px', height: '80px', marginBottom: '32px' }} />
+        {/* Metric cards skeleton */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '24px', marginBottom: '32px' }}>
+            {[1, 2, 3].map(i => <div key={i} className="card" style={{ margin: 0, padding: '24px' }}><Skeleton h={20} mb={16} /><Skeleton w="60%" h={32} mb={8} /><Skeleton w="80%" h={14} /></div>)}
+        </div>
+        {/* Chart + actions skeleton */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: '24px' }}>
+            <div className="card" style={{ margin: 0, padding: '32px' }}><Skeleton h={24} mb={24} w="200px" /><Skeleton h={260} /></div>
+            <div className="card" style={{ margin: 0, padding: '32px' }}><Skeleton h={24} mb={20} w="140px" />{[1, 2, 3, 4].map(i => <Skeleton key={i} h={64} mb={12} radius={16} />)}</div>
+        </div>
+    </div>
+)
 
 const SidebarLink = ({ icon, label, active, onClick, badge }) => (
     <div className={`sidebar-link button-press ${active ? 'active' : ''}`} onClick={onClick} style={{ transition: 'all 0.3s' }}>
@@ -583,7 +625,7 @@ export default function UserDashboard() {
     const [showReviewModal, setShowReviewModal] = useState(false)
     const [reviewRating, setReviewRating] = useState(5)
     const [reviewText, setReviewText] = useState('')
-    
+
     // Contractor Directory States
     const [contractorSearch, setContractorSearch] = useState('')
     const [contractorFilter, setContractorFilter] = useState('All')
@@ -592,6 +634,8 @@ export default function UserDashboard() {
     // NEW Persistent States
     const [estimates, setEstimates] = useState([])
     const [isLoadingData, setIsLoadingData] = useState(true)
+    const [deleteConfirm, setDeleteConfirm] = useState(null) // est object to delete
+    const [isDeleting, setIsDeleting] = useState(false)
 
     // Close notifications on outside click
     useEffect(() => {
@@ -633,17 +677,17 @@ export default function UserDashboard() {
     const generateAIRecommendations = (property) => {
         if (!property) return []
         const typeStr = property.type?.replace('Property: ', '') || 'Property'
-        
+
         // Handle potentially stringified details
         let details = property.details
         if (typeof details === 'string') {
-            try { details = JSON.parse(details) } catch(e) { details = {} }
+            try { details = JSON.parse(details) } catch (e) { details = {} }
         }
 
         const valueNum = parseInt(details?.marketValue?.replace(/[^0-9]/g, '') || 5000000)
         const sizeNum = parseInt(details?.area || details?.size || 1200)
         const locationStr = property.customerAddress?.split(',').pop().trim() || 'your location'
-        
+
         const recommendations = []
         recommendations.push({
             title: 'Designer Modular Kitchen',
@@ -756,7 +800,7 @@ export default function UserDashboard() {
         if (!userStr) { navigate('/login'); return }
         const user = JSON.parse(userStr)
         const email = user.email
-        
+
         // Fetch User Profile and Estimations from API
         const loadData = async () => {
             setIsLoadingData(true)
@@ -764,16 +808,16 @@ export default function UserDashboard() {
                 // Fetch estimations
                 console.log('Loading dashboard data for:', email);
                 const apiEstimates = await fetchUserEstimations(email)
-                
+
                 // Parse details JSON string for each estimate
                 const parsedEstimates = apiEstimates.map(est => ({
                     ...est,
                     parsedDetails: typeof est.details === 'string' ? JSON.parse(est.details) : est.details
                 }));
-                
+
                 console.log('Fetched estimations:', parsedEstimates.length, parsedEstimates);
                 setEstimates(parsedEstimates)
-                
+
                 // Fetch profile to get savedIdeas
                 const profile = await getCurrentUser()
                 setUserData(profile)
@@ -855,7 +899,7 @@ export default function UserDashboard() {
     // Data Derivation
     const userFromStore = JSON.parse(localStorage.getItem('user') || '{}')
     const userEmail = userFromStore.email
-    
+
     // Find the primary property for this user (most recent submission)
     const myProperties = estimates.filter(r => r.type.startsWith('Property:'))
     const activeProperty = myProperties.length > 0 ? myProperties[myProperties.length - 1] : null
@@ -867,8 +911,8 @@ export default function UserDashboard() {
         .filter(res => res.responded)
         .reduce((sum, res) => sum + parseInt(res.adminQuote || 0), 0)
 
-    const potentialValueIncrease = totalInvestment > 0 ? Math.round(totalInvestment * 1.8) : 0 
-    
+    const potentialValueIncrease = totalInvestment > 0 ? Math.round(totalInvestment * 1.8) : 0
+
     // Heuristics for display
     const parseMoney = (s) => parseFloat(s?.replace(/[^0-9]/g, '') || '0') * (s?.includes('K') ? 1000 : (s?.includes('L') ? 100000 : 1))
     const fallbackTotalCost = RECS.reduce((sum, r) => sum + parseMoney(r.cost), 0)
@@ -879,7 +923,7 @@ export default function UserDashboard() {
     const displayRecsCount = activeRecsCount > 0 ? activeRecsCount : (activeProperty ? RECS.length : 0)
 
     const activePropertyDetails = activeProperty?.parsedDetails || {}
-    
+
     const baseValue = parseInt(activePropertyDetails?.marketValue?.toString().replace(/[^0-9]/g, '') || 0)
 
     const prop = activeProperty ? {
@@ -941,7 +985,7 @@ export default function UserDashboard() {
     const getUnreadCount = () => {
         const readCounts = JSON.parse(localStorage.getItem('chatReadCounts') || '{}')
         if (!userEmail) return 0
-        
+
         return estimates.reduce((acc, req) => {
             if (req.responded) {
                 const chatMsgs = JSON.parse(localStorage.getItem(`chat_${req.id}`) || '[]')
@@ -984,8 +1028,8 @@ export default function UserDashboard() {
                 </div>
                 <nav className="sidebar-nav" style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', paddingBottom: '8px', scrollbarWidth: 'thin', scrollbarColor: 'rgba(230,126,34,0.3) transparent' }}>
                     {navLinks.map(l => (
-                        <SidebarLink key={l.key} icon={l.icon} label={l.label} active={view === l.key} onClick={() => { 
-                            setView(l.key); 
+                        <SidebarLink key={l.key} icon={l.icon} label={l.label} active={view === l.key} onClick={() => {
+                            setView(l.key);
                             setSidebarOpen(false);
                         }} badge={l.badge} />
                     ))}
@@ -1008,7 +1052,7 @@ export default function UserDashboard() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                         {/* Notification Bell */}
                         <div style={{ position: 'relative' }} ref={notificationRef}>
-                            <div 
+                            <div
                                 onClick={() => setShowNotifications(!showNotifications)}
                                 style={{ width: '40px', height: '40px', background: '#f8f9fa', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', border: '1px solid #e9ecef', position: 'relative' }}
                                 className="button-press"
@@ -1098,189 +1142,191 @@ export default function UserDashboard() {
                 <main className="dashboard-main">
                     {/* ---- DASHBOARD VIEW ---- */}
                     {view === 'dashboard' && (
-                        <div className="animate-fadeIn">
-                            <div style={{ marginBottom: '24px' }}>
-                                <h2 style={{ fontSize: '26px', fontWeight: 800 }}>Welcome back, {userData.name}!</h2>
-                                <p style={{ color: 'var(--muted)' }}>Here's an overview of your property improvement journey</p>
-                            </div>
+                        isLoadingData ? <DashboardSkeleton /> : (
+                            <div className="animate-fadeIn">
+                                <div style={{ marginBottom: '24px' }}>
+                                    <h2 style={{ fontSize: '26px', fontWeight: 800 }}>Welcome back, {userData.name}!</h2>
+                                    <p style={{ color: 'var(--muted)' }}>Here's an overview of your property improvement journey</p>
+                                </div>
 
-                            {/* Property Card */}
-                            {activeProperty ? (
-                                <>
-                                    {/* Property Card */}
-                                    <div className="card animate-slideUp stagger-1" style={{ background: 'linear-gradient(135deg, #1a1a2e, #16213e)', color: 'white', marginBottom: '32px' }}>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
-                                            <div>
-                                                <h3 style={{ fontSize: '14px', opacity: 0.7, marginBottom: '4px' }}>YOUR PROPERTY</h3>
-                                                <h2 style={{ fontSize: '22px', fontWeight: 800 }}>{activeProperty.type?.replace('Property: ', '') || 'Residential'}</h2>
-                                                <p style={{ opacity: 0.8, marginTop: '4px' }}>{activeProperty.customerAddress || 'Location details'}</p>
+                                {/* Property Card */}
+                                {activeProperty ? (
+                                    <>
+                                        {/* Property Card */}
+                                        <div className="card animate-slideUp stagger-1" style={{ background: 'linear-gradient(135deg, #1a1a2e, #16213e)', color: 'white', marginBottom: '32px' }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
+                                                <div>
+                                                    <h3 style={{ fontSize: '14px', opacity: 0.7, marginBottom: '4px' }}>YOUR PROPERTY</h3>
+                                                    <h2 style={{ fontSize: '22px', fontWeight: 800 }}>{activeProperty.type?.replace('Property: ', '') || 'Residential'}</h2>
+                                                    <p style={{ opacity: 0.8, marginTop: '4px' }}>{activeProperty.customerAddress || 'Location details'}</p>
+                                                </div>
+                                                <div style={{ textAlign: 'right' }}>
+                                                    <p style={{ opacity: 0.7, fontSize: '13px' }}>Current Market Value</p>
+                                                    <p style={{ fontSize: '28px', fontWeight: 800, color: '#ffd700' }}>
+                                                        {activeProperty.parsedDetails?.marketValue
+                                                            ? `₹${Number(activeProperty.parsedDetails.marketValue).toLocaleString('en-IN')}`
+                                                            : 'Pending Review'}
+                                                    </p>
+                                                </div>
                                             </div>
-                                            <div style={{ textAlign: 'right' }}>
-                                                <p style={{ opacity: 0.7, fontSize: '13px' }}>Current Market Value</p>
-                                                <p style={{ fontSize: '28px', fontWeight: 800, color: '#ffd700' }}>
-                                                    {activeProperty.parsedDetails?.marketValue 
-                                                        ? `₹${Number(activeProperty.parsedDetails.marketValue).toLocaleString('en-IN')}` 
-                                                        : 'Pending Review'}
-                                                </p>
+                                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '16px', marginTop: '24px' }}>
+                                                {[
+                                                    ['Property Size', (activeProperty.parsedDetails?.propertySize || activeProperty.parsedDetails?.size) ? `${activeProperty.parsedDetails.propertySize || activeProperty.parsedDetails.size} sq ft` : 'N/A'],
+                                                    ['Property Age', (() => {
+                                                        const d = activeProperty.parsedDetails
+                                                        if (d?.propertyAge || d?.age) return `${d.propertyAge || d.age} years`
+                                                        if (d?.yearBuilt) return `${new Date().getFullYear() - Number(d.yearBuilt)} years`
+                                                        return 'N/A'
+                                                    })()],
+                                                    ['Location Rating', activeProperty.parsedDetails?.locationRating || calculateLocationRating(activeProperty.parsedDetails)]
+                                                ].map(([k, v]) => (
+                                                    <div key={k} style={{ background: 'rgba(255,255,255,0.1)', borderRadius: '10px', padding: '14px' }}>
+                                                        <p style={{ opacity: 0.7, fontSize: '12px' }}>{k}</p>
+                                                        <p style={{ fontWeight: 700, fontSize: '18px', marginTop: '4px' }}>{v}</p>
+                                                    </div>
+                                                ))}
                                             </div>
+
                                         </div>
-                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '16px', marginTop: '24px' }}>
+
+                                        <div className="animate-slideUp stagger-2" style={{ marginBottom: '32px' }}>
+                                            <ProjectTimeline status={activeProperty.responded ? 'quote-sent' : 'under-review'} />
+                                        </div>
+
+
+                                        {/* Metric Cards */}
+                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', marginBottom: '32px' }}>
                                             {[
-                                                ['Property Size', (activeProperty.parsedDetails?.propertySize || activeProperty.parsedDetails?.size) ? `${activeProperty.parsedDetails.propertySize || activeProperty.parsedDetails.size} sq ft` : 'N/A'],
-                                                ['Property Age', (() => {
-                                                    const d = activeProperty.parsedDetails
-                                                    if (d?.propertyAge || d?.age) return `${d.propertyAge || d.age} years`
-                                                    if (d?.yearBuilt) return `${new Date().getFullYear() - Number(d.yearBuilt)} years`
-                                                    return 'N/A'
-                                                })()],
-                                                ['Location Rating', activeProperty.parsedDetails?.locationRating || calculateLocationRating(activeProperty.parsedDetails)]
-                                            ].map(([k, v]) => (
-                                                <div key={k} style={{ background: 'rgba(255,255,255,0.1)', borderRadius: '10px', padding: '14px' }}>
-                                                    <p style={{ opacity: 0.7, fontSize: '12px' }}>{k}</p>
-                                                    <p style={{ fontWeight: 700, fontSize: '18px', marginTop: '4px' }}>{v}</p>
+                                                { label: 'Potential Value Increase', value: `+₹${(displayValueIncrease / 100000).toFixed(2)}L`, sub: activeRecsCount > 0 ? 'With all recommendations' : 'Initial AI Projection', color: '#3b82f6', icon: <Icons.Dashboard /> },
+                                                { label: 'Total Investment', value: `₹${(displayInvestment / 100000).toFixed(2)}L`, sub: activeRecsCount > 0 ? 'Estimated renovation cost' : 'Initial AI Estimate', color: '#f59e0b', icon: <Icons.Estimator /> },
+                                                { label: 'Active Recommendations', value: displayRecsCount, sub: activeRecsCount > 0 ? 'Personalized for you' : 'Projected for your property', color: '#10b981', icon: <Icons.Sparkles /> },
+                                            ].map((m, i) => (
+                                                <div key={i} className={`card animate-slideUp stagger-${i + 2}`} style={{ margin: 0, padding: '24px', border: '1px solid #f0f0f0', borderRadius: '20px' }}>
+                                                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '16px' }}>
+                                                        <div style={{ width: '40px', height: '40px', background: `${m.color}15`, borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', color: m.color }}>{m.icon}</div>
+                                                        <span style={{ fontSize: '14px', fontWeight: 700, color: '#666' }}>{m.label}</span>
+                                                    </div>
+                                                    <p style={{ fontSize: '28px', fontWeight: 800, color: m.color, letterSpacing: '-0.5px' }}>{m.value}</p>
+                                                    <p style={{ fontSize: '13px', color: '#999', marginTop: '6px' }}>{m.sub}</p>
                                                 </div>
                                             ))}
                                         </div>
 
-                                    </div>
-                                    
-                                    <div className="animate-slideUp stagger-2" style={{ marginBottom: '32px' }}>
-                                        <ProjectTimeline status={activeProperty.responded ? 'quote-sent' : 'under-review'} />
-                                    </div>
-
-
-                                    {/* Metric Cards */}
-                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', marginBottom: '32px' }}>
-                                        {[
-                                            { label: 'Potential Value Increase', value: `+₹${(displayValueIncrease / 100000).toFixed(2)}L`, sub: activeRecsCount > 0 ? 'With all recommendations' : 'Initial AI Projection', color: '#3b82f6', icon: <Icons.Dashboard /> },
-                                            { label: 'Total Investment', value: `₹${(displayInvestment / 100000).toFixed(2)}L`, sub: activeRecsCount > 0 ? 'Estimated renovation cost' : 'Initial AI Estimate', color: '#f59e0b', icon: <Icons.Estimator /> },
-                                            { label: 'Active Recommendations', value: displayRecsCount, sub: activeRecsCount > 0 ? 'Personalized for you' : 'Projected for your property', color: '#10b981', icon: <Icons.Sparkles /> },
-                                        ].map((m, i) => (
-                                            <div key={i} className={`card animate-slideUp stagger-${i + 2}`} style={{ margin: 0, padding: '24px', border: '1px solid #f0f0f0', borderRadius: '20px' }}>
-                                                <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '16px' }}>
-                                                    <div style={{ width: '40px', height: '40px', background: `${m.color}15`, borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', color: m.color }}>{m.icon}</div>
-                                                    <span style={{ fontSize: '14px', fontWeight: 700, color: '#666' }}>{m.label}</span>
+                                        {/* Chart + Quick Actions */}
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: '24px', marginBottom: '24px' }}>
+                                            <div className="card animate-slideUp stagger-5" style={{ margin: 0, padding: '32px' }}>
+                                                <h3 style={{ fontSize: '20px', fontWeight: 800, marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                    Projected Value Growth
+                                                    <span style={{ fontSize: '12px', fontWeight: 600, color: '#999', background: '#f8f9fa', padding: '4px 12px', borderRadius: '12px' }}>Based on Improvements</span>
+                                                </h3>
+                                                <div style={{ height: '300px' }}>
+                                                    <Line data={chartData} options={{ ...chartOptions, maintainAspectRatio: false }} />
                                                 </div>
-                                                <p style={{ fontSize: '28px', fontWeight: 800, color: m.color, letterSpacing: '-0.5px' }}>{m.value}</p>
-                                                <p style={{ fontSize: '13px', color: '#999', marginTop: '6px' }}>{m.sub}</p>
                                             </div>
-                                        ))}
-                                    </div>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                                                <div className="card" style={{ margin: 0, padding: '32px' }}>
+                                                    <h3 style={{ fontSize: '20px', fontWeight: 800, marginBottom: '20px' }}>Quick Actions</h3>
+                                                    {[
+                                                        { icon: <Icons.New />, title: 'New Estimate', sub: 'Calculate interior costs', action: () => setView('new-estimator'), primary: true },
+                                                        { icon: <Icons.Estimator />, title: 'View Estimates', sub: 'See saved estimates', action: () => setView('estimator') },
+                                                        { icon: <Icons.Calculator />, title: 'EMI Calculator', sub: 'Plan your renovation loan', action: () => setView('emi') },
+                                                        { icon: <Icons.Gift />, title: 'Refer & Earn', sub: 'Invite friends, earn rewards', action: () => setView('referral') },
+                                                    ].map((a, i) => (
 
-                                    {/* Chart + Quick Actions */}
-                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: '24px', marginBottom: '24px' }}>
-                                        <div className="card animate-slideUp stagger-5" style={{ margin: 0, padding: '32px' }}>
-                                            <h3 style={{ fontSize: '20px', fontWeight: 800, marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                                Projected Value Growth
-                                                <span style={{ fontSize: '12px', fontWeight: 600, color: '#999', background: '#f8f9fa', padding: '4px 12px', borderRadius: '12px' }}>Based on Improvements</span>
-                                            </h3>
-                                            <div style={{ height: '300px' }}>
-                                                <Line data={chartData} options={{ ...chartOptions, maintainAspectRatio: false }} />
+                                                        <div key={i} onClick={a.action} className={`button-press ${a.primary ? 'animate-pulseGlow' : ''}`} style={{
+                                                            display: 'flex', gap: '14px', alignItems: 'center', padding: '16px', borderRadius: '16px', cursor: 'pointer',
+                                                            background: a.primary ? 'linear-gradient(135deg, var(--primary), var(--primary-dark))' : '#ffffff',
+                                                            color: a.primary ? 'white' : 'var(--text)', marginBottom: '12px', transition: 'all 0.2s',
+                                                            border: a.primary ? 'none' : '1px solid #f0f0f0',
+                                                            boxShadow: a.primary ? '0 10px 20px rgba(230,126,34,0.3)' : '0 2px 8px rgba(0,0,0,0.02)'
+                                                        }} onMouseEnter={e => { if (!a.primary) { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.background = '#fff8f4' }; e.currentTarget.style.transform = 'translateY(-2px)' }} onMouseLeave={e => { if (!a.primary) { e.currentTarget.style.borderColor = '#f0f0f0'; e.currentTarget.style.background = '#ffffff' }; e.currentTarget.style.transform = 'translateY(0)' }}>
+                                                            <div style={{ width: '48px', height: '48px', background: a.primary ? 'rgba(255,255,255,0.2)' : '#f8f9fa', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>{a.icon}</div>
+                                                            <div><p style={{ fontWeight: 800, fontSize: '15px' }}>{a.title}</p><p style={{ fontSize: '12px', opacity: 0.7, fontWeight: 500 }}>{a.sub}</p></div>
+                                                        </div>
+                                                    ))}
+                                                </div>
                                             </div>
                                         </div>
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                                            <div className="card" style={{ margin: 0, padding: '32px' }}>
-                                                <h3 style={{ fontSize: '20px', fontWeight: 800, marginBottom: '20px' }}>Quick Actions</h3>
-                                                {[
-                                                    { icon: <Icons.New />, title: 'New Estimate', sub: 'Calculate interior costs', action: () => setView('new-estimator'), primary: true },
-                                                    { icon: <Icons.Estimator />, title: 'View Estimates', sub: 'See saved estimates', action: () => setView('estimator') },
-                                                    { icon: <Icons.Calculator />, title: 'EMI Calculator', sub: 'Plan your renovation loan', action: () => setView('emi') },
-                                                    { icon: <Icons.Gift />, title: 'Refer & Earn', sub: 'Invite friends, earn rewards', action: () => setView('referral') },
-                                                ].map((a, i) => (
 
-                                                    <div key={i} onClick={a.action} className={`button-press ${a.primary ? 'animate-pulseGlow' : ''}`} style={{
-                                                        display: 'flex', gap: '14px', alignItems: 'center', padding: '16px', borderRadius: '16px', cursor: 'pointer',
-                                                        background: a.primary ? 'linear-gradient(135deg, var(--primary), var(--primary-dark))' : '#ffffff',
-                                                        color: a.primary ? 'white' : 'var(--text)', marginBottom: '12px', transition: 'all 0.2s',
-                                                        border: a.primary ? 'none' : '1px solid #f0f0f0',
-                                                        boxShadow: a.primary ? '0 10px 20px rgba(230,126,34,0.3)' : '0 2px 8px rgba(0,0,0,0.02)'
-                                                    }} onMouseEnter={e => { if (!a.primary) { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.background = '#fff8f4' }; e.currentTarget.style.transform = 'translateY(-2px)' }} onMouseLeave={e => { if (!a.primary) { e.currentTarget.style.borderColor = '#f0f0f0'; e.currentTarget.style.background = '#ffffff' }; e.currentTarget.style.transform = 'translateY(0)' }}>
-                                                        <div style={{ width: '48px', height: '48px', background: a.primary ? 'rgba(255,255,255,0.2)' : '#f8f9fa', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>{a.icon}</div>
-                                                        <div><p style={{ fontWeight: 800, fontSize: '15px' }}>{a.title}</p><p style={{ fontSize: '12px', opacity: 0.7, fontWeight: 500 }}>{a.sub}</p></div>
-                                                    </div>
-                                                ))}
+                                        {/* AI Recommendations */}
+                                        <div className="card" style={{ margin: 0, padding: '32px' }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                                                <div>
+                                                    <h3 className="card-title" style={{ margin: 0 }}>Top Recommendations</h3>
+                                                    <p style={{ fontSize: '12px', color: 'var(--primary)', fontWeight: 600, marginTop: '4px' }}>
+                                                        ✨ AI-Optimized for {activeProperty?.customerAddress?.split(',').pop().trim() || 'your property'}
+                                                    </p>
+                                                </div>
+                                                {dynamicRecs.length > 0 && <button onClick={() => setShowAllRecs(!showAllRecs)} style={{ background: 'none', border: 'none', color: 'var(--primary)', fontWeight: 600, cursor: 'pointer' }}>{showAllRecs ? 'Show Less' : 'View All'}</button>}
                                             </div>
+
+                                            {dynamicRecs.length > 0 ? (
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                                    {(showAllRecs ? dynamicRecs : dynamicRecs.slice(0, 2)).map((rec, i) => (
+                                                        <div key={i} style={{ border: '2px solid #f0f0f0', borderRadius: '12px', padding: '20px', transition: 'all 0.3s' }}>
+                                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
+                                                                <div><h4 style={{ fontSize: '17px', fontWeight: 700 }}>{rec.title}</h4><p style={{ color: 'var(--muted)', fontSize: '14px', marginTop: '4px' }}>{rec.desc}</p></div>
+                                                                <span style={{ padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 700, background: rec.priority === 'high' ? '#fee2e2' : '#fef3c7', color: rec.priority === 'high' ? '#dc2626' : '#b45309' }}>
+                                                                    {rec.priority === 'high' ? 'High' : 'Medium'} Priority
+                                                                </span>
+                                                            </div>
+                                                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '12px', marginBottom: '16px' }}>
+                                                                {[
+                                                                    ['Est. Cost', rec.cost, 'var(--text)'],
+                                                                    ['Value Increase', rec.value, '#10b981'],
+                                                                    ['ROI', rec.roi, '#3b82f6'],
+                                                                    ['Property Impact', rec.impact, '#8b5cf6']
+                                                                ].map(([k, v, c]) => (
+                                                                    <div key={k} style={{ background: '#f8f9fa', borderRadius: '8px', padding: '10px', textAlign: 'center' }}>
+                                                                        <p style={{ fontSize: '11px', color: 'var(--muted)', marginBottom: '4px' }}>{k}</p>
+                                                                        <p style={{ fontSize: '16px', fontWeight: 800, color: c }}>{v}</p>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                            <div style={{ display: 'flex', gap: '12px' }}>
+                                                                <button onClick={() => navigate(rec.link)} className="button-press" style={{ flex: 1, padding: '10px', background: 'linear-gradient(135deg, var(--primary), var(--primary-dark))', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 12px rgba(230,126,34,0.2)' }}>Get Detailed Plan</button>
+                                                                <button onClick={() => saveIdea(rec)} className="button-press" style={{ flex: 1, padding: '10px', background: '#f8f9fa', border: '2px solid #e9ecef', borderRadius: '8px', fontWeight: 700, cursor: 'pointer' }}>Save for Later</button>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <div style={{ textAlign: 'center', padding: '40px 20px', background: '#f8fafc', borderRadius: '16px', border: '1px dashed #e2e8f0' }}>
+                                                    <div style={{ color: 'var(--primary)', marginBottom: '16px', display: 'flex', justifyContent: 'center' }}><Icons.Calculator /></div>
+                                                    <h4 style={{ fontSize: '16px', fontWeight: 700, color: '#475569' }}>Expert Analysis in Progress</h4>
+                                                    <p style={{ color: '#94a3b8', fontSize: '14px', maxWidth: '300px', margin: '8px auto 0', lineHeight: 1.5 }}>
+                                                        Our experts are reviewing your property details. Personalized recommendations will appear here shortly.
+                                                    </p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </>
+                                ) : (
+                                    <div className="card animate-fadeIn" style={{ margin: 0, padding: '80px 40px', textAlign: 'center', background: 'linear-gradient(135deg, #ffffff, #f8fafc)', border: '2px dashed #e2e8f0', borderRadius: '32px', boxShadow: '0 20px 40px rgba(0,0,0,0.05)' }}>
+                                        <div style={{ color: 'var(--primary)', marginBottom: '32px', transform: 'scale(3)', display: 'inline-block' }}><Icons.Home /></div>
+                                        <h2 style={{ fontSize: '32px', fontWeight: 800, color: '#1a1a1a', marginBottom: '16px' }}>Maximize Your Property Potential</h2>
+                                        <p style={{ color: '#64748b', fontSize: '18px', maxWidth: '600px', margin: '0 auto 40px', lineHeight: 1.6 }}>
+                                            Unlock personalized renovation recommendations, market value projections, and expert insights. Submit your property details to get started.
+                                        </p>
+                                        <button onClick={() => setView('submit')} className="button-press" style={{ padding: '18px 48px', background: 'linear-gradient(135deg, var(--primary), var(--primary-dark))', color: 'white', border: 'none', borderRadius: '16px', fontWeight: 800, fontSize: '18px', cursor: 'pointer', boxShadow: '0 10px 30px rgba(230,126,34,0.3)', transition: '0.3s' }}>
+                                            Submit Property Details
+                                        </button>
+                                        <div style={{ marginTop: '48px', display: 'flex', justifyContent: 'center', gap: '40px' }}>
+                                            {[
+                                                { icon: '📈', text: 'Value Tracking' },
+                                                { icon: '🎨', text: 'Expert Design' },
+                                                { icon: '💰', text: 'ROI Analysis' }
+                                            ].map((item, i) => (
+                                                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#94a3b8', fontWeight: 600, fontSize: '14px' }}>
+                                                    <span style={{ fontSize: '20px' }}>{item.icon}</span>
+                                                    {item.text}
+                                                </div>
+                                            ))}
                                         </div>
                                     </div>
-
-                                    {/* AI Recommendations */}
-                                    <div className="card" style={{ margin: 0, padding: '32px' }}>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                                            <div>
-                                                <h3 className="card-title" style={{ margin: 0 }}>Top Recommendations</h3>
-                                                <p style={{ fontSize: '12px', color: 'var(--primary)', fontWeight: 600, marginTop: '4px' }}>
-                                                    ✨ AI-Optimized for {activeProperty?.customerAddress?.split(',').pop().trim() || 'your property'}
-                                                </p>
-                                            </div>
-                                            {dynamicRecs.length > 0 && <button onClick={() => setShowAllRecs(!showAllRecs)} style={{ background: 'none', border: 'none', color: 'var(--primary)', fontWeight: 600, cursor: 'pointer' }}>{showAllRecs ? 'Show Less' : 'View All'}</button>}
-                                        </div>
-
-                                        {dynamicRecs.length > 0 ? (
-                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                                                {(showAllRecs ? dynamicRecs : dynamicRecs.slice(0, 2)).map((rec, i) => (
-                                                    <div key={i} style={{ border: '2px solid #f0f0f0', borderRadius: '12px', padding: '20px', transition: 'all 0.3s' }}>
-                                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
-                                                            <div><h4 style={{ fontSize: '17px', fontWeight: 700 }}>{rec.title}</h4><p style={{ color: 'var(--muted)', fontSize: '14px', marginTop: '4px' }}>{rec.desc}</p></div>
-                                                            <span style={{ padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 700, background: rec.priority === 'high' ? '#fee2e2' : '#fef3c7', color: rec.priority === 'high' ? '#dc2626' : '#b45309' }}>
-                                                                {rec.priority === 'high' ? 'High' : 'Medium'} Priority
-                                                            </span>
-                                                        </div>
-                                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '12px', marginBottom: '16px' }}>
-                                                            {[
-                                                                ['Est. Cost', rec.cost, 'var(--text)'],
-                                                                ['Value Increase', rec.value, '#10b981'],
-                                                                ['ROI', rec.roi, '#3b82f6'],
-                                                                ['Property Impact', rec.impact, '#8b5cf6']
-                                                            ].map(([k, v, c]) => (
-                                                                <div key={k} style={{ background: '#f8f9fa', borderRadius: '8px', padding: '10px', textAlign: 'center' }}>
-                                                                    <p style={{ fontSize: '11px', color: 'var(--muted)', marginBottom: '4px' }}>{k}</p>
-                                                                    <p style={{ fontSize: '16px', fontWeight: 800, color: c }}>{v}</p>
-                                                                </div>
-                                                            ))}
-                                                        </div>
-                                                        <div style={{ display: 'flex', gap: '12px' }}>
-                                                            <button onClick={() => navigate(rec.link)} className="button-press" style={{ flex: 1, padding: '10px', background: 'linear-gradient(135deg, var(--primary), var(--primary-dark))', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 12px rgba(230,126,34,0.2)' }}>Get Detailed Plan</button>
-                                                            <button onClick={() => saveIdea(rec)} className="button-press" style={{ flex: 1, padding: '10px', background: '#f8f9fa', border: '2px solid #e9ecef', borderRadius: '8px', fontWeight: 700, cursor: 'pointer' }}>Save for Later</button>
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        ) : (
-                                            <div style={{ textAlign: 'center', padding: '40px 20px', background: '#f8fafc', borderRadius: '16px', border: '1px dashed #e2e8f0' }}>
-                                                <div style={{ color: 'var(--primary)', marginBottom: '16px', display: 'flex', justifyContent: 'center' }}><Icons.Calculator /></div>
-                                                <h4 style={{ fontSize: '16px', fontWeight: 700, color: '#475569' }}>Expert Analysis in Progress</h4>
-                                                <p style={{ color: '#94a3b8', fontSize: '14px', maxWidth: '300px', margin: '8px auto 0', lineHeight: 1.5 }}>
-                                                    Our experts are reviewing your property details. Personalized recommendations will appear here shortly.
-                                                </p>
-                                            </div>
-                                        )}
-                                    </div>
-                                </>
-                            ) : (
-                                <div className="card animate-fadeIn" style={{ margin: 0, padding: '80px 40px', textAlign: 'center', background: 'linear-gradient(135deg, #ffffff, #f8fafc)', border: '2px dashed #e2e8f0', borderRadius: '32px', boxShadow: '0 20px 40px rgba(0,0,0,0.05)' }}>
-                                    <div style={{ color: 'var(--primary)', marginBottom: '32px', transform: 'scale(3)', display: 'inline-block' }}><Icons.Home /></div>
-                                    <h2 style={{ fontSize: '32px', fontWeight: 800, color: '#1a1a1a', marginBottom: '16px' }}>Maximize Your Property Potential</h2>
-                                    <p style={{ color: '#64748b', fontSize: '18px', maxWidth: '600px', margin: '0 auto 40px', lineHeight: 1.6 }}>
-                                        Unlock personalized renovation recommendations, market value projections, and expert insights. Submit your property details to get started.
-                                    </p>
-                                    <button onClick={() => setView('submit')} className="button-press" style={{ padding: '18px 48px', background: 'linear-gradient(135deg, var(--primary), var(--primary-dark))', color: 'white', border: 'none', borderRadius: '16px', fontWeight: 800, fontSize: '18px', cursor: 'pointer', boxShadow: '0 10px 30px rgba(230,126,34,0.3)', transition: '0.3s' }}>
-                                        Submit Property Details
-                                    </button>
-                                    <div style={{ marginTop: '48px', display: 'flex', justifyContent: 'center', gap: '40px' }}>
-                                        {[
-                                            { icon: '📈', text: 'Value Tracking' },
-                                            { icon: '🎨', text: 'Expert Design' },
-                                            { icon: '💰', text: 'ROI Analysis' }
-                                        ].map((item, i) => (
-                                            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#94a3b8', fontWeight: 600, fontSize: '14px' }}>
-                                                <span style={{ fontSize: '20px' }}>{item.icon}</span>
-                                                {item.text}
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-                        </div>
+                                )}
+                            </div>
+                        )
                     )}
 
                     {/* ---- ESTIMATOR VIEW ---- */}
@@ -1302,16 +1348,7 @@ export default function UserDashboard() {
                                     {estimates.map((est, i) => (
                                         <div key={i} className={`card animate-slideUp stagger-${(i % 5) + 1} hover-lift`} style={{ margin: 0, position: 'relative' }}>
                                             <button
-                                                onClick={async () => {
-                                                    if (!window.confirm(`Delete "${est.type}"? This cannot be undone.`)) return
-                                                    try {
-                                                        await deleteEstimation(est.id, userEmail)
-                                                        setEstimates(prev => prev.filter(e => e.id !== est.id))
-                                                        toast.success('Estimate deleted successfully')
-                                                    } catch (err) {
-                                                        toast.error('Failed to delete estimate')
-                                                    }
-                                                }}
+                                                onClick={() => setDeleteConfirm(est)}
                                                 title="Delete estimate"
                                                 style={{ position: 'absolute', top: '16px', right: '16px', background: '#fee2e2', border: 'none', borderRadius: '8px', padding: '6px 8px', cursor: 'pointer', display: 'flex', alignItems: 'center', color: '#dc2626', transition: '0.2s' }}
                                                 onMouseEnter={e => e.currentTarget.style.background = '#fecaca'}
@@ -1327,6 +1364,51 @@ export default function UserDashboard() {
                                     ))}
                                 </div>
                             )}
+                        </div>
+                    )}
+
+                    {/* ---- DELETE CONFIRM MODAL ---- */}
+                    {deleteConfirm && (
+                        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(6px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
+                            <div className="card animate-fadeIn" style={{ margin: 0, padding: '40px 36px', maxWidth: '420px', width: '100%', borderRadius: '24px', textAlign: 'center', boxShadow: '0 32px 64px rgba(0,0,0,0.2)' }}>
+                                <div style={{ width: '72px', height: '72px', background: '#fee2e2', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', color: '#dc2626' }}>
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" /><path d="M10 11v6" /><path d="M14 11v6" /><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" /></svg>
+                                </div>
+                                <h3 style={{ fontSize: '22px', fontWeight: 800, marginBottom: '10px', color: '#1a1a1a' }}>Delete Estimate?</h3>
+                                <p style={{ color: '#64748b', fontSize: '15px', marginBottom: '8px', lineHeight: 1.5 }}>You are about to permanently delete:</p>
+                                <p style={{ fontWeight: 700, fontSize: '16px', color: 'var(--primary)', background: '#fff7ed', padding: '10px 20px', borderRadius: '10px', marginBottom: '28px' }}>{deleteConfirm.type}</p>
+                                <p style={{ color: '#94a3b8', fontSize: '13px', marginBottom: '28px' }}>This action cannot be undone.</p>
+                                <div style={{ display: 'flex', gap: '12px' }}>
+                                    <button
+                                        onClick={() => setDeleteConfirm(null)}
+                                        className="button-press"
+                                        style={{ flex: 1, padding: '14px', background: '#f1f5f9', border: 'none', borderRadius: '12px', fontWeight: 700, fontSize: '15px', cursor: 'pointer', color: '#475569', transition: '0.2s' }}
+                                        onMouseEnter={e => e.currentTarget.style.background = '#e2e8f0'}
+                                        onMouseLeave={e => e.currentTarget.style.background = '#f1f5f9'}
+                                    >Cancel</button>
+                                    <button
+                                        onClick={async () => {
+                                            setIsDeleting(true)
+                                            // Optimistic update — remove immediately
+                                            setEstimates(prev => prev.filter(e => e.id !== deleteConfirm.id))
+                                            setDeleteConfirm(null)
+                                            try {
+                                                await deleteEstimation(deleteConfirm.id, userEmail)
+                                                toast.success('Estimate deleted successfully')
+                                            } catch (err) {
+                                                // Rollback not easy here, just show error
+                                                toast.error('Failed to delete — please refresh')
+                                            } finally {
+                                                setIsDeleting(false)
+                                            }
+                                        }}
+                                        className="button-press"
+                                        style={{ flex: 1, padding: '14px', background: 'linear-gradient(135deg, #ef4444, #dc2626)', border: 'none', borderRadius: '12px', fontWeight: 700, fontSize: '15px', cursor: 'pointer', color: 'white', boxShadow: '0 8px 20px rgba(220,38,38,0.3)', transition: '0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                                        onMouseEnter={e => e.currentTarget.style.opacity = '0.9'}
+                                        onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+                                    >{isDeleting ? <Spinner color="white" size={16} /> : null} Yes, Delete</button>
+                                </div>
+                            </div>
                         </div>
                     )}
 
@@ -1399,12 +1481,12 @@ export default function UserDashboard() {
                                                                 <p style={{ color: 'var(--muted)', fontSize: '13px' }}>Request {req.id} · {isResponded ? `Quote received on ${res.responseDate}` : 'Processing by our experts'}</p>
                                                             </div>
                                                         </div>
-                                                        <span style={{ 
-                                                            background: isResponded ? '#dcfce7' : '#fef3c7', 
-                                                            color: isResponded ? '#16a34a' : '#b45309', 
-                                                            padding: '6px 16px', borderRadius: '20px', 
-                                                            fontSize: '13px', fontWeight: 700, 
-                                                            border: '1px solid ' + (isResponded ? '#bbf7d0' : '#fde68a') 
+                                                        <span style={{
+                                                            background: isResponded ? '#dcfce7' : '#fef3c7',
+                                                            color: isResponded ? '#16a34a' : '#b45309',
+                                                            padding: '6px 16px', borderRadius: '20px',
+                                                            fontSize: '13px', fontWeight: 700,
+                                                            border: '1px solid ' + (isResponded ? '#bbf7d0' : '#fde68a')
                                                         }}>
                                                             {isResponded ? '✓ Quote Received' : '⏳ Processing'}
                                                         </span>
@@ -1476,7 +1558,7 @@ export default function UserDashboard() {
                                                             <div style={{ fontSize: '32px', marginBottom: '12px' }}>👷</div>
                                                             <h4 style={{ fontSize: '16px', fontWeight: 700, color: '#92400e' }}>Expert Analysis in Progress</h4>
                                                             <p style={{ color: '#b45309', fontSize: '14px', maxWidth: '400px', margin: '8px auto 0', lineHeight: 1.6 }}>
-                                                                Our experts are currently reviewing your request details and creating your personalized quote. 
+                                                                Our experts are currently reviewing your request details and creating your personalized quote.
                                                                 You can click the button below to directly chat with the expert.
                                                             </p>
                                                         </div>
@@ -1487,14 +1569,14 @@ export default function UserDashboard() {
                                                         <button
                                                             onClick={() => setChatReq({ id: req.id, type: req.type })}
                                                             className="button-press"
-                                                            style={{ 
-                                                                flex: 1, minWidth: '180px', padding: '13px 20px', 
-                                                                background: 'linear-gradient(135deg, var(--primary), var(--primary-dark))', 
-                                                                border: 'none', borderRadius: '10px', color: 'white', 
-                                                                fontWeight: 800, fontSize: '15px', cursor: 'pointer', 
-                                                                boxShadow: '0 6px 16px rgba(230,126,34,0.35)', 
-                                                                transition: '0.3s', display: 'flex', alignItems: 'center', 
-                                                                justifyContent: 'center', gap: '8px' 
+                                                            style={{
+                                                                flex: 1, minWidth: '180px', padding: '13px 20px',
+                                                                background: 'linear-gradient(135deg, var(--primary), var(--primary-dark))',
+                                                                border: 'none', borderRadius: '10px', color: 'white',
+                                                                fontWeight: 800, fontSize: '15px', cursor: 'pointer',
+                                                                boxShadow: '0 6px 16px rgba(230,126,34,0.35)',
+                                                                transition: '0.3s', display: 'flex', alignItems: 'center',
+                                                                justifyContent: 'center', gap: '8px'
                                                             }}
                                                             onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
                                                             onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}>
@@ -1503,23 +1585,23 @@ export default function UserDashboard() {
                                                         {isResponded && (
                                                             <>
                                                                 <button
-                                                                onClick={() => { navigator.clipboard?.writeText(`Quote: ₹${Number(res.quote || 0).toLocaleString('en-IN')} | Timeline: ${res.timeline} | Warranty: ${res.warranty}`); alert('Quote details copied!') }}
-                                                                className="button-press"
-                                                                style={{ 
-                                                                    flex: 1, minWidth: '140px', padding: '13px 20px', 
-                                                                    background: 'white', border: '2px solid #e9ecef', 
-                                                                    borderRadius: '10px', cursor: 'pointer', fontWeight: 700, 
-                                                                    color: '#555', transition: '0.3s', display: 'flex', 
-                                                                    alignItems: 'center', justifyContent: 'center', gap: '8px' 
-                                                                }}
-                                                                onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.color = 'var(--primary)' }}
-                                                                onMouseLeave={e => { e.currentTarget.style.borderColor = '#e9ecef'; e.currentTarget.style.color = '#555' }}>
-                                                                📋 Copy Quote
-                                                            </button>
-                                                            <button
-                                                                onClick={() => {
-                                                                    const printWindow = window.open('', '_blank');
-                                                                    const content = `
+                                                                    onClick={() => { navigator.clipboard?.writeText(`Quote: ₹${Number(res.quote || 0).toLocaleString('en-IN')} | Timeline: ${res.timeline} | Warranty: ${res.warranty}`); alert('Quote details copied!') }}
+                                                                    className="button-press"
+                                                                    style={{
+                                                                        flex: 1, minWidth: '140px', padding: '13px 20px',
+                                                                        background: 'white', border: '2px solid #e9ecef',
+                                                                        borderRadius: '10px', cursor: 'pointer', fontWeight: 700,
+                                                                        color: '#555', transition: '0.3s', display: 'flex',
+                                                                        alignItems: 'center', justifyContent: 'center', gap: '8px'
+                                                                    }}
+                                                                    onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.color = 'var(--primary)' }}
+                                                                    onMouseLeave={e => { e.currentTarget.style.borderColor = '#e9ecef'; e.currentTarget.style.color = '#555' }}>
+                                                                    📋 Copy Quote
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => {
+                                                                        const printWindow = window.open('', '_blank');
+                                                                        const content = `
                                                                         <html>
                                                                             <head>
                                                                                 <title>BharatHome Value - Quote ${req.id}</title>
@@ -1568,21 +1650,21 @@ export default function UserDashboard() {
                                                                             </body>
                                                                         </html>
                                                                     `;
-                                                                    printWindow.document.write(content);
-                                                                    printWindow.document.close();
-                                                                }}
-                                                                className="button-press"
-                                                                style={{ 
-                                                                    flex: 1, minWidth: '140px', padding: '13px 20px', 
-                                                                    background: 'white', border: '2px solid #e9ecef', 
-                                                                    borderRadius: '10px', cursor: 'pointer', fontWeight: 700, 
-                                                                    color: '#555', transition: '0.3s', display: 'flex', 
-                                                                    alignItems: 'center', justifyContent: 'center', gap: '8px' 
-                                                                }}
-                                                                onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.color = 'var(--primary)' }}
-                                                                onMouseLeave={e => { e.currentTarget.style.borderColor = '#e9ecef'; e.currentTarget.style.color = '#555' }}>
-                                                                📥 Download PDF
-                                                            </button>
+                                                                        printWindow.document.write(content);
+                                                                        printWindow.document.close();
+                                                                    }}
+                                                                    className="button-press"
+                                                                    style={{
+                                                                        flex: 1, minWidth: '140px', padding: '13px 20px',
+                                                                        background: 'white', border: '2px solid #e9ecef',
+                                                                        borderRadius: '10px', cursor: 'pointer', fontWeight: 700,
+                                                                        color: '#555', transition: '0.3s', display: 'flex',
+                                                                        alignItems: 'center', justifyContent: 'center', gap: '8px'
+                                                                    }}
+                                                                    onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.color = 'var(--primary)' }}
+                                                                    onMouseLeave={e => { e.currentTarget.style.borderColor = '#e9ecef'; e.currentTarget.style.color = '#555' }}>
+                                                                    📥 Download PDF
+                                                                </button>
                                                             </>
                                                         )}
                                                     </div>
@@ -1696,10 +1778,10 @@ export default function UserDashboard() {
                                     try {
                                         if (!userEmail) throw new Error("User session expired. Please login again.");
                                         console.log('Submitting property with email:', userEmail);
-                                        
+
                                         await saveEstimation(estData);
                                         toast.success('Property submitted successfully!');
-                                        
+
                                         // Refresh estimations
                                         const updated = await fetchUserEstimations(userEmail);
                                         setEstimates(updated);
@@ -1737,11 +1819,11 @@ export default function UserDashboard() {
                                             <span>Property & Construction Photos</span>
                                             <span style={{ fontSize: '11px', color: 'var(--muted)' }}>Max 5 (Optional)</span>
                                         </label>
-                                        
-                                        <div 
+
+                                        <div
                                             onClick={() => fileInputRef.current?.click()}
-                                            style={{ 
-                                                border: '2px dashed #e9ecef', borderRadius: '16px', padding: '32px 20px', 
+                                            style={{
+                                                border: '2px dashed #e9ecef', borderRadius: '16px', padding: '32px 20px',
                                                 textAlign: 'center', cursor: 'pointer', transition: '0.3s', background: '#fdf6ee',
                                                 marginBottom: '16px'
                                             }}
@@ -1751,13 +1833,13 @@ export default function UserDashboard() {
                                             <div style={{ fontSize: '32px', marginBottom: '8px' }}>📸</div>
                                             <p style={{ fontSize: '14px', fontWeight: 600, color: '#666' }}>Click to upload photos of your property</p>
                                             <p style={{ fontSize: '12px', color: '#999', marginTop: '4px' }}>Drag and drop or select files (PNG, JPG)</p>
-                                            <input 
-                                                type="file" 
+                                            <input
+                                                type="file"
                                                 ref={fileInputRef}
-                                                multiple 
-                                                accept="image/*" 
-                                                onChange={handlePropertyPhotoUpload} 
-                                                style={{ display: 'none' }} 
+                                                multiple
+                                                accept="image/*"
+                                                onChange={handlePropertyPhotoUpload}
+                                                style={{ display: 'none' }}
                                             />
                                         </div>
                                         {propertyPhotos.length > 0 && (
@@ -1765,7 +1847,7 @@ export default function UserDashboard() {
                                                 {propertyPhotos.map((img, i) => (
                                                     <div key={i} style={{ position: 'relative', flexShrink: 0, width: '100px', height: '75px', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', border: '2px solid white' }}>
                                                         <img src={img.data} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                                        <button 
+                                                        <button
                                                             type="button"
                                                             onClick={(e) => { e.stopPropagation(); removePropertyPhoto(i) }}
                                                             style={{ position: 'absolute', top: '4px', right: '4px', background: 'rgba(0,0,0,0.6)', color: 'white', border: 'none', borderRadius: '50%', width: '20px', height: '20px', fontSize: '14px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
@@ -1795,9 +1877,9 @@ export default function UserDashboard() {
                                 </div>
                                 <div style={{ position: 'relative', width: '350px', minWidth: '300px' }}>
                                     <span style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', fontSize: '18px', color: 'var(--primary)' }}><Icons.Search /></span>
-                                    <input 
-                                        type="text" 
-                                        placeholder="Search expertise, name or location..." 
+                                    <input
+                                        type="text"
+                                        placeholder="Search expertise, name or location..."
                                         value={contractorSearch}
                                         onChange={(e) => setContractorSearch(e.target.value)}
                                         style={{ width: '100%', padding: '14px 16px 14px 48px', borderRadius: '16px', border: '2px solid #e9ecef', fontSize: '14px', outline: 'none', transition: '0.3s', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}
@@ -1810,11 +1892,11 @@ export default function UserDashboard() {
                             {/* Filter Tabs */}
                             <div style={{ display: 'flex', gap: '12px', marginBottom: '32px', overflowX: 'auto', paddingBottom: '8px', scrollbarWidth: 'none' }}>
                                 {['All', 'Interior', 'Renovation', 'Design', 'Garden'].map(t => (
-                                    <button 
+                                    <button
                                         key={t}
                                         onClick={() => setContractorFilter(t)}
-                                        style={{ 
-                                            padding: '10px 24px', borderRadius: '30px', border: 'none', 
+                                        style={{
+                                            padding: '10px 24px', borderRadius: '30px', border: 'none',
                                             background: contractorFilter === t ? 'var(--primary)' : 'white',
                                             color: contractorFilter === t ? 'white' : '#64748b',
                                             fontWeight: 700, cursor: 'pointer', transition: '0.3s',
@@ -1835,11 +1917,11 @@ export default function UserDashboard() {
                                     { id: 4, category: 'Interior', name: 'Elite Woodworks', rating: 4.6, reviews: 56, expertise: ['Wardrobes', 'Furniture'], location: 'Pune, MH', image: '/Photos/elite_woodwork.png', verified: true, about: 'Custom woodworking and bespoke furniture pieces for high-end residential projects.' },
                                     { id: 5, category: 'Design', name: 'Design Studio', rating: 4.5, reviews: 42, expertise: ['False Ceiling', 'Lighting'], location: 'Hyderabad, TS', image: '/Photos/design_lighting.png', verified: true, about: 'Specialists in modern lighting solutions and designer false ceiling concepts.' },
                                     { id: 6, category: 'Garden', name: 'Green Spaces', rating: 4.4, reviews: 31, expertise: ['Terrace Garden', 'Landscaping'], location: 'Chennai, TN', image: '/Photos/green_garden.png', verified: false, about: 'Creating sustainable and beautiful outdoor spaces for urban homes.' },
-                                ].filter(c => 
+                                ].filter(c =>
                                     (contractorFilter === 'All' || c.category === contractorFilter) &&
-                                    (c.name.toLowerCase().includes(contractorSearch.toLowerCase()) || 
-                                     c.expertise.some(e => e.toLowerCase().includes(contractorSearch.toLowerCase())) ||
-                                     c.location.toLowerCase().includes(contractorSearch.toLowerCase()))
+                                    (c.name.toLowerCase().includes(contractorSearch.toLowerCase()) ||
+                                        c.expertise.some(e => e.toLowerCase().includes(contractorSearch.toLowerCase())) ||
+                                        c.location.toLowerCase().includes(contractorSearch.toLowerCase()))
                                 ).map(c => (
                                     <div key={c.id} className="card hover-lift" style={{ margin: 0, padding: 0, overflow: 'hidden', border: '1px solid #edf2f7', display: 'flex', flexDirection: 'column' }}>
                                         <div style={{ height: '200px', position: 'relative' }}>
@@ -1870,9 +1952,9 @@ export default function UserDashboard() {
                                                     <span key={e} style={{ background: '#f1f5f9', color: '#475569', padding: '5px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: 600 }}>{e}</span>
                                                 ))}
                                             </div>
-                                            
+
                                             <div style={{ marginTop: 'auto', display: 'flex', gap: '12px' }}>
-                                                <button 
+                                                <button
                                                     onClick={() => setSelectedContractor(c)}
                                                     className="button-press"
                                                     style={{ flex: 1, padding: '14px', borderRadius: '12px', background: '#f8fafc', color: '#1e293b', border: '2px solid #e2e8f0', fontWeight: 700, fontSize: '14px', cursor: 'pointer', transition: '0.3s' }}
@@ -1881,7 +1963,7 @@ export default function UserDashboard() {
                                                 >
                                                     View Profile
                                                 </button>
-                                                <button 
+                                                <button
                                                     onClick={async () => {
                                                         const newReq = {
                                                             userEmail: userEmail,
@@ -1900,7 +1982,7 @@ export default function UserDashboard() {
                                                             toast.error('Failed to send request to server');
                                                         }
                                                     }}
-                                                    className="button-press" 
+                                                    className="button-press"
                                                     style={{ flex: 1.5, padding: '14px', borderRadius: '12px', background: 'linear-gradient(135deg, var(--primary), var(--primary-dark))', color: 'white', border: 'none', fontWeight: 800, fontSize: '14px', cursor: 'pointer', boxShadow: '0 6px 12px rgba(230,126,34,0.3)' }}
                                                 >
                                                     Book Free Call
@@ -1913,18 +1995,18 @@ export default function UserDashboard() {
 
                             {/* Contractor Detail Modal */}
                             {selectedContractor && (
-                                <div 
+                                <div
                                     onClick={e => { if (e.target === e.currentTarget) setSelectedContractor(null) }}
                                     style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.7)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000, padding: '20px' }}
                                 >
                                     <div className="animate-scaleIn" style={{ background: 'white', borderRadius: '32px', maxWidth: '850px', width: '100%', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 40px 100px rgba(0,0,0,0.4)', position: 'relative' }}>
-                                        <button 
+                                        <button
                                             onClick={() => setSelectedContractor(null)}
                                             style={{ position: 'absolute', top: '24px', right: '24px', background: 'white', border: 'none', color: '#1e293b', width: '44px', height: '44px', borderRadius: '50%', cursor: 'pointer', fontSize: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
                                         >
                                             ×
                                         </button>
-                                        
+
                                         <div style={{ height: '300px', width: '100%', position: 'relative' }}>
                                             <img src={selectedContractor.image} alt={selectedContractor.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                             <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(transparent, rgba(0,0,0,0.7))' }}></div>
@@ -1943,7 +2025,7 @@ export default function UserDashboard() {
                                                 <div>
                                                     <h4 style={{ fontSize: '18px', fontWeight: 800, marginBottom: '16px', color: '#1e293b' }}>About the Expert</h4>
                                                     <p style={{ fontSize: '16px', lineHeight: 1.8, color: '#64748b', marginBottom: '32px' }}>{selectedContractor.about}</p>
-                                                    
+
                                                     <h4 style={{ fontSize: '18px', fontWeight: 800, marginBottom: '16px', color: '#1e293b' }}>Core Expertise</h4>
                                                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
                                                         {selectedContractor.expertise.map(e => (
@@ -1954,7 +2036,7 @@ export default function UserDashboard() {
                                                 <div style={{ background: '#f8fafc', padding: '32px', borderRadius: '24px', border: '1px solid #e2e8f0' }}>
                                                     <h4 style={{ fontSize: '20px', fontWeight: 800, marginBottom: '12px', color: '#1e293b' }}>Book Consultation</h4>
                                                     <p style={{ fontSize: '14px', color: '#64748b', marginBottom: '24px' }}>Get a detailed site visit and customized estimate from {selectedContractor.name}.</p>
-                                                    
+
                                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                                                         <div style={{ background: 'white', padding: '16px', borderRadius: '12px', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '12px' }}>
                                                             <span style={{ fontSize: '20px' }}>🎁</span>
@@ -1963,8 +2045,8 @@ export default function UserDashboard() {
                                                                 <p style={{ fontSize: '11px', color: '#64748b' }}>BharatHome User Exclusive</p>
                                                             </div>
                                                         </div>
-                                                        
-                                                        <button 
+
+                                                        <button
                                                             onClick={async () => {
                                                                 const newReq = {
                                                                     userEmail: userEmail,
@@ -2065,14 +2147,14 @@ export default function UserDashboard() {
                         <div style={{ fontSize: '64px', marginBottom: '20px' }}>⭐</div>
                         <h2 style={{ fontSize: '24px', fontWeight: 800, color: '#1e293b' }}>Rate Your Experience</h2>
                         <p style={{ color: '#64748b', marginTop: '12px', marginBottom: '32px' }}>How would you rate the service and quality of your recent project?</p>
-                        
+
                         <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', marginBottom: '32px' }}>
                             {[1, 2, 3, 4, 5].map(s => (
                                 <button key={s} onClick={() => setReviewRating(s)} style={{ background: 'none', border: 'none', fontSize: '32px', cursor: 'pointer', transition: '0.2s', transform: reviewRating >= s ? 'scale(1.2)' : 'scale(1)', opacity: reviewRating >= s ? 1 : 0.3 }}>⭐</button>
                             ))}
                         </div>
 
-                        <textarea 
+                        <textarea
                             value={reviewText}
                             onChange={e => setReviewText(e.target.value)}
                             placeholder="Share your thoughts on the quality of work..."
