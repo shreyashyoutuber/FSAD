@@ -681,6 +681,28 @@ export default function UserDashboard() {
         return recommendations
     }
 
+    // AI Location Analyzer (Simulated)
+    const calculateLocationRating = (details) => {
+        if (!details) return "4.2/5.0"
+        const addr = (details.address || details.locality || "").toLowerCase()
+        const city = (details.city || "").toLowerCase()
+        
+        let score = 4.0
+        
+        // Tier 1 Cities / Prime Areas Heuristics
+        const primeWords = ['mumbai', 'bangalore', 'bengaluru', 'delhi', 'gurgaon', 'central', 'main', 'road', 'prime', 'mall', 'station']
+        primeWords.forEach(word => {
+            if (addr.includes(word) || city.includes(word)) score += 0.2
+        })
+        
+        // Property Type Heuristics
+        if (details.propertyType?.includes('Villa')) score += 0.3
+        
+        // Normalize score between 4.0 and 5.0
+        const finalScore = Math.min(5.0, score).toFixed(1)
+        return `${finalScore}/5.0`
+    }
+
     useEffect(() => {
         const style = document.createElement('style')
         style.innerText = animations
@@ -710,8 +732,15 @@ export default function UserDashboard() {
                 // Fetch estimations
                 console.log('Loading dashboard data for:', email);
                 const apiEstimates = await fetchUserEstimations(email)
-                console.log('Fetched estimations:', apiEstimates.length, apiEstimates);
-                setEstimates(apiEstimates)
+                
+                // Parse details JSON string for each estimate
+                const parsedEstimates = apiEstimates.map(est => ({
+                    ...est,
+                    parsedDetails: typeof est.details === 'string' ? JSON.parse(est.details) : est.details
+                }));
+                
+                console.log('Fetched estimations:', parsedEstimates.length, parsedEstimates);
+                setEstimates(parsedEstimates)
                 
                 // Fetch profile to get savedIdeas
                 const profile = await getCurrentUser()
@@ -817,18 +846,16 @@ export default function UserDashboard() {
     const displayValueIncrease = potentialValueIncrease > 0 ? potentialValueIncrease : (activeProperty ? fallbackTotalValue : 0)
     const displayRecsCount = activeRecsCount > 0 ? activeRecsCount : (activeProperty ? RECS.length : 0)
 
-    const activePropertyDetails = typeof activeProperty?.details === 'string' 
-        ? (JSON.parse(activeProperty.details) || {}) 
-        : (activeProperty?.details || {})
+    const activePropertyDetails = activeProperty?.parsedDetails || {}
     
-    const baseValue = parseInt(activePropertyDetails?.marketValue?.toString().replace(/[^0-9]/g, '') || 5000000)
+    const baseValue = parseInt(activePropertyDetails?.marketValue?.toString().replace(/[^0-9]/g, '') || 0)
 
     const prop = activeProperty ? {
         type: activeProperty.type?.replace('Property: ', '') || 'Residential',
         location: activePropertyDetails?.address || activePropertyDetails?.city || 'Location',
         currentValue: baseValue,
-        size: activePropertyDetails?.propertySize || activePropertyDetails?.size || '1,250',
-        age: activePropertyDetails?.yearBuilt ? (new Date().getFullYear() - activePropertyDetails.yearBuilt) : (activePropertyDetails?.year ? (new Date().getFullYear() - activePropertyDetails.year) : 10),
+        size: activePropertyDetails?.propertySize || activePropertyDetails?.size || 'N/A',
+        age: activePropertyDetails?.propertyAge || activePropertyDetails?.age || 'N/A',
         locationRating: 4.5
     } : (userData?.property || {})
 
@@ -1054,14 +1081,18 @@ export default function UserDashboard() {
                                             </div>
                                             <div style={{ textAlign: 'right' }}>
                                                 <p style={{ opacity: 0.7, fontSize: '13px' }}>Current Market Value</p>
-                                                <p style={{ fontSize: '28px', fontWeight: 800, color: '#ffd700' }}>{activeProperty.details?.marketValue || 'Pending Review'}</p>
+                                                <p style={{ fontSize: '28px', fontWeight: 800, color: '#ffd700' }}>
+                                                    {activeProperty.parsedDetails?.marketValue 
+                                                        ? `₹${Number(activeProperty.parsedDetails.marketValue).toLocaleString('en-IN')}` 
+                                                        : 'Pending Review'}
+                                                </p>
                                             </div>
                                         </div>
                                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '16px', marginTop: '24px' }}>
                                             {[
-                                                ['Property Size', activeProperty.details?.size ? `${activeProperty.details.size} sq ft` : 'N/A'],
-                                                ['Property Age', activeProperty.details?.age ? `${activeProperty.details.age} years` : 'N/A'],
-                                                ['Location Rating', `4.5/5.0`]
+                                                ['Property Size', (activeProperty.parsedDetails?.propertySize || activeProperty.parsedDetails?.size) ? `${activeProperty.parsedDetails.propertySize || activeProperty.parsedDetails.size} sq ft` : 'N/A'],
+                                                ['Property Age', (activeProperty.parsedDetails?.propertyAge || activeProperty.parsedDetails?.age) ? `${activeProperty.parsedDetails.propertyAge || activeProperty.parsedDetails.age} years` : 'N/A'],
+                                                ['Location Rating', activeProperty.parsedDetails?.locationRating || calculateLocationRating(activeProperty.parsedDetails)]
                                             ].map(([k, v]) => (
                                                 <div key={k} style={{ background: 'rgba(255,255,255,0.1)', borderRadius: '10px', padding: '14px' }}>
                                                     <p style={{ opacity: 0.7, fontSize: '12px' }}>{k}</p>
