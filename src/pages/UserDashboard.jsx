@@ -827,7 +827,6 @@ export default function UserDashboard() {
         const user = JSON.parse(userStr)
         const email = user.email
 
-        warmUpBackend();
         // Fetch User Profile and Estimations from API
         const loadData = async () => {
             setIsLoadingData(true)
@@ -1801,13 +1800,10 @@ export default function UserDashboard() {
                                         })
                                     };
 
-                                    setIsSubmitting(true);
-                                    console.log('Submission started. Preparing data...');
+                                    setIsSubmitting(true)
                                     try {
                                         if (!userEmail) throw new Error("User session expired. Please login again.");
-                                        
-                                        toast.info("Uploading property details & photos...");
-                                        console.log('Submitting property data:', estData);
+                                        console.log('Submitting property with email:', userEmail);
 
                                         await saveEstimation(estData);
                                         toast.success('Property submitted successfully!');
@@ -1891,9 +1887,9 @@ export default function UserDashboard() {
                                         <label>Additional Notes</label>
                                         <textarea name="description" rows={3} placeholder="Any special requirements or details..." style={{ width: '100%', padding: '12px 16px', border: '2px solid #e9ecef', borderRadius: '8px', fontSize: '15px', outline: 'none', resize: 'vertical' }} />
                                     </div>
-                                    <button 
-                                        type="submit" 
-                                        className="btn-submit button-press" 
+                                    <button
+                                        type="submit"
+                                        className="btn-submit button-press"
                                         style={{ marginTop: '24px', padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', opacity: isSubmitting ? 0.7 : 1, cursor: isSubmitting ? 'not-allowed' : 'pointer' }}
                                         disabled={isSubmitting}
                                     >
@@ -2209,4 +2205,3 @@ export default function UserDashboard() {
         </div>
     )
 }
-
