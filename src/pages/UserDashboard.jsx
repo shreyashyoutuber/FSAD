@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Toast, useToast } from '../components/Toast'
 import { Line } from 'react-chartjs-2'
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js'
-import { fetchUserEstimations, getCurrentUser, saveEstimation, updateProfile, deleteEstimation, warmUpBackend } from '../api'
+import { fetchUserEstimations, getCurrentUser, saveEstimation, updateProfile, deleteEstimation, warmUpBackend, updateSavedIdeas } from '../api'
 
 const Icons = {
     Dashboard: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="9" /><rect x="14" y="3" width="7" height="5" /><rect x="14" y="12" width="7" height="9" /><rect x="3" y="16" width="7" height="5" /></svg>,
@@ -649,25 +649,49 @@ export default function UserDashboard() {
         return () => document.removeEventListener('mousedown', handleClick)
     }, [])
 
+    // Compress image to reduce base64 size (prevents SQL Data Truncation error)
+    const compressImage = (file, maxWidth = 400, quality = 0.5) => {
+        return new Promise((resolve) => {
+            const reader = new FileReader()
+            reader.onload = (event) => {
+                const img = new Image()
+                img.onload = () => {
+                    const canvas = document.createElement('canvas')
+                    let width = img.width
+                    let height = img.height
+                    if (width > maxWidth) {
+                        height = Math.round((height * maxWidth) / width)
+                        width = maxWidth
+                    }
+                    canvas.width = width
+                    canvas.height = height
+                    const ctx = canvas.getContext('2d')
+                    ctx.drawImage(img, 0, 0, width, height)
+                    const compressedData = canvas.toDataURL('image/jpeg', quality)
+                    resolve({ name: file.name, data: compressedData })
+                }
+                img.src = event.target.result
+            }
+            reader.readAsDataURL(file)
+        })
+    }
+
     // Handle Property Image Upload
-    const handlePropertyPhotoUpload = (e) => {
+    const handlePropertyPhotoUpload = async (e) => {
         const files = Array.from(e.target.files)
         if (propertyPhotos.length + files.length > 5) {
             alert('Maximum 5 photos allowed per property.')
             return
         }
 
-        files.forEach(file => {
+        for (const file of files) {
             if (!file.type.startsWith('image/')) {
                 alert(`${file.name} is not an image file.`)
-                return
+                continue
             }
-            const reader = new FileReader()
-            reader.onload = (event) => {
-                setPropertyPhotos(prev => [...prev, { name: file.name, data: event.target.result }])
-            }
-            reader.readAsDataURL(file)
-        })
+            const compressed = await compressImage(file)
+            setPropertyPhotos(prev => [...prev, compressed])
+        }
     }
 
     const removePropertyPhoto = (index) => {
