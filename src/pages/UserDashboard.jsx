@@ -1043,6 +1043,7 @@ export default function UserDashboard() {
         { icon: <Icons.New />, label: 'New Estimate', key: 'new-estimator' },
         { icon: <Icons.Sparkles />, label: 'Recommendations', key: 'recommendations', badge: unreadChats },
         { icon: <Icons.Bookmark />, label: 'Saved Ideas', key: 'saved', badge: Array.isArray(savedIdeas) ? savedIdeas.length : 0 },
+        { icon: <Icons.New />, label: 'AI Planner', key: 'planner' },
         { icon: <Icons.Home />, label: 'Submit Property', key: 'submit' },
         { icon: <Icons.Gift />, label: 'Refer & Earn', key: 'referral' },
         { icon: <Icons.Users />, label: 'Contractor Directory', key: 'contractors' },
@@ -1083,7 +1084,7 @@ export default function UserDashboard() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                         <button onClick={() => setSidebarOpen(!sidebarOpen)} style={{ display: 'none', background: 'none', border: 'none', cursor: 'pointer', fontSize: '24px' }} className="mobile-menu-btn">☰</button>
                         <h1 style={{ fontSize: '20px', fontWeight: 700 }}>
-                            {view === 'dashboard' ? 'Dashboard' : view === 'estimator' ? 'My Estimates' : view === 'new-estimator' ? 'New Estimate' : view === 'recommendations' ? 'Recommendations' : view === 'saved' ? 'Saved Ideas' : view === 'profile' ? 'Profile' : view === 'submit' ? 'Submit Property' : view === 'contractors' ? 'Contractor Directory' : view === 'referral' ? 'Refer & Earn' : view === 'emi' ? '🧮 EMI Calculator' : 'Dashboard'}
+                            {view === 'dashboard' ? 'Dashboard' : view === 'estimator' ? 'My Estimates' : view === 'new-estimator' ? 'New Estimate' : view === 'recommendations' ? 'Recommendations' : view === 'saved' ? 'Saved Ideas' : view === 'profile' ? 'Profile' : view === 'submit' ? 'Submit Property' : view === 'contractors' ? 'Contractor Directory' : view === 'referral' ? 'Refer & Earn' : view === 'emi' ? '🧮 EMI Calculator' : view === 'planner' ? 'AI Floor Planner' : 'Dashboard'}
                         </h1>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -2131,6 +2132,11 @@ export default function UserDashboard() {
                     {view === 'emi' && (
                         <EmiView />
                     )}
+
+                    {/* ---- AI FLOOR PLANNER VIEW ---- */}
+                    {view === 'planner' && (
+                        <FloorPlanner />
+                    )}
                 </main>
             </div>
 
@@ -2216,3 +2222,159 @@ export default function UserDashboard() {
         </div>
     )
 }
+
+// ---- ARCHITECTURE & FURNITURE PLANNER COMPONENT ----
+function FloorPlanner() {
+    const [items, setItems] = useState([])
+    const [activeTool, setActiveTool] = useState(null)
+
+    const PlannerIcons = {
+        Wall: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="2" /><line x1="2" y1="12" x2="22" y2="12" /><line x1="12" y1="2" x2="12" y2="22" /></svg>,
+        Window: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="12" y1="3" x2="12" y2="21" /></svg>,
+        Door: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3h18v18H3z" /><path d="M8 3v18" /><circle cx="16" cy="12" r="1" /></svg>,
+        Bed: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 4v16" /><path d="M2 8h18a2 2 0 0 1 2 2v10" /><path d="M2 17h20" /><path d="M6 8v9" /></svg>,
+        Wardrobe: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" /><line x1="12" y1="2" x2="12" y2="22" /><path d="M8 10h.01" /><path d="M16 10h.01" /></svg>,
+        Sofa: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 10h18v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-8z" /><path d="M3 10V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4" /><path d="M8 10v4" /><path d="M16 10v4" /></svg>,
+        DiningTable: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="8" width="16" height="8" rx="2" /><line x1="6" y1="16" x2="6" y2="20" /><line x1="18" y1="16" x2="18" y2="20" /><line x1="6" y1="8" x2="6" y2="4" /><line x1="18" y1="8" x2="18" y2="4" /></svg>,
+        Kitchen: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 20V4" /><path d="M6 20V4" /><rect x="6" y="8" width="12" height="4" /><circle cx="10" cy="14" r="1" /><circle cx="14" cy="14" r="1" /></svg>,
+        Bathroom: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M7 7c0-1.1.9-2 2-2h6a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V7z" /><path d="M11 19a2 2 0 0 0 2 0" /><circle cx="12" cy="10" r="1" /></svg>,
+        TV: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="15" rx="2" /><line x1="8" y1="21" x2="16" y2="21" /><line x1="12" y1="18" x2="12" y2="21" /></svg>,
+        AC: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="6" width="20" height="8" rx="1" /><line x1="6" y1="14" x2="6" y2="18" /><line x1="12" y1="14" x2="12" y2="18" /><line x1="18" y1="14" x2="18" y2="18" /></svg>,
+        Plant: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v10" /><path d="M12 8c3 0 5-2 5-2s-2 5-5 5-5-5-5-5 2 2 5 2z" /><path d="M8 22h8l-1-5H9l-1 5z" /></svg>,
+        Light: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" /></svg>,
+    }
+
+    const tools = [
+        { id: 'wall', label: 'Wall', icon: <PlannerIcons.Wall /> },
+        { id: 'window', label: 'Window', icon: <PlannerIcons.Window /> },
+        { id: 'door', label: 'Door', icon: <PlannerIcons.Door /> },
+        { id: 'bed', label: 'Bed', icon: <PlannerIcons.Bed /> },
+        { id: 'wardrobe', label: 'Wardrobe', icon: <PlannerIcons.Wardrobe /> },
+        { id: 'sofa', label: 'Sofa', icon: <PlannerIcons.Sofa /> },
+        { id: 'dining', label: 'Dining Table', icon: <PlannerIcons.DiningTable /> },
+        { id: 'kitchen', label: 'Kitchen', icon: <PlannerIcons.Kitchen /> },
+        { id: 'bathroom', label: 'Bathroom', icon: <PlannerIcons.Bathroom /> },
+        { id: 'tv', label: 'TV Unit', icon: <PlannerIcons.TV /> },
+        { id: 'ac', label: 'AC', icon: <PlannerIcons.AC /> },
+        { id: 'plant', label: 'Indoor Plant', icon: <PlannerIcons.Plant /> },
+        { id: 'light', label: 'Light/Fan', icon: <PlannerIcons.Light /> },
+    ]
+
+    const addItem = (e) => {
+        if (!activeTool) return
+        const rect = e.currentTarget.getBoundingClientRect()
+        const x = Math.round((e.clientX - rect.left) / 20) * 20
+        const y = Math.round((e.clientY - rect.top) / 20) * 20
+        setItems([...items, { id: Date.now(), type: activeTool.id, label: activeTool.label, icon: activeTool.icon, x, y }])
+    }
+
+    const removeItem = (id) => {
+        setItems(items.filter(item => item.id !== id))
+    }
+
+    return (
+        <div className="animate-fadeIn" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div style={{ background: '#f8fafc', padding: '16px 24px', borderRadius: '16px', border: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                    <h2 style={{ fontSize: '20px', fontWeight: 800, color: '#1e293b', margin: 0 }}>Home Layout Planner</h2>
+                    <p style={{ fontSize: '13px', color: '#64748b', margin: '4px 0 0' }}>Professional tools to plan your home renovation layout.</p>
+                </div>
+                <div style={{ display: 'flex', gap: '12px' }}>
+                    <button onClick={() => setItems([])} style={{ padding: '8px 16px', background: 'white', border: '1.5px solid #fee2e2', color: '#dc2626', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', fontSize: '13px' }}>Reset Plan</button>
+                    <button onClick={() => window.print()} className="button-press" style={{ padding: '10px 24px', background: '#1e293b', color: 'white', border: 'none', borderRadius: '10px', fontWeight: 800, fontSize: '14px', cursor: 'pointer' }}>Print Layout</button>
+                </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr', gap: '24px', height: '700px' }}>
+                {/* Sidebar: Tools */}
+                <div className="card" style={{ margin: 0, padding: '24px', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
+                    <h3 style={{ fontSize: '12px', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '16px' }}>Planning Tools</h3>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '8px' }}>
+                        {tools.map(t => (
+                            <button
+                                key={t.id}
+                                onClick={() => setActiveTool(t)}
+                                className="button-press"
+                                style={{
+                                    display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px',
+                                    borderRadius: '12px', border: activeTool?.id === t.id ? '2.5px solid var(--primary)' : '1.5px solid #f1f5f9',
+                                    background: activeTool?.id === t.id ? '#fff7ed' : 'white', cursor: 'pointer', transition: '0.2s', textAlign: 'left'
+                                }}
+                            >
+                                <span style={{ color: activeTool?.id === t.id ? 'var(--primary)' : '#64748b' }}>{t.icon}</span>
+                                <span style={{ fontWeight: 700, fontSize: '13px', color: activeTool?.id === t.id ? 'var(--primary)' : '#475569' }}>{t.label}</span>
+                            </button>
+                        ))}
+                    </div>
+                    <div style={{ marginTop: '24px', padding: '16px', background: '#f8fafc', borderRadius: '12px', border: '1px dashed #e2e8f0' }}>
+                        <p style={{ fontSize: '11px', color: '#64748b', margin: 0, lineHeight: 1.6 }}>
+                            <strong>Instructions:</strong><br />
+                            1. Select a tool from above.<br />
+                            2. Click on the grid to place the item.<br />
+                            3. Click a placed item to remove it.
+                        </p>
+                    </div>
+                </div>
+
+                {/* Main Planning Area */}
+                <div 
+                    className="card animate-scaleIn" 
+                    style={{ 
+                        margin: 0, padding: 0, position: 'relative', overflow: 'hidden', 
+                        background: 'white', border: '2px solid #e2e8f0', borderRadius: '24px',
+                        backgroundImage: 'radial-gradient(#e2e8f0 1.5px, transparent 1.5px)', 
+                        backgroundSize: '25px 25px', cursor: activeTool ? 'crosshair' : 'default',
+                        boxShadow: 'inset 0 0 60px rgba(0,0,0,0.01)'
+                    }}
+                    onClick={addItem}
+                >
+                    {items.map(item => (
+                        <div
+                            key={item.id}
+                            className="button-press"
+                            style={{
+                                position: 'absolute', left: item.x, top: item.y,
+                                transform: 'translate(-50%, -50%)', background: 'white',
+                                border: '2px solid #1e293b', borderRadius: '10px', padding: '8px 12px',
+                                boxShadow: '0 8px 16px rgba(0,0,0,0.1)', display: 'flex',
+                                alignItems: 'center', gap: '8px', zIndex: 10, cursor: 'pointer'
+                            }}
+                            onClick={(e) => { e.stopPropagation(); removeItem(item.id) }}
+                        >
+                            <span style={{ color: '#1e293b' }}>{item.icon}</span>
+                            <span style={{ fontSize: '11px', fontWeight: 800, color: '#1e293b', whiteSpace: 'nowrap' }}>{item.label}</span>
+                        </div>
+                    ))}
+                    {!activeTool && items.length === 0 && (
+                        <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', flexDirection: 'column', textAlign: 'center' }}>
+                            <PlannerIcons.Wall />
+                            <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#475569', marginTop: '16px', marginBottom: '8px' }}>Blueprint Canvas</h3>
+                            <p style={{ fontSize: '13px', maxWidth: '280px', lineHeight: 1.6 }}>Choose an architectural element from the sidebar to start your layout.</p>
+                        </div>
+                    )}
+                    {activeTool && (
+                        <div style={{ position: 'absolute', bottom: '24px', left: '50%', transform: 'translateX(-50%)', background: '#1e293b', color: 'white', padding: '8px 20px', borderRadius: '30px', fontSize: '12px', fontWeight: 700, zIndex: 5, boxShadow: '0 10px 25px rgba(0,0,0,0.2)' }}>
+                            Active: {activeTool.label} (Click on grid)
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* Quick Stats Panel */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
+                {[
+                    { label: 'Total Items', value: items.length },
+                    { label: 'Furniture Count', value: items.filter(i => !['wall', 'window', 'door'].includes(i.type)).length },
+                    { label: 'Architectural', value: items.filter(i => ['wall', 'window', 'door'].includes(i.type)).length },
+                    { label: 'Grid Snap', value: '25px' }
+                ].map(stat => (
+                    <div key={stat.label} className="card" style={{ margin: 0, padding: '16px', textAlign: 'center', background: '#f8fafc', border: '1.5px solid #e2e8f0' }}>
+                        <p style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 800, textTransform: 'uppercase', marginBottom: '4px' }}>{stat.label}</p>
+                        <p style={{ fontSize: '20px', fontWeight: 800, color: '#1e293b', margin: 0 }}>{stat.value}</p>
+                    </div>
+                ))}
+            </div>
+        </div>
+    )
+}
+
