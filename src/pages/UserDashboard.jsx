@@ -848,13 +848,23 @@ export default function UserDashboard() {
                 const profile = await getCurrentUser()
                 setUserData(profile)
                 setProfileForm({ name: profile.name || '', email: profile.email || '', phone: profile.phone || '' })
-                setSavedIdeas(JSON.parse(profile.savedIdeas || '[]'))
+                let parsedIdeas = []
+                try {
+                    const parsed = JSON.parse(profile.savedIdeas || '[]')
+                    if (Array.isArray(parsed)) parsedIdeas = parsed
+                } catch (e) {}
+                setSavedIdeas(parsedIdeas)
             } catch (err) {
                 console.error('Error loading data:', err)
                 // Fallback to localStorage if API fails (optional)
                 const data = JSON.parse(localStorage.getItem('user') || '{}')
                 setUserData(data || { name: 'User' })
-                setSavedIdeas(JSON.parse(localStorage.getItem('savedIdeas') || '[]'))
+                let fallbackIdeas = []
+                try {
+                    const parsed = JSON.parse(localStorage.getItem('savedIdeas') || '[]')
+                    if (Array.isArray(parsed)) fallbackIdeas = parsed
+                } catch (e) {}
+                setSavedIdeas(fallbackIdeas)
             } finally {
                 setIsLoadingData(false)
             }
@@ -882,9 +892,10 @@ export default function UserDashboard() {
     }, [view, chatReq, estimates])
 
     const saveIdea = async (rec) => {
-        const already = savedIdeas.find(s => s.title === rec.title)
+        const currentIdeas = Array.isArray(savedIdeas) ? savedIdeas : [];
+        const already = currentIdeas.find(s => s && s.title === rec.title)
         if (already) { toast.warning('Already saved!'); return }
-        const updated = [...savedIdeas, rec]
+        const updated = [...currentIdeas, rec]
         setSavedIdeas(updated)
         try {
             await updateSavedIdeas(JSON.stringify(updated))
@@ -896,7 +907,7 @@ export default function UserDashboard() {
     }
 
     const removeIdea = async (title) => {
-        const updated = savedIdeas.filter(s => s.title !== title)
+        const updated = (Array.isArray(savedIdeas) ? savedIdeas : []).filter(s => s && s.title !== title)
         setSavedIdeas(updated)
         try {
             await updateSavedIdeas(JSON.stringify(updated))
@@ -1031,7 +1042,7 @@ export default function UserDashboard() {
         { icon: <Icons.Estimator />, label: 'My Estimator', key: 'estimator' },
         { icon: <Icons.New />, label: 'New Estimate', key: 'new-estimator' },
         { icon: <Icons.Sparkles />, label: 'Recommendations', key: 'recommendations', badge: unreadChats },
-        { icon: <Icons.Bookmark />, label: 'Saved Ideas', key: 'saved', badge: savedIdeas.length },
+        { icon: <Icons.Bookmark />, label: 'Saved Ideas', key: 'saved', badge: Array.isArray(savedIdeas) ? savedIdeas.length : 0 },
         { icon: <Icons.Home />, label: 'Submit Property', key: 'submit' },
         { icon: <Icons.Gift />, label: 'Refer & Earn', key: 'referral' },
         { icon: <Icons.Users />, label: 'Contractor Directory', key: 'contractors' },
@@ -1707,8 +1718,8 @@ export default function UserDashboard() {
                     {view === 'saved' && (
                         <div className="animate-fadeIn">
                             <h2 style={{ fontSize: '24px', fontWeight: 800, marginBottom: '8px' }}>Your Saved Ideas</h2>
-                            <p style={{ color: 'var(--muted)', marginBottom: '24px' }}>{savedIdeas.length} saved ideas</p>
-                            {savedIdeas.length === 0 ? (
+                            <p style={{ color: 'var(--muted)', marginBottom: '24px' }}>{Array.isArray(savedIdeas) ? savedIdeas.length : 0} saved ideas</p>
+                            {!Array.isArray(savedIdeas) || savedIdeas.length === 0 ? (
                                 <div className="card" style={{ textAlign: 'center', padding: '60px 40px' }}>
                                     <div style={{ fontSize: '64px', marginBottom: '16px' }}>🔖</div>
                                     <h3 style={{ fontWeight: 700 }}>No Saved Ideas Yet</h3>
@@ -1716,7 +1727,7 @@ export default function UserDashboard() {
                                 </div>
                             ) : (
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                                    {savedIdeas.map((idea, i) => (
+                                    {(Array.isArray(savedIdeas) ? savedIdeas : []).map((idea, i) => idea ? (
                                         <div key={i} className={`card animate-slideUp stagger-${(i % 5) + 1} hover-lift`} style={{ margin: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
                                             <div>
                                                 <h4 style={{ fontWeight: 700, fontSize: '17px' }}>{idea.title}</h4>
@@ -1729,7 +1740,7 @@ export default function UserDashboard() {
                                             </div>
                                             <button onClick={() => removeIdea(idea.title)} className="button-press" style={{ padding: '8px 16px', border: '2px solid #fee2e2', borderRadius: '8px', background: '#fff', color: '#dc2626', cursor: 'pointer', fontWeight: 600 }}>Remove</button>
                                         </div>
-                                    ))}
+                                    ) : null)}
                                 </div>
                             )}
                         </div>

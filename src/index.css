@@ -161,6 +161,10 @@ a {
   box-shadow: 0 4px 12px rgba(44, 62, 80, 0.3);
 }
 
+.mobile-toggle {
+  display: none;
+}
+
 /* ---- HERO ---- */
 .hero {
   min-height: 90vh;
