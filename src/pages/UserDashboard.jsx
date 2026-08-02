@@ -779,7 +779,7 @@ export default function UserDashboard() {
             'tirunelveli': 3.5, 'salem': 3.6, 'udaipur': 4.0, 'ajmer': 3.6,
             // Tier 3
             'aligarh': 3.3, 'gwalior': 3.5, 'dhanbad': 3.2, 'bareilly': 3.3,
-            'moradabad': 3.3, 'mysore': 4.1, 'kolhapur': 3.8, 'bilaspur': 3.4,
+            'moradabad': 3.3, 'kolhapur': 3.8, 'bilaspur': 3.4,
         }
 
         // Find best city match
@@ -852,7 +852,7 @@ export default function UserDashboard() {
                 try {
                     const parsed = JSON.parse(profile.savedIdeas || '[]')
                     if (Array.isArray(parsed)) parsedIdeas = parsed
-                } catch (e) {}
+                } catch (e) { }
                 setSavedIdeas(parsedIdeas)
             } catch (err) {
                 console.error('Error loading data:', err)
@@ -863,7 +863,7 @@ export default function UserDashboard() {
                 try {
                     const parsed = JSON.parse(localStorage.getItem('savedIdeas') || '[]')
                     if (Array.isArray(parsed)) fallbackIdeas = parsed
-                } catch (e) {}
+                } catch (e) { }
                 setSavedIdeas(fallbackIdeas)
             } finally {
                 setIsLoadingData(false)
@@ -2226,155 +2226,617 @@ export default function UserDashboard() {
 // ---- ARCHITECTURE & FURNITURE PLANNER COMPONENT ----
 function FloorPlanner() {
     const [items, setItems] = useState([])
+    const [history, setHistory] = useState([])
     const [activeTool, setActiveTool] = useState(null)
+    const [roomWidth, setRoomWidth] = useState(16) // feet
+    const [roomHeight, setRoomHeight] = useState(14) // feet
+    const [sunlightHour, setSunlightHour] = useState(10) // 6 to 18 (6am to 6pm)
+    const [showNoiseMap, setShowNoiseMap] = useState(false)
+    const [showVastuZones, setShowVastuZones] = useState(false)
+    const [activeTab, setActiveTab] = useState('tools') // 'tools' | 'vastu' | 'budget'
+    const [hoverPos, setHoverPos] = useState(null)
+    const [draggingId, setDraggingId] = useState(null)
+    const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
+    const [zoom, setZoom] = useState(1)
+    const canvasRef = useRef(null)
 
     const PlannerIcons = {
-        Wall: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="2" /><line x1="2" y1="12" x2="22" y2="12" /><line x1="12" y1="2" x2="12" y2="22" /></svg>,
-        Window: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="12" y1="3" x2="12" y2="21" /></svg>,
-        Door: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3h18v18H3z" /><path d="M8 3v18" /><circle cx="16" cy="12" r="1" /></svg>,
-        Bed: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 4v16" /><path d="M2 8h18a2 2 0 0 1 2 2v10" /><path d="M2 17h20" /><path d="M6 8v9" /></svg>,
-        Wardrobe: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" /><line x1="12" y1="2" x2="12" y2="22" /><path d="M8 10h.01" /><path d="M16 10h.01" /></svg>,
-        Sofa: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 10h18v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-8z" /><path d="M3 10V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4" /><path d="M8 10v4" /><path d="M16 10v4" /></svg>,
-        DiningTable: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="8" width="16" height="8" rx="2" /><line x1="6" y1="16" x2="6" y2="20" /><line x1="18" y1="16" x2="18" y2="20" /><line x1="6" y1="8" x2="6" y2="4" /><line x1="18" y1="8" x2="18" y2="4" /></svg>,
-        Kitchen: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 20V4" /><path d="M6 20V4" /><rect x="6" y="8" width="12" height="4" /><circle cx="10" cy="14" r="1" /><circle cx="14" cy="14" r="1" /></svg>,
-        Bathroom: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M7 7c0-1.1.9-2 2-2h6a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V7z" /><path d="M11 19a2 2 0 0 0 2 0" /><circle cx="12" cy="10" r="1" /></svg>,
-        TV: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="15" rx="2" /><line x1="8" y1="21" x2="16" y2="21" /><line x1="12" y1="18" x2="12" y2="21" /></svg>,
-        AC: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="6" width="20" height="8" rx="1" /><line x1="6" y1="14" x2="6" y2="18" /><line x1="12" y1="14" x2="12" y2="18" /><line x1="18" y1="14" x2="18" y2="18" /></svg>,
-        Plant: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v10" /><path d="M12 8c3 0 5-2 5-2s-2 5-5 5-5-5-5-5 2 2 5 2z" /><path d="M8 22h8l-1-5H9l-1 5z" /></svg>,
-        Light: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" /></svg>,
+        Wall: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="2" /><line x1="2" y1="12" x2="22" y2="12" /><line x1="12" y1="2" x2="12" y2="22" /></svg>,
+        Window: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="12" y1="3" x2="12" y2="21" /></svg>,
+        Door: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3h18v18H3z" /><path d="M8 3v18" /><circle cx="16" cy="12" r="1" /></svg>,
+        Bed: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 4v16" /><path d="M2 8h18a2 2 0 0 1 2 2v10" /><path d="M2 17h20" /><path d="M6 8v9" /></svg>,
+        Wardrobe: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" /><line x1="12" y1="2" x2="12" y2="22" /><path d="M8 10h.01" /><path d="M16 10h.01" /></svg>,
+        Sofa: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 10h18v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-8z" /><path d="M3 10V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4" /><path d="M8 10v4" /><path d="M16 10v4" /></svg>,
+        DiningTable: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="8" width="16" height="8" rx="2" /><line x1="6" y1="16" x2="6" y2="20" /><line x1="18" y1="16" x2="18" y2="20" /><line x1="6" y1="8" x2="6" y2="4" /><line x1="18" y1="8" x2="18" y2="4" /></svg>,
+        Kitchen: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 20V4" /><path d="M6 20V4" /><rect x="6" y="8" width="12" height="4" /><circle cx="10" cy="14" r="1" /><circle cx="14" cy="14" r="1" /></svg>,
+        Bathroom: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M7 7c0-1.1.9-2 2-2h6a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V7z" /><path d="M11 19a2 2 0 0 0 2 0" /><circle cx="12" cy="10" r="1" /></svg>,
+        TV: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="15" rx="2" /><line x1="8" y1="21" x2="16" y2="21" /><line x1="12" y1="18" x2="12" y2="21" /></svg>,
+        AC: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="6" width="20" height="8" rx="1" /><line x1="6" y1="14" x2="6" y2="18" /><line x1="12" y1="14" x2="12" y2="18" /><line x1="18" y1="14" x2="18" y2="18" /></svg>,
+        Plant: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v10" /><path d="M12 8c3 0 5-2 5-2s-2 5-5 5-5-5-5-5 2 2 5 2z" /><path d="M8 22h8l-1-5H9l-1 5z" /></svg>,
+        Light: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" /></svg>,
     }
 
     const tools = [
-        { id: 'wall', label: 'Wall', icon: <PlannerIcons.Wall /> },
-        { id: 'window', label: 'Window', icon: <PlannerIcons.Window /> },
-        { id: 'door', label: 'Door', icon: <PlannerIcons.Door /> },
-        { id: 'bed', label: 'Bed', icon: <PlannerIcons.Bed /> },
-        { id: 'wardrobe', label: 'Wardrobe', icon: <PlannerIcons.Wardrobe /> },
-        { id: 'sofa', label: 'Sofa', icon: <PlannerIcons.Sofa /> },
-        { id: 'dining', label: 'Dining Table', icon: <PlannerIcons.DiningTable /> },
-        { id: 'kitchen', label: 'Kitchen', icon: <PlannerIcons.Kitchen /> },
-        { id: 'bathroom', label: 'Bathroom', icon: <PlannerIcons.Bathroom /> },
-        { id: 'tv', label: 'TV Unit', icon: <PlannerIcons.TV /> },
-        { id: 'ac', label: 'AC', icon: <PlannerIcons.AC /> },
-        { id: 'plant', label: 'Indoor Plant', icon: <PlannerIcons.Plant /> },
-        { id: 'light', label: 'Light/Fan', icon: <PlannerIcons.Light /> },
+        { id: 'wall', label: 'Wall', iconKey: 'Wall', category: 'Structure', color: '#1e293b', cost: 15000 },
+        { id: 'window', label: 'Window', iconKey: 'Window', category: 'Structure', color: '#0284c7', cost: 18000 },
+        { id: 'door', label: 'Door', iconKey: 'Door', category: 'Structure', color: '#d97706', cost: 12000 },
+        { id: 'bed', label: 'Bed (King)', iconKey: 'Bed', category: 'Bedroom', color: '#6366f1', cost: 45000 },
+        { id: 'wardrobe', label: 'Wardrobe', iconKey: 'Wardrobe', category: 'Bedroom', color: '#8b5cf6', cost: 65000 },
+        { id: 'sofa', label: 'Luxury Sofa', iconKey: 'Sofa', category: 'Living', color: '#10b981', cost: 50000 },
+        { id: 'tv', label: 'TV Console', iconKey: 'TV', category: 'Living', color: '#06b6d4', cost: 30000 },
+        { id: 'dining', label: 'Dining Table', iconKey: 'DiningTable', category: 'Dining', color: '#f59e0b', cost: 35000 },
+        { id: 'kitchen', label: 'Modular Counter', iconKey: 'Kitchen', category: 'Kitchen', color: '#ef4444', cost: 250000 },
+        { id: 'bathroom', label: 'Bathroom Unit', iconKey: 'Bathroom', category: 'Utility', color: '#14b8a6', cost: 120000 },
+        { id: 'ac', label: 'Split AC', iconKey: 'AC', category: 'Utility', color: '#3b82f6', cost: 40000 },
+        { id: 'plant', label: 'Indoor Plant', iconKey: 'Plant', category: 'Decor', color: '#22c55e', cost: 3000 },
+        { id: 'light', label: 'Designer Light', iconKey: 'Light', category: 'Decor', color: '#eab308', cost: 8000 },
     ]
 
-    const addItem = (e) => {
-        if (!activeTool) return
-        const rect = e.currentTarget.getBoundingClientRect()
-        const x = Math.round((e.clientX - rect.left) / 20) * 20
-        const y = Math.round((e.clientY - rect.top) / 20) * 20
-        setItems([...items, { id: Date.now(), type: activeTool.id, label: activeTool.label, icon: activeTool.icon, x, y }])
+    const getIcon = (key) => {
+        const IconComponent = PlannerIcons[key] || PlannerIcons.Wall
+        return <IconComponent />
+    }
+
+    // Canvas boundary parameters (in pixels)
+    const CANVAS_W = 680
+    const CANVAS_H = 500
+    // Dynamic Room pixel dimensions based on roomWidth (feet) and roomHeight (feet)
+    const roomPxW = Math.min(CANVAS_W - 80, roomWidth * 30)
+    const roomPxH = Math.min(CANVAS_H - 80, roomHeight * 30)
+    const roomLeft = (CANVAS_W - roomPxW) / 2
+    const roomTop = (CANVAS_H - roomPxH) / 2
+
+    // Helper: Push state to undo history
+    const updateItemsWithHistory = (newItems) => {
+        setHistory(prev => [...prev, items])
+        setItems(newItems)
+    }
+
+    const handleUndo = () => {
+        if (history.length === 0) return
+        const previous = history[history.length - 1]
+        setHistory(prev => prev.slice(0, -1))
+        setItems(previous)
+    }
+
+    const addItemAt = (x, y, tool) => {
+        const newItem = {
+            id: Date.now() + Math.random(),
+            type: tool.id,
+            label: tool.label,
+            iconKey: tool.iconKey,
+            category: tool.category,
+            color: tool.color,
+            cost: tool.cost,
+            x,
+            y,
+            rotation: 0
+        }
+        updateItemsWithHistory([...items, newItem])
     }
 
     const removeItem = (id) => {
-        setItems(items.filter(item => item.id !== id))
+        updateItemsWithHistory(items.filter(item => item.id !== id))
+    }
+
+    const rotateItem = (id) => {
+        updateItemsWithHistory(items.map(item => item.id === id ? { ...item, rotation: (item.rotation + 90) % 360 } : item))
+    }
+
+    // Canvas click & move handlers
+    const handleCanvasClick = (e) => {
+        if (draggingId) return
+        if (!activeTool) return
+
+        const rect = canvasRef.current.getBoundingClientRect()
+        const clickX = (e.clientX - rect.left) / zoom
+        const clickY = (e.clientY - rect.top) / zoom
+
+        // Snap to grid 25px
+        const snappedX = Math.round(clickX / 25) * 25
+        const snappedY = Math.round(clickY / 25) * 25
+
+        addItemAt(snappedX, snappedY, activeTool)
+    }
+
+    const handleCanvasMouseMove = (e) => {
+        if (!canvasRef.current) return
+        const rect = canvasRef.current.getBoundingClientRect()
+        const x = (e.clientX - rect.left) / zoom
+        const y = (e.clientY - rect.top) / zoom
+
+        if (draggingId) {
+            const snappedX = Math.round((x - dragOffset.x) / 25) * 25
+            const snappedY = Math.round((y - dragOffset.y) / 25) * 25
+            setItems(prev => prev.map(item => item.id === draggingId ? { ...item, x: snappedX, y: snappedY } : item))
+        } else if (activeTool) {
+            setHoverPos({ x: Math.round(x / 25) * 25, y: Math.round(y / 25) * 25 })
+        }
+    }
+
+    const handleItemMouseDown = (e, item) => {
+        e.stopPropagation()
+        if (e.target.tagName === 'BUTTON') return
+        const rect = canvasRef.current.getBoundingClientRect()
+        const clickX = (e.clientX - rect.left) / zoom
+        const clickY = (e.clientY - rect.top) / zoom
+
+        setHistory(prev => [...prev, items])
+        setDraggingId(item.id)
+        setDragOffset({ x: clickX - item.x, y: clickY - item.y })
+    }
+
+    const handleMouseUp = () => {
+        if (draggingId) setDraggingId(null)
+    }
+
+    // ---- LIVE VASTU RATING & ADVICE ----
+    const calculateVastu = () => {
+        let score = 70 // baseline
+        const tips = []
+
+        items.forEach(item => {
+            // Determine quadrant relative to room center
+            const relX = item.x - roomLeft
+            const relY = item.y - roomTop
+            const isEast = relX > roomPxW / 2
+            const isSouth = relY > roomPxH / 2
+
+            let zone = ''
+            if (!isEast && !isSouth) zone = 'NW' // Top-Left
+            if (isEast && !isSouth) zone = 'NE'  // Top-Right
+            if (!isEast && isSouth) zone = 'SW'  // Bottom-Left
+            if (isEast && isSouth) zone = 'SE'   // Bottom-Right
+
+            if (item.type === 'kitchen') {
+                if (zone === 'SE') { score += 15; tips.push({ type: 'good', text: '🔥 Kitchen in South-East (Agneya) brings prosperity & health!' }) }
+                else if (zone === 'NE') { score -= 15; tips.push({ type: 'bad', text: '⚠️ Kitchen in North-East (Ishanya) may cause financial stress.' }) }
+            }
+            if (item.type === 'bed') {
+                if (zone === 'SW') { score += 15; tips.push({ type: 'good', text: '🛌 Master Bed in South-West promotes restful sleep & stability.' }) }
+                else if (zone === 'NE') { score -= 15; tips.push({ type: 'bad', text: '⚠️ Bed in North-East distorts positive energy flow.' }) }
+            }
+            if (item.type === 'bathroom') {
+                if (zone === 'NW') { score += 10; tips.push({ type: 'good', text: '🚿 Bathroom in North-West is ideal for health & balance.' }) }
+                else if (zone === 'NE') { score -= 20; tips.push({ type: 'bad', text: '🚨 Avoid Bathroom in North-East! Relocate to NW or SE.' }) }
+            }
+            if (item.type === 'plant') {
+                if (zone === 'NE' || zone === 'East') { score += 5; tips.push({ type: 'good', text: '🌿 Green plants in East attract positive prana energy.' }) }
+            }
+            if (item.type === 'door') {
+                if (zone === 'NE' || !isSouth) { score += 10; tips.push({ type: 'good', text: '🚪 Main entrance in North/East invites wealth & opportunities.' }) }
+            }
+        })
+
+        const finalScore = Math.max(10, Math.min(100, score))
+        return { score: finalScore, tips }
+    }
+
+    const vastuData = calculateVastu()
+
+    // ---- TOTAL BUDGET & ESTIMATES ----
+    const totalEstCost = items.reduce((acc, curr) => acc + (curr.cost || 0), 0)
+    const fmtRs = (val) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(val)
+
+    // ---- AI ROOM NAME GENERATOR ----
+    const getAiRoomName = () => {
+        if (items.length === 0) return 'Blank Blueprint'
+        const types = items.map(i => i.type)
+        if (types.includes('kitchen') && types.includes('dining')) return 'Gourmet Dining & Culinary Studio'
+        if (types.includes('bed') && types.includes('wardrobe')) return 'Executive Luxury Master Suite'
+        if (types.includes('sofa') && types.includes('tv')) return 'Modern Entertainment Lounge'
+        if (types.includes('bed')) return 'Serene Comfort Bedroom'
+        if (types.includes('sofa')) return 'Opulent Living Haven'
+        return 'Custom Architect Design'
+    }
+
+    // ---- WHATSAPP SHARE GENERATOR ----
+    const shareOnWhatsApp = () => {
+        const text = `🏡 *My Home Layout Plan on BharatHome Value* 🏡\n\n` +
+            `*Room Title:* ${getAiRoomName()}\n` +
+            `*Dimensions:* ${roomWidth}ft × ${roomHeight}ft (${roomWidth * roomHeight} sq.ft)\n` +
+            `*Vastu Score:* ${vastuData.score}/100 🕉️\n` +
+            `*Total Items:* ${items.length} items placed\n` +
+            `*Est. Renovation Budget:* ${fmtRs(totalEstCost)}\n\n` +
+            `Created with AI Floor Planner on BharatHome Value!`
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank')
+    }
+
+    // Sunlight color overlay calculation
+    const getSunlightColor = () => {
+        if (sunlightHour < 7 || sunlightHour > 17) return 'rgba(15, 23, 42, 0.45)' // Evening/Night dusk
+        if (sunlightHour >= 7 && sunlightHour <= 10) return 'rgba(254, 240, 138, 0.25)' // Morning East sun
+        if (sunlightHour > 10 && sunlightHour <= 14) return 'rgba(253, 224, 71, 0.15)' // Bright Noon
+        return 'rgba(251, 146, 60, 0.25)' // Golden Afternoon West
     }
 
     return (
-        <div className="animate-fadeIn" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            <div style={{ background: '#f8fafc', padding: '16px 24px', borderRadius: '16px', border: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className="animate-fadeIn" onMouseUp={handleMouseUp} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+
+            {/* Top Toolbar & Header Banner */}
+            <div style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)', padding: '20px 28px', borderRadius: '20px', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', boxShadow: '0 12px 30px rgba(15, 23, 42, 0.2)' }}>
                 <div>
-                    <h2 style={{ fontSize: '20px', fontWeight: 800, color: '#1e293b', margin: 0 }}>Home Layout Planner</h2>
-                    <p style={{ fontSize: '13px', color: '#64748b', margin: '4px 0 0' }}>Professional tools to plan your home renovation layout.</p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <span style={{ fontSize: '24px' }}>📐</span>
+                        <h2 style={{ fontSize: '22px', fontWeight: 800, margin: 0, background: 'linear-gradient(90deg, #ffffff, #cbd5e1)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                            {getAiRoomName()}
+                        </h2>
+                        <span style={{ background: 'rgba(230,126,34,0.2)', border: '1px solid #e67e22', color: '#f97316', padding: '3px 10px', borderRadius: '12px', fontSize: '11px', fontWeight: 800, textTransform: 'uppercase' }}>
+                            AI Planner 2.0
+                        </span>
+                    </div>
+                    <p style={{ fontSize: '13px', color: '#94a3b8', margin: '4px 0 0' }}>
+                        {roomWidth}ft × {roomHeight}ft • {roomWidth * roomHeight} sq.ft room • Live Vastu & Renovation Cost Engine
+                    </p>
                 </div>
-                <div style={{ display: 'flex', gap: '12px' }}>
-                    <button onClick={() => setItems([])} style={{ padding: '8px 16px', background: 'white', border: '1.5px solid #fee2e2', color: '#dc2626', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', fontSize: '13px' }}>Reset Plan</button>
-                    <button onClick={() => window.print()} className="button-press" style={{ padding: '10px 24px', background: '#1e293b', color: 'white', border: 'none', borderRadius: '10px', fontWeight: 800, fontSize: '14px', cursor: 'pointer' }}>Print Layout</button>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                    {/* Undo Button */}
+                    <button
+                        onClick={handleUndo}
+                        disabled={history.length === 0}
+                        title="Undo (Ctrl+Z)"
+                        style={{ padding: '8px 14px', background: history.length > 0 ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.15)', color: history.length > 0 ? 'white' : '#64748b', borderRadius: '10px', fontWeight: 700, cursor: history.length > 0 ? 'pointer' : 'not-allowed', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}
+                    >
+                        ↩ Undo ({history.length})
+                    </button>
+
+                    {/* Reset Button */}
+                    <button
+                        onClick={() => updateItemsWithHistory([])}
+                        style={{ padding: '8px 14px', background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#f87171', borderRadius: '10px', fontWeight: 700, cursor: 'pointer', fontSize: '13px' }}
+                    >
+                        Reset Canvas
+                    </button>
+
+                    {/* WhatsApp Share */}
+                    <button
+                        onClick={shareOnWhatsApp}
+                        className="button-press"
+                        style={{ padding: '9px 18px', background: '#25D366', color: 'white', border: 'none', borderRadius: '10px', fontWeight: 800, fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: '0 4px 12px rgba(37, 211, 102, 0.3)' }}
+                    >
+                        📲 Share Plan
+                    </button>
+
+                    {/* Print / Export */}
+                    <button
+                        onClick={() => window.print()}
+                        className="button-press"
+                        style={{ padding: '9px 18px', background: '#e67e22', color: 'white', border: 'none', borderRadius: '10px', fontWeight: 800, fontSize: '13px', cursor: 'pointer', boxShadow: '0 4px 12px rgba(230,126,34,0.3)' }}
+                    >
+                        🖨️ Export PDF
+                    </button>
                 </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr', gap: '24px', height: '700px' }}>
-                {/* Sidebar: Tools */}
-                <div className="card" style={{ margin: 0, padding: '24px', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
-                    <h3 style={{ fontSize: '12px', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '16px' }}>Planning Tools</h3>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '8px' }}>
-                        {tools.map(t => (
+            {/* Secondary Controls Bar: Room Dimension Sliders & Simulation Toggles */}
+            <div style={{ background: 'white', padding: '16px 24px', borderRadius: '16px', border: '1px solid #e2e8f0', display: 'flex', gap: '24px', alignItems: 'center', flexWrap: 'wrap', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
+                {/* Room Size Sliders */}
+                <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                    <span style={{ fontSize: '12px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>Room Bounds:</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <label style={{ fontSize: '12px', fontWeight: 700, color: '#334155' }}>W: {roomWidth}ft</label>
+                        <input type="range" min="10" max="25" value={roomWidth} onChange={e => setRoomWidth(Number(e.target.value))} style={{ width: '80px', accentColor: '#e67e22' }} />
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <label style={{ fontSize: '12px', fontWeight: 700, color: '#334155' }}>H: {roomHeight}ft</label>
+                        <input type="range" min="10" max="20" value={roomHeight} onChange={e => setRoomHeight(Number(e.target.value))} style={{ width: '80px', accentColor: '#e67e22' }} />
+                    </div>
+                </div>
+
+                <div style={{ width: '1px', height: '24px', background: '#cbd5e1' }} />
+
+                {/* Sunlight Hour Slider */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <span style={{ fontSize: '14px' }}>☀️ Sunlight:</span>
+                    <input type="range" min="6" max="18" step="1" value={sunlightHour} onChange={e => setSunlightHour(Number(e.target.value))} style={{ width: '100px', accentColor: '#f59e0b' }} />
+                    <span style={{ fontSize: '12px', fontWeight: 800, color: '#d97706', background: '#fffbeb', padding: '2px 8px', borderRadius: '8px' }}>
+                        {sunlightHour <= 12 ? `${sunlightHour} AM` : `${sunlightHour - 12} PM`}
+                    </span>
+                </div>
+
+                <div style={{ width: '1px', height: '24px', background: '#cbd5e1' }} />
+
+                {/* Layer Toggles */}
+                <div style={{ display: 'flex', gap: '10px' }}>
+                    <button
+                        onClick={() => setShowVastuZones(!showVastuZones)}
+                        style={{ padding: '6px 12px', borderRadius: '8px', border: `1.5px solid ${showVastuZones ? '#8b5cf6' : '#cbd5e1'}`, background: showVastuZones ? '#f3e8ff' : 'white', color: showVastuZones ? '#7c3aed' : '#475569', fontWeight: 700, fontSize: '12px', cursor: 'pointer' }}
+                    >
+                        🕉️ Vastu Quadrants
+                    </button>
+
+                    <button
+                        onClick={() => setShowNoiseMap(!showNoiseMap)}
+                        style={{ padding: '6px 12px', borderRadius: '8px', border: `1.5px solid ${showNoiseMap ? '#ef4444' : '#cbd5e1'}`, background: showNoiseMap ? '#fef2f2' : 'white', color: showNoiseMap ? '#dc2626' : '#475569', fontWeight: 700, fontSize: '12px', cursor: 'pointer' }}
+                    >
+                        🔊 Noise Map
+                    </button>
+                </div>
+
+                {/* Zoom Controls */}
+                <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '6px', background: '#f1f5f9', padding: '3px', borderRadius: '10px' }}>
+                    <button onClick={() => setZoom(Math.max(0.8, zoom - 0.1))} style={{ width: '26px', height: '26px', border: 'none', background: 'white', borderRadius: '6px', cursor: 'pointer', fontWeight: 800 }}>-</button>
+                    <span style={{ fontSize: '11px', fontWeight: 800, color: '#475569', minWidth: '36px', textAlign: 'center' }}>{Math.round(zoom * 100)}%</span>
+                    <button onClick={() => setZoom(Math.min(1.3, zoom + 0.1))} style={{ width: '26px', height: '26px', border: 'none', background: 'white', borderRadius: '6px', cursor: 'pointer', fontWeight: 800 }}>+</button>
+                </div>
+            </div>
+
+            {/* Main Layout Grid (Left Tabs & Tools | Right Canvas) */}
+            <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: '24px', minHeight: '620px' }}>
+
+                {/* Left Panel: Multi-Tab Sidebar */}
+                <div className="card" style={{ margin: 0, padding: '20px', display: 'flex', flexDirection: 'column' }}>
+
+                    {/* Tab Navigation */}
+                    <div style={{ display: 'flex', gap: '4px', background: '#f1f5f9', padding: '4px', borderRadius: '12px', marginBottom: '16px' }}>
+                        {[
+                            { id: 'tools', label: '🛠️ Tools' },
+                            { id: 'vastu', label: `🕉️ Vastu (${vastuData.score})` },
+                            { id: 'budget', label: '💰 Budget' }
+                        ].map(tab => (
                             <button
-                                key={t.id}
-                                onClick={() => setActiveTool(t)}
-                                className="button-press"
+                                key={tab.id}
+                                onClick={() => setActiveTab(tab.id)}
                                 style={{
-                                    display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px',
-                                    borderRadius: '12px', border: activeTool?.id === t.id ? '2.5px solid var(--primary)' : '1.5px solid #f1f5f9',
-                                    background: activeTool?.id === t.id ? '#fff7ed' : 'white', cursor: 'pointer', transition: '0.2s', textAlign: 'left'
+                                    flex: 1, padding: '8px 4px', borderRadius: '8px', border: 'none',
+                                    background: activeTab === tab.id ? 'white' : 'transparent',
+                                    color: activeTab === tab.id ? '#0f172a' : '#64748b',
+                                    fontWeight: activeTab === tab.id ? 800 : 600, fontSize: '12px', cursor: 'pointer',
+                                    boxShadow: activeTab === tab.id ? '0 2px 6px rgba(0,0,0,0.06)' : 'none', transition: '0.2s'
                                 }}
                             >
-                                <span style={{ color: activeTool?.id === t.id ? 'var(--primary)' : '#64748b' }}>{t.icon}</span>
-                                <span style={{ fontWeight: 700, fontSize: '13px', color: activeTool?.id === t.id ? 'var(--primary)' : '#475569' }}>{t.label}</span>
+                                {tab.label}
                             </button>
                         ))}
                     </div>
-                    <div style={{ marginTop: '24px', padding: '16px', background: '#f8fafc', borderRadius: '12px', border: '1px dashed #e2e8f0' }}>
-                        <p style={{ fontSize: '11px', color: '#64748b', margin: 0, lineHeight: 1.6 }}>
-                            <strong>Instructions:</strong><br />
-                            1. Select a tool from above.<br />
-                            2. Click on the grid to place the item.<br />
-                            3. Click a placed item to remove it.
-                        </p>
-                    </div>
+
+                    {/* TAB 1: TOOLS SELECTOR */}
+                    {activeTab === 'tools' && (
+                        <div style={{ overflowY: 'auto', flex: 1, display: 'flex', flexDirection: 'column', gap: '12px', paddingRight: '4px' }}>
+                            <p style={{ fontSize: '11px', color: '#94a3b8', margin: 0, fontWeight: 700, textTransform: 'uppercase' }}>Select element to place on canvas:</p>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '8px' }}>
+                                {tools.map(t => {
+                                    const isSelected = activeTool?.id === t.id
+                                    return (
+                                        <button
+                                            key={t.id}
+                                            onClick={() => setActiveTool(isSelected ? null : t)}
+                                            className="button-press"
+                                            style={{
+                                                display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px',
+                                                borderRadius: '12px', border: isSelected ? `2.5px solid ${t.color}` : '1.5px solid #f1f5f9',
+                                                background: isSelected ? `${t.color}15` : 'white', cursor: 'pointer', transition: '0.2s', textAlign: 'left'
+                                            }}
+                                        >
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                <span style={{ color: t.color, display: 'flex', alignItems: 'center' }}>{getIcon(t.iconKey)}</span>
+                                                <div>
+                                                    <p style={{ fontWeight: 800, fontSize: '13px', margin: 0, color: isSelected ? t.color : '#334155' }}>{t.label}</p>
+                                                    <p style={{ fontSize: '10px', color: '#94a3b8', margin: '2px 0 0' }}>{t.category}</p>
+                                                </div>
+                                            </div>
+                                            <span style={{ fontSize: '11px', fontWeight: 800, color: '#e67e22', background: '#fff7ed', padding: '3px 8px', borderRadius: '6px' }}>
+                                                {t.cost >= 100000 ? `₹${t.cost / 100000}L` : `₹${t.cost / 1000}K`}
+                                            </span>
+                                        </button>
+                                    )
+                                })}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* TAB 2: VASTU ANALYSIS */}
+                    {activeTab === 'vastu' && (
+                        <div style={{ overflowY: 'auto', flex: 1, display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                            <div style={{ background: 'linear-gradient(135deg, #faf5ff, #f3e8ff)', padding: '16px', borderRadius: '16px', border: '1px solid #e9d5ff', textAlign: 'center' }}>
+                                <p style={{ fontSize: '11px', color: '#7c3aed', fontWeight: 800, textTransform: 'uppercase', margin: '0 0 4px' }}>Vastu Compliance Rating</p>
+                                <div style={{ fontSize: '36px', fontWeight: 900, color: vastuData.score >= 80 ? '#16a34a' : vastuData.score >= 60 ? '#d97706' : '#dc2626' }}>
+                                    {vastuData.score}/100
+                                </div>
+                                <p style={{ fontSize: '12px', fontWeight: 700, color: '#6b21a8', margin: '4px 0 0' }}>
+                                    {vastuData.score >= 80 ? '🌟 Highly Auspicious Layout!' : vastuData.score >= 60 ? '👍 Moderate Vastu Alignment' : '⚠️ Vastu Corrections Recommended'}
+                                </p>
+                            </div>
+
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                <p style={{ fontSize: '12px', fontWeight: 800, color: '#475569', margin: 0 }}>Real-Time Placement Advice:</p>
+                                {vastuData.tips.length === 0 ? (
+                                    <p style={{ fontSize: '12px', color: '#94a3b8', fontStyle: 'italic' }}>Place items on the grid to receive live Vastu guidance.</p>
+                                ) : (
+                                    vastuData.tips.map((tip, idx) => (
+                                        <div key={idx} style={{ padding: '10px 12px', borderRadius: '10px', background: tip.type === 'good' ? '#f0fdf4' : '#fef2f2', border: `1px solid ${tip.type === 'good' ? '#bbf7d0' : '#fecaca'}`, fontSize: '12px', color: tip.type === 'good' ? '#166534' : '#991b1b', lineHeight: 1.5 }}>
+                                            {tip.text}
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* TAB 3: BUDGET BREAKDOWN */}
+                    {activeTab === 'budget' && (
+                        <div style={{ overflowY: 'auto', flex: 1, display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                            <div style={{ background: 'linear-gradient(135deg, #fff7ed, #ffedd5)', padding: '16px', borderRadius: '16px', border: '1px solid #fed7aa', textAlign: 'center' }}>
+                                <p style={{ fontSize: '11px', color: '#c2410c', fontWeight: 800, textTransform: 'uppercase', margin: '0 0 4px' }}>Live Renovation Estimate</p>
+                                <div style={{ fontSize: '32px', fontWeight: 900, color: '#ea580c' }}>
+                                    {fmtRs(totalEstCost)}
+                                </div>
+                                <p style={{ fontSize: '11px', color: '#9a3412', margin: '4px 0 0' }}>Based on {items.length} placed architectural elements</p>
+                            </div>
+
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                {items.length === 0 ? (
+                                    <p style={{ fontSize: '12px', color: '#94a3b8', fontStyle: 'italic' }}>No elements added yet.</p>
+                                ) : (
+                                    items.map((item, i) => (
+                                        <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '12px' }}>
+                                            <span style={{ fontWeight: 700, color: '#334155' }}>{item.label}</span>
+                                            <span style={{ fontWeight: 800, color: '#e67e22' }}>{fmtRs(item.cost)}</span>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        </div>
+                    )}
+
                 </div>
 
-                {/* Main Planning Area */}
-                <div 
-                    className="card animate-scaleIn" 
-                    style={{ 
-                        margin: 0, padding: 0, position: 'relative', overflow: 'hidden', 
-                        background: 'white', border: '2px solid #e2e8f0', borderRadius: '24px',
-                        backgroundImage: 'radial-gradient(#e2e8f0 1.5px, transparent 1.5px)', 
+                {/* Right Panel: Interactive Canvas Canvas */}
+                <div
+                    ref={canvasRef}
+                    onClick={handleCanvasClick}
+                    onMouseMove={handleCanvasMouseMove}
+                    className="card animate-scaleIn"
+                    style={{
+                        margin: 0, padding: 0, position: 'relative', overflow: 'hidden',
+                        background: '#fafaf9', border: '2px solid #cbd5e1', borderRadius: '24px',
+                        backgroundImage: 'radial-gradient(#cbd5e1 1.5px, transparent 1.5px)',
                         backgroundSize: '25px 25px', cursor: activeTool ? 'crosshair' : 'default',
-                        boxShadow: 'inset 0 0 60px rgba(0,0,0,0.01)'
+                        boxShadow: 'inset 0 0 40px rgba(0,0,0,0.03)',
+                        userSelect: 'none'
                     }}
-                    onClick={addItem}
                 >
-                    {items.map(item => (
-                        <div
-                            key={item.id}
-                            className="button-press"
-                            style={{
-                                position: 'absolute', left: item.x, top: item.y,
-                                transform: 'translate(-50%, -50%)', background: 'white',
-                                border: '2px solid #1e293b', borderRadius: '10px', padding: '8px 12px',
-                                boxShadow: '0 8px 16px rgba(0,0,0,0.1)', display: 'flex',
-                                alignItems: 'center', gap: '8px', zIndex: 10, cursor: 'pointer'
-                            }}
-                            onClick={(e) => { e.stopPropagation(); removeItem(item.id) }}
-                        >
-                            <span style={{ color: '#1e293b' }}>{item.icon}</span>
-                            <span style={{ fontSize: '11px', fontWeight: 800, color: '#1e293b', whiteSpace: 'nowrap' }}>{item.label}</span>
-                        </div>
-                    ))}
-                    {!activeTool && items.length === 0 && (
-                        <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', flexDirection: 'column', textAlign: 'center' }}>
-                            <PlannerIcons.Wall />
-                            <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#475569', marginTop: '16px', marginBottom: '8px' }}>Blueprint Canvas</h3>
-                            <p style={{ fontSize: '13px', maxWidth: '280px', lineHeight: 1.6 }}>Choose an architectural element from the sidebar to start your layout.</p>
+                    {/* Sunlight Ambient Simulation Overlay */}
+                    <div style={{ position: 'absolute', inset: 0, background: getSunlightColor(), pointerEvents: 'none', transition: 'background 0.5s ease', zIndex: 1 }} />
+
+                    {/* Room Boundary Box */}
+                    <div style={{
+                        position: 'absolute', left: roomLeft, top: roomTop, width: roomPxW, height: roomPxH,
+                        border: '3px dashed #475569', borderRadius: '16px', background: 'rgba(255,255,255,0.7)',
+                        pointerEvents: 'none', zIndex: 2
+                    }}>
+                        <span style={{ position: 'absolute', top: '-24px', left: '50%', transform: 'translateX(-50%)', fontSize: '11px', fontWeight: 800, color: '#475569', background: '#f1f5f9', padding: '2px 8px', borderRadius: '6px' }}>
+                            North Wall ({roomWidth} ft)
+                        </span>
+                        <span style={{ position: 'absolute', bottom: '-24px', left: '50%', transform: 'translateX(-50%)', fontSize: '11px', fontWeight: 800, color: '#475569', background: '#f1f5f9', padding: '2px 8px', borderRadius: '6px' }}>
+                            South Wall
+                        </span>
+                    </div>
+
+                    {/* Vastu Quadrants Overlay */}
+                    {showVastuZones && (
+                        <div style={{ position: 'absolute', left: roomLeft, top: roomTop, width: roomPxW, height: roomPxH, pointerEvents: 'none', zIndex: 3, display: 'grid', gridTemplateColumns: '1fr 1fr', gridTemplateRows: '1fr 1fr' }}>
+                            <div style={{ borderRight: '1px dashed rgba(139, 92, 246, 0.4)', borderBottom: '1px dashed rgba(139, 92, 246, 0.4)', background: 'rgba(139, 92, 246, 0.05)', padding: '6px', fontSize: '11px', fontWeight: 800, color: '#7c3aed' }}>NW (Vayu)</div>
+                            <div style={{ borderBottom: '1px dashed rgba(139, 92, 246, 0.4)', background: 'rgba(59, 130, 246, 0.05)', padding: '6px', fontSize: '11px', fontWeight: 800, color: '#2563eb', textAlign: 'right' }}>NE (Ishanya - Sacred)</div>
+                            <div style={{ borderRight: '1px dashed rgba(139, 92, 246, 0.4)', background: 'rgba(234, 179, 8, 0.05)', padding: '6px', fontSize: '11px', fontWeight: 800, color: '#ca8a04' }}>SW (Nairrutya)</div>
+                            <div style={{ background: 'rgba(239, 68, 68, 0.05)', padding: '6px', fontSize: '11px', fontWeight: 800, color: '#dc2626', textAlign: 'right' }}>SE (Agneya - Fire)</div>
                         </div>
                     )}
+
+                    {/* Noise Heatmap Overlay */}
+                    {showNoiseMap && (
+                        <div style={{ position: 'absolute', left: roomLeft, top: roomTop, width: roomPxW, height: roomPxH, pointerEvents: 'none', zIndex: 3, background: 'linear-gradient(90deg, rgba(239,68,68,0.3) 0%, rgba(234,179,8,0.15) 50%, rgba(34,197,94,0.1) 100%)', borderRadius: '16px', padding: '10px' }}>
+                            <span style={{ fontSize: '11px', fontWeight: 800, color: '#b91c1c', background: 'white', padding: '2px 8px', borderRadius: '6px' }}>🔊 High Street Noise Zone</span>
+                        </div>
+                    )}
+
+                    {/* Placed Canvas Items */}
+                    <div style={{ transform: `scale(${zoom})`, transformOrigin: 'top left', width: '100%', height: '100%' }}>
+                        {items.map(item => (
+                            <div
+                                key={item.id}
+                                onMouseDown={(e) => handleItemMouseDown(e, item)}
+                                className="button-press"
+                                style={{
+                                    position: 'absolute', left: item.x, top: item.y,
+                                    transform: `translate(-50%, -50%) rotate(${item.rotation}deg)`,
+                                    background: 'white',
+                                    border: `2px solid ${item.color || '#1e293b'}`,
+                                    borderRadius: '12px', padding: '8px 12px',
+                                    boxShadow: draggingId === item.id ? '0 15px 30px rgba(0,0,0,0.25)' : '0 6px 14px rgba(0,0,0,0.08)',
+                                    display: 'flex', alignItems: 'center', gap: '8px',
+                                    zIndex: draggingId === item.id ? 50 : 10,
+                                    cursor: 'grab',
+                                    transition: draggingId === item.id ? 'none' : 'box-shadow 0.2s, transform 0.2s'
+                                }}
+                            >
+                                <span style={{ color: item.color || '#1e293b', display: 'flex' }}>{getIcon(item.iconKey)}</span>
+                                <span style={{ fontSize: '11px', fontWeight: 800, color: '#1e293b', whiteSpace: 'nowrap' }}>{item.label}</span>
+
+                                {/* Rotate Button */}
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); rotateItem(item.id) }}
+                                    title="Rotate 90°"
+                                    style={{ background: '#f1f5f9', border: 'none', borderRadius: '50%', width: '20px', height: '20px', cursor: 'pointer', fontSize: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                >
+                                    ↻
+                                </button>
+
+                                {/* Delete Button */}
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); removeItem(item.id) }}
+                                    title="Delete Element"
+                                    style={{ background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '50%', width: '20px', height: '20px', cursor: 'pointer', fontSize: '11px', fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                >
+                                    ×
+                                </button>
+                            </div>
+                        ))}
+
+                        {/* Hover Ghost Placement Preview */}
+                        {activeTool && hoverPos && (
+                            <div style={{
+                                position: 'absolute', left: hoverPos.x, top: hoverPos.y,
+                                transform: 'translate(-50%, -50%)',
+                                background: 'rgba(255,255,255,0.7)',
+                                border: `2px dashed ${activeTool.color}`,
+                                borderRadius: '12px', padding: '8px 12px',
+                                display: 'flex', alignItems: 'center', gap: '8px',
+                                zIndex: 40, pointerEvents: 'none', opacity: 0.8
+                            }}>
+                                <span style={{ color: activeTool.color }}>{getIcon(activeTool.iconKey)}</span>
+                                <span style={{ fontSize: '11px', fontWeight: 800, color: activeTool.color }}>{activeTool.label}</span>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Canvas Empty State Guidance */}
+                    {items.length === 0 && !activeTool && (
+                        <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', flexDirection: 'column', textAlign: 'center', zIndex: 5 }}>
+                            <div style={{ width: '64px', height: '64px', background: '#fff7ed', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', color: '#ea580c', marginBottom: '12px' }}>✏️</div>
+                            <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#334155', margin: '0 0 6px' }}>Blueprint Canvas Ready</h3>
+                            <p style={{ fontSize: '13px', maxWidth: '320px', lineHeight: 1.6, color: '#64748b' }}>
+                                Select an element from the left toolbar, then click anywhere inside the grid to position walls, furniture & appliances.
+                            </p>
+                        </div>
+                    )}
+
+                    {/* Active Tool Bottom Floating Banner */}
                     {activeTool && (
-                        <div style={{ position: 'absolute', bottom: '24px', left: '50%', transform: 'translateX(-50%)', background: '#1e293b', color: 'white', padding: '8px 20px', borderRadius: '30px', fontSize: '12px', fontWeight: 700, zIndex: 5, boxShadow: '0 10px 25px rgba(0,0,0,0.2)' }}>
-                            Active: {activeTool.label} (Click on grid)
+                        <div style={{ position: 'absolute', bottom: '20px', left: '50%', transform: 'translateX(-50%)', background: '#0f172a', color: 'white', padding: '10px 24px', borderRadius: '30px', fontSize: '13px', fontWeight: 800, zIndex: 60, boxShadow: '0 10px 30px rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <span style={{ color: activeTool.color }}>{getIcon(activeTool.iconKey)}</span>
+                            <span>Placing: {activeTool.label} (Click on grid)</span>
+                            <button onClick={() => setActiveTool(null)} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white', borderRadius: '50%', width: '22px', height: '22px', cursor: 'pointer', fontSize: '12px', fontWeight: 800 }}>×</button>
                         </div>
                     )}
                 </div>
+
             </div>
 
-            {/* Quick Stats Panel */}
+            {/* Quick Live Stats Bottom Dashboard */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
                 {[
-                    { label: 'Total Items', value: items.length },
-                    { label: 'Furniture Count', value: items.filter(i => !['wall', 'window', 'door'].includes(i.type)).length },
-                    { label: 'Architectural', value: items.filter(i => ['wall', 'window', 'door'].includes(i.type)).length },
-                    { label: 'Grid Snap', value: '25px' }
+                    { label: 'Placed Elements', value: `${items.length} Items`, icon: '🧱', color: '#0284c7' },
+                    { label: 'Vastu Score', value: `${vastuData.score} / 100`, icon: '🕉️', color: vastuData.score >= 75 ? '#16a34a' : '#d97706' },
+                    { label: 'Renovation Est.', value: fmtRs(totalEstCost), icon: '💰', color: '#ea580c' },
+                    { label: 'Room Footprint', value: `${roomWidth * roomHeight} sq.ft`, icon: '📏', color: '#7c3aed' }
                 ].map(stat => (
-                    <div key={stat.label} className="card" style={{ margin: 0, padding: '16px', textAlign: 'center', background: '#f8fafc', border: '1.5px solid #e2e8f0' }}>
-                        <p style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 800, textTransform: 'uppercase', marginBottom: '4px' }}>{stat.label}</p>
-                        <p style={{ fontSize: '20px', fontWeight: 800, color: '#1e293b', margin: 0 }}>{stat.value}</p>
+                    <div key={stat.label} className="card" style={{ margin: 0, padding: '16px 20px', background: 'white', border: '1.5px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '16px' }}>
+                        <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: `${stat.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px' }}>
+                            {stat.icon}
+                        </div>
+                        <div>
+                            <p style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 800, textTransform: 'uppercase', margin: '0 0 2px' }}>{stat.label}</p>
+                            <p style={{ fontSize: '18px', fontWeight: 900, color: stat.color, margin: 0 }}>{stat.value}</p>
+                        </div>
                     </div>
                 ))}
             </div>
+
         </div>
     )
 }
+
 
