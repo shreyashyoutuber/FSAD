@@ -63,6 +63,8 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList(
             "http://localhost:5173",
+            "https://bharathomevalue.live",
+            "https://www.bharathomevalue.live",
             "https://bharathomevalue.vercel.app",
             "https://bharathome.vercel.app"
         ));

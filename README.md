@@ -48,7 +48,7 @@ npm install
 
 # 3. Create your .env file
 cp .env.example .env
-# Edit .env and set VITE_API_BASE_URL=http://localhost:8080/api
+# Edit .env and set VITE_API_BASE_URL=https://your-backend-domain/api
 
 # 4. Start the dev server
 npm run dev
@@ -67,7 +67,7 @@ SPRING_DATASOURCE_URL=jdbc:mysql://localhost:3306/bharathome_db
 SPRING_DATASOURCE_USERNAME=root
 SPRING_DATASOURCE_PASSWORD=yourpassword
 BREVO_API_KEY=your_brevo_api_key
-FRONTEND_URL=http://localhost:5173
+FRONTEND_URL=https://www.bharathomevalue.live
 ADMIN_EMAIL=your_admin_email_here
 ADMIN_PASSWORD=your_secure_password_here
 GOOGLE_CLIENT_ID=your_google_client_id
