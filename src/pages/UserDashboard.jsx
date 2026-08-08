@@ -668,10 +668,10 @@ function LightboxViewer({ lightbox, setLightbox }) {
     )
 }
 
-export default function UserDashboard() {
+export default function UserDashboard({ initialView = 'dashboard' }) {
     const navigate = useNavigate()
     const { toasts, toast, removeToast } = useToast()
-    const [view, setView] = useState('dashboard') // dashboard | estimator | new-estimator | recommendations | saved | profile | submit
+    const [view, setView] = useState(initialView) // dashboard | estimator | new-estimator | recommendations | saved | profile | submit
     const [userData, setUserData] = useState(null)
     const [savedIdeas, setSavedIdeas] = useState([])
     const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -1118,7 +1118,7 @@ export default function UserDashboard() {
         { icon: <Icons.New />, label: 'New Estimate', key: 'new-estimator' },
         { icon: <Icons.Sparkles />, label: 'Recommendations', key: 'recommendations', badge: unreadChats },
         { icon: <Icons.Bookmark />, label: 'Saved Ideas', key: 'saved', badge: Array.isArray(savedIdeas) ? savedIdeas.length : 0 },
-        { icon: <Icons.New />, label: 'AI Planner', key: 'planner' },
+        { icon: <Icons.New />, label: 'AI Planner', key: 'planner', route: '/planner' },
         { icon: <Icons.Home />, label: 'Submit Property', key: 'submit' },
         { icon: <Icons.Gift />, label: 'Refer & Earn', key: 'referral' },
         { icon: <Icons.Users />, label: 'Contractor Directory', key: 'contractors' },
@@ -1144,6 +1144,10 @@ export default function UserDashboard() {
                 <nav className="sidebar-nav" style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', paddingBottom: '8px', scrollbarWidth: 'thin', scrollbarColor: 'rgba(230,126,34,0.3) transparent' }}>
                     {navLinks.map(l => (
                         <SidebarLink key={l.key} icon={l.icon} label={l.label} active={view === l.key} onClick={() => {
+                            if (l.route) {
+                                navigate(l.route)
+                                return
+                            }
                             setView(l.key);
                             setSidebarOpen(false);
                         }} badge={l.badge} />

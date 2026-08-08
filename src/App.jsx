@@ -6,6 +6,7 @@ import ResetPassword from './pages/ResetPassword'
 import AdminLogin from './pages/AdminLogin'
 import AdminDashboard from './pages/AdminDashboard'
 import UserDashboard from './pages/UserDashboard'
+import PlannerPage from './pages/PlannerPage'
 import KitchenEstimator from './pages/KitchenEstimator'
 import WardrobeEstimator from './pages/WardrobeEstimator'
 import FullHomeEstimator from './pages/FullHomeEstimator'
@@ -51,6 +52,9 @@ function App() {
                 {/* ── Protected User Routes ──────────────────── */}
                 <Route path="/user-dashboard" element={
                     <PrivateRoute><UserDashboard /></PrivateRoute>
+                } />
+                <Route path="/planner" element={
+                    <PrivateRoute><PlannerPage /></PrivateRoute>
                 } />
                 <Route path="/profile" element={
                     <PrivateRoute><ProfilePage /></PrivateRoute>
