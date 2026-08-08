@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Stage, Layer, Rect, Text as KonvaText, Group, Line as KonvaLine } from 'react-konva'
+import FloorPlanner3DViewer from '../components/FloorPlanner3DViewer'
 import { Toast, useToast } from '../components/Toast'
 import { Line } from 'react-chartjs-2'
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js'
-import { fetchUserEstimations, getCurrentUser, saveEstimation, updateProfile, deleteEstimation, warmUpBackend, updateSavedIdeas } from '../api'
+import { fetchUserEstimations, getCurrentUser, saveEstimation, updateProfile, deleteEstimation, updateSavedIdeas } from '../api'
 
 const Icons = {
     Dashboard: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="9" /><rect x="14" y="3" width="7" height="5" /><rect x="14" y="12" width="7" height="9" /><rect x="3" y="16" width="7" height="5" /></svg>,
@@ -36,6 +38,24 @@ const animations = `
 @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes slideInRight { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
 @keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+@keyframes floatSlow { 
+    0% { transform: translate3d(0, 0, 0) scale(1); }
+    50% { transform: translate3d(0, -12px, 0) scale(1.04); }
+    100% { transform: translate3d(0, 0, 0) scale(1); }
+}
+@keyframes driftSideways {
+    0% { transform: translate3d(0, 0, 0) rotate(0deg); }
+    50% { transform: translate3d(16px, -8px, 0) rotate(4deg); }
+    100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+}
+@keyframes sheenMove {
+    0% { background-position: -220% 0; }
+    100% { background-position: 220% 0; }
+}
+@keyframes haloPulse {
+    0%, 100% { opacity: 0.28; transform: scale(1); }
+    50% { opacity: 0.52; transform: scale(1.06); }
+}
 @keyframes pulseGlow { 
     0% { box-shadow: 0 0 0 0 rgba(230,126,34,0.4); } 
     70% { box-shadow: 0 0 0 10px rgba(230,126,34,0); } 
@@ -50,7 +70,51 @@ const animations = `
 .animate-fadeIn { animation: fadeIn 0.5s ease forwards; }
 .animate-slideUp { animation: slideUp 0.5s ease forwards; }
 .animate-scaleIn { animation: scaleIn 0.4s ease forwards; }
+.animate-floatSlow { animation: floatSlow 8s ease-in-out infinite; }
+.animate-driftSideways { animation: driftSideways 11s ease-in-out infinite; }
+.animate-haloPulse { animation: haloPulse 6s ease-in-out infinite; }
 .animate-pulseGlow { animation: pulseGlow 2s infinite; }
+
+.dashboard-shell {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+}
+
+.dashboard-shell::before,
+.dashboard-shell::after {
+    content: '';
+    position: absolute;
+    inset: auto;
+    pointer-events: none;
+    border-radius: 999px;
+    filter: blur(10px);
+    z-index: 0;
+}
+
+.dashboard-shell::before {
+    width: 340px;
+    height: 340px;
+    top: -120px;
+    right: -120px;
+    background: radial-gradient(circle, rgba(230, 126, 34, 0.18) 0%, rgba(230, 126, 34, 0) 70%);
+    animation: haloPulse 8s ease-in-out infinite;
+}
+
+.dashboard-shell::after {
+    width: 420px;
+    height: 420px;
+    bottom: -180px;
+    left: -160px;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.14) 0%, rgba(99, 102, 241, 0) 72%);
+    animation: driftSideways 14s ease-in-out infinite;
+}
+
+.dashboard-grid-sheen {
+    background-image: linear-gradient(110deg, rgba(255,255,255,0) 20%, rgba(255,255,255,0.24) 50%, rgba(255,255,255,0) 80%);
+    background-size: 220% 100%;
+    animation: sheenMove 4.5s linear infinite;
+}
 
 .skeleton {
     background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
@@ -498,7 +562,7 @@ function ProjectTimeline({ status }) {
         { id: 'completed', label: 'Completed', emoji: '✅' }
     ]
 
-    const currentIndex = steps.findIndex(s => s.id === status) || 0
+    const currentIndex = Math.max(0, steps.findIndex(s => s.id === status))
 
     return (
         <div style={{ marginTop: '24px', padding: '24px', background: 'white', borderRadius: '16px', border: '1px solid #e9ecef' }}>
@@ -836,10 +900,21 @@ export default function UserDashboard() {
                 const apiEstimates = await fetchUserEstimations(email)
 
                 // Parse details JSON string for each estimate
-                const parsedEstimates = apiEstimates.map(est => ({
-                    ...est,
-                    parsedDetails: typeof est.details === 'string' ? JSON.parse(est.details) : est.details
-                }));
+                const parsedEstimates = apiEstimates.map(est => {
+                    let parsedDetails = est.details
+                    if (typeof parsedDetails === 'string') {
+                        try {
+                            parsedDetails = JSON.parse(parsedDetails)
+                        } catch (parseError) {
+                            parsedDetails = {}
+                        }
+                    }
+
+                    return {
+                        ...est,
+                        parsedDetails,
+                    }
+                })
 
                 console.log('Fetched estimations:', parsedEstimates.length, parsedEstimates);
                 setEstimates(parsedEstimates)
@@ -938,7 +1013,7 @@ export default function UserDashboard() {
     const userEmail = userFromStore.email
 
     // Find the primary property for this user (most recent submission)
-    const myProperties = estimates.filter(r => r.type.startsWith('Property:'))
+    const myProperties = estimates.filter(r => r.type?.startsWith('Property:'))
     const activeProperty = myProperties.length > 0 ? myProperties[myProperties.length - 1] : null
 
     // Calculated metrics
@@ -1052,8 +1127,10 @@ export default function UserDashboard() {
 
 
     return (
-        <div className="dashboard-layout">
+        <div className="dashboard-layout dashboard-shell">
             <Toast toasts={toasts} removeToast={removeToast} />
+            <div className="animate-floatSlow" style={{ position: 'absolute', top: '88px', right: '8%', width: '120px', height: '120px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(230,126,34,0.18), rgba(230,126,34,0))', filter: 'blur(2px)', pointerEvents: 'none', zIndex: 0 }} />
+            <div className="animate-driftSideways" style={{ position: 'absolute', top: '240px', left: '6%', width: '180px', height: '180px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(99,102,241,0.16), rgba(99,102,241,0))', filter: 'blur(2px)', pointerEvents: 'none', zIndex: 0 }} />
             {/* Overlay for mobile */}
             {sidebarOpen && <div onClick={() => setSidebarOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 199 }} />}
 
@@ -1079,7 +1156,7 @@ export default function UserDashboard() {
 
 
             {/* Main */}
-            <div className="dashboard-wrapper">
+            <div className="dashboard-wrapper" style={{ position: 'relative', zIndex: 1 }}>
                 <header className="dashboard-header">
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                         <button onClick={() => setSidebarOpen(!sidebarOpen)} style={{ display: 'none', background: 'none', border: 'none', cursor: 'pointer', fontSize: '24px' }} className="mobile-menu-btn">☰</button>
@@ -1191,7 +1268,7 @@ export default function UserDashboard() {
                                 {activeProperty ? (
                                     <>
                                         {/* Property Card */}
-                                        <div className="card animate-slideUp stagger-1" style={{ background: 'linear-gradient(135deg, #1a1a2e, #16213e)', color: 'white', marginBottom: '32px' }}>
+                                        <div className="card animate-slideUp stagger-1 dashboard-grid-sheen" style={{ background: 'linear-gradient(135deg, #1a1a2e, #16213e)', color: 'white', marginBottom: '32px' }}>
                                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
                                                 <div>
                                                     <h3 style={{ fontSize: '14px', opacity: 0.7, marginBottom: '4px' }}>YOUR PROPERTY</h3>
@@ -1271,7 +1348,7 @@ export default function UserDashboard() {
                                                         { icon: <Icons.Gift />, title: 'Refer & Earn', sub: 'Invite friends, earn rewards', action: () => setView('referral') },
                                                     ].map((a, i) => (
 
-                                                        <div key={i} onClick={a.action} className={`button-press ${a.primary ? 'animate-pulseGlow' : ''}`} style={{
+                                                        <div key={i} onClick={a.action} className={`button-press ${a.primary ? 'animate-pulseGlow' : ''} ${i === 0 ? 'animate-floatSlow' : ''}`} style={{
                                                             display: 'flex', gap: '14px', alignItems: 'center', padding: '16px', borderRadius: '16px', cursor: 'pointer',
                                                             background: a.primary ? 'linear-gradient(135deg, var(--primary), var(--primary-dark))' : '#ffffff',
                                                             color: a.primary ? 'white' : 'var(--text)', marginBottom: '12px', transition: 'all 0.2s',
@@ -2238,6 +2315,11 @@ function FloorPlanner() {
     const [draggingId, setDraggingId] = useState(null)
     const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
     const [zoom, setZoom] = useState(1)
+    const [stagePos, setStagePos] = useState({ x: 0, y: 0 })
+    const [viewMode, setViewMode] = useState('2d') // '2d' | '3d'
+    const [isScanning, setIsScanning] = useState(false)
+    const [scanProgress, setScanProgress] = useState(0)
+    const fileInputRef = useRef(null)
     const canvasRef = useRef(null)
 
     const PlannerIcons = {
@@ -2275,6 +2357,11 @@ function FloorPlanner() {
     const getIcon = (key) => {
         const IconComponent = PlannerIcons[key] || PlannerIcons.Wall
         return <IconComponent />
+    }
+
+    const getEmoji = (key) => {
+        const em = { Wall:'🧱', Window:'🪟', Door:'🚪', Bed:'🛏️', Wardrobe:'🚪', Sofa:'🛋️', DiningTable:'🍽️', Kitchen:'🍳', Bathroom:'🚿', TV:'📺', AC:'❄️', Plant:'🪴', Light:'💡' }
+        return em[key] || '📦'
     }
 
     // Canvas boundary parameters (in pixels)
@@ -2325,14 +2412,14 @@ function FloorPlanner() {
 
     // Canvas click & move handlers
     const handleCanvasClick = (e) => {
-        if (draggingId) return
         if (!activeTool) return
+        const stage = e.target.getStage()
+        const pointerPosition = stage.getPointerPosition()
+        const scale = stage.scaleX()
+        
+        const clickX = (pointerPosition.x - stage.x()) / scale
+        const clickY = (pointerPosition.y - stage.y()) / scale
 
-        const rect = canvasRef.current.getBoundingClientRect()
-        const clickX = (e.clientX - rect.left) / zoom
-        const clickY = (e.clientY - rect.top) / zoom
-
-        // Snap to grid 25px
         const snappedX = Math.round(clickX / 25) * 25
         const snappedY = Math.round(clickY / 25) * 25
 
@@ -2340,30 +2427,46 @@ function FloorPlanner() {
     }
 
     const handleCanvasMouseMove = (e) => {
-        if (!canvasRef.current) return
-        const rect = canvasRef.current.getBoundingClientRect()
-        const x = (e.clientX - rect.left) / zoom
-        const y = (e.clientY - rect.top) / zoom
-
-        if (draggingId) {
-            const snappedX = Math.round((x - dragOffset.x) / 25) * 25
-            const snappedY = Math.round((y - dragOffset.y) / 25) * 25
-            setItems(prev => prev.map(item => item.id === draggingId ? { ...item, x: snappedX, y: snappedY } : item))
-        } else if (activeTool) {
+        if (activeTool) {
+            const stage = e.target.getStage()
+            if (!stage) return
+            const pointerPosition = stage.getPointerPosition()
+            const scale = stage.scaleX()
+            const x = (pointerPosition.x - stage.x()) / scale
+            const y = (pointerPosition.y - stage.y()) / scale
             setHoverPos({ x: Math.round(x / 25) * 25, y: Math.round(y / 25) * 25 })
         }
     }
 
-    const handleItemMouseDown = (e, item) => {
-        e.stopPropagation()
-        if (e.target.tagName === 'BUTTON') return
-        const rect = canvasRef.current.getBoundingClientRect()
-        const clickX = (e.clientX - rect.left) / zoom
-        const clickY = (e.clientY - rect.top) / zoom
+    const handleWheel = (e) => {
+        e.evt.preventDefault()
+        const scaleBy = 1.05
+        const stage = e.target.getStage()
+        const oldScale = stage.scaleX()
+        const pointer = stage.getPointerPosition()
 
+        const mousePointTo = {
+            x: (pointer.x - stage.x()) / oldScale,
+            y: (pointer.y - stage.y()) / oldScale,
+        }
+
+        const newScale = e.evt.deltaY < 0 ? oldScale / scaleBy : oldScale * scaleBy
+        setZoom(newScale)
+
+        setStagePos({
+            x: pointer.x - mousePointTo.x * newScale,
+            y: pointer.y - mousePointTo.y * newScale,
+        })
+    }
+
+    const handleItemDragEnd = (e, item) => {
+        const x = Math.round(e.target.x() / 25) * 25
+        const y = Math.round(e.target.y() / 25) * 25
+        
         setHistory(prev => [...prev, items])
-        setDraggingId(item.id)
-        setDragOffset({ x: clickX - item.x, y: clickY - item.y })
+        setItems(prev => prev.map(i => i.id === item.id ? { ...i, x, y } : i))
+        
+        e.target.position({ x, y })
     }
 
     const handleMouseUp = () => {
@@ -2444,14 +2547,70 @@ function FloorPlanner() {
 
     // Sunlight color overlay calculation
     const getSunlightColor = () => {
-        if (sunlightHour < 7 || sunlightHour > 17) return 'rgba(15, 23, 42, 0.45)' // Evening/Night dusk
-        if (sunlightHour >= 7 && sunlightHour <= 10) return 'rgba(254, 240, 138, 0.25)' // Morning East sun
-        if (sunlightHour > 10 && sunlightHour <= 14) return 'rgba(253, 224, 71, 0.15)' // Bright Noon
-        return 'rgba(251, 146, 60, 0.25)' // Golden Afternoon West
+        if (sunlightHour < 7 || sunlightHour > 17) return 'rgba(15, 23, 42, 0.45)'
+        if (sunlightHour >= 7 && sunlightHour <= 10) return 'rgba(254, 240, 138, 0.25)'
+        if (sunlightHour > 10 && sunlightHour <= 14) return 'rgba(253, 224, 71, 0.15)'
+        return 'rgba(251, 146, 60, 0.25)'
+    }
+
+    // ---- AI AUTO-GENERATE VASTU LAYOUT ----
+    const autoGenerateLayout = () => {
+        const newItems = []
+        let id = Date.now()
+        const cx = roomLeft + roomPxW / 2
+        const cy = roomTop + roomPxH / 2
+        const snap = (v) => Math.round(v / 25) * 25
+
+        // Vastu-compliant layout: SW=Bed, SE=Kitchen, NE=Prayer/Plant, NW=Bathroom, Center=Sofa
+        const placements = [
+            { type: 'wall', label: 'Wall', iconKey: 'Wall', category: 'Structure', color: '#1e293b', cost: 15000, x: snap(roomLeft + roomPxW * 0.5), y: snap(roomTop + roomPxH * 0.15) },
+            { type: 'door', label: 'Door', iconKey: 'Door', category: 'Structure', color: '#d97706', cost: 12000, x: snap(roomLeft + roomPxW * 0.75), y: snap(roomTop + 20) },
+            { type: 'window', label: 'Window', iconKey: 'Window', category: 'Structure', color: '#0284c7', cost: 18000, x: snap(roomLeft + roomPxW * 0.25), y: snap(roomTop + 20) },
+            { type: 'bed', label: 'Bed (King)', iconKey: 'Bed', category: 'Bedroom', color: '#6366f1', cost: 45000, x: snap(roomLeft + roomPxW * 0.22), y: snap(roomTop + roomPxH * 0.72) },
+            { type: 'wardrobe', label: 'Wardrobe', iconKey: 'Wardrobe', category: 'Bedroom', color: '#8b5cf6', cost: 65000, x: snap(roomLeft + roomPxW * 0.08), y: snap(roomTop + roomPxH * 0.72) },
+            { type: 'sofa', label: 'Luxury Sofa', iconKey: 'Sofa', category: 'Living', color: '#10b981', cost: 50000, x: snap(cx - 25), y: snap(cy) },
+            { type: 'tv', label: 'TV Console', iconKey: 'TV', category: 'Living', color: '#06b6d4', cost: 30000, x: snap(cx - 25), y: snap(roomTop + roomPxH * 0.15) },
+            { type: 'kitchen', label: 'Modular Counter', iconKey: 'Kitchen', category: 'Kitchen', color: '#ef4444', cost: 250000, x: snap(roomLeft + roomPxW * 0.78), y: snap(roomTop + roomPxH * 0.78) },
+            { type: 'dining', label: 'Dining Table', iconKey: 'DiningTable', category: 'Dining', color: '#f59e0b', cost: 35000, x: snap(roomLeft + roomPxW * 0.62), y: snap(roomTop + roomPxH * 0.72) },
+            { type: 'bathroom', label: 'Bathroom Unit', iconKey: 'Bathroom', category: 'Utility', color: '#14b8a6', cost: 120000, x: snap(roomLeft + roomPxW * 0.1), y: snap(roomTop + roomPxH * 0.2) },
+            { type: 'ac', label: 'Split AC', iconKey: 'AC', category: 'Utility', color: '#3b82f6', cost: 40000, x: snap(roomLeft + roomPxW * 0.5), y: snap(roomTop + roomPxH * 0.05) },
+            { type: 'plant', label: 'Indoor Plant', iconKey: 'Plant', category: 'Decor', color: '#22c55e', cost: 3000, x: snap(roomLeft + roomPxW * 0.88), y: snap(roomTop + roomPxH * 0.1) },
+            { type: 'light', label: 'Designer Light', iconKey: 'Light', category: 'Decor', color: '#eab308', cost: 8000, x: snap(cx), y: snap(cy - 50) },
+        ]
+
+        placements.forEach((p, i) => {
+            newItems.push({ id: id + i, ...p, rotation: 0 })
+        })
+
+        setHistory(prev => [...prev, items])
+        setItems(newItems)
+    }
+
+    // ---- UPLOAD SKETCH SIMULATION ----
+    const handleSketchUpload = (e) => {
+        const file = e.target.files?.[0]
+        if (!file) return
+        setIsScanning(true)
+        setScanProgress(0)
+        let prog = 0
+        const interval = setInterval(() => {
+            prog += Math.random() * 18 + 4
+            setScanProgress(Math.min(prog, 99))
+            if (prog >= 99) {
+                clearInterval(interval)
+                setTimeout(() => {
+                    setIsScanning(false)
+                    setScanProgress(0)
+                    autoGenerateLayout() // Use the AI layout as the result
+                }, 400)
+            }
+        }, 150)
+        // Reset input so same file can be re-uploaded
+        e.target.value = ''
     }
 
     return (
-        <div className="animate-fadeIn" onMouseUp={handleMouseUp} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                    <div className="animate-fadeIn" onMouseUp={handleMouseUp} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
             {/* Top Toolbar & Header Banner */}
             <div style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)', padding: '20px 28px', borderRadius: '20px', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', boxShadow: '0 12px 30px rgba(15, 23, 42, 0.2)' }}>
@@ -2471,6 +2630,47 @@ function FloorPlanner() {
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                    {/* 2D / 3D Toggle */}
+                    <div style={{ display: 'flex', background: 'rgba(255,255,255,0.1)', borderRadius: '12px', padding: '4px', border: '1px solid rgba(255,255,255,0.15)' }}>
+                        <button
+                            onClick={() => setViewMode('2d')}
+                            style={{ padding: '6px 14px', borderRadius: '8px', border: 'none', background: viewMode === '2d' ? 'white' : 'transparent', color: viewMode === '2d' ? '#0f172a' : '#94a3b8', fontWeight: 800, fontSize: '12px', cursor: 'pointer', transition: '0.2s' }}
+                        >
+                            🗺️ 2D Blueprint
+                        </button>
+                        <button
+                            onClick={() => setViewMode('3d')}
+                            style={{ padding: '6px 14px', borderRadius: '8px', border: 'none', background: viewMode === '3d' ? '#6366f1' : 'transparent', color: viewMode === '3d' ? 'white' : '#94a3b8', fontWeight: 800, fontSize: '12px', cursor: 'pointer', transition: '0.2s' }}
+                        >
+                            🏠 3D View
+                        </button>
+                    </div>
+
+                    {/* AI Auto-Generate */}
+                    <button
+                        onClick={autoGenerateLayout}
+                        className="button-press"
+                        style={{ padding: '9px 16px', background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', color: 'white', border: 'none', borderRadius: '10px', fontWeight: 800, fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: '0 4px 12px rgba(99,102,241,0.4)' }}
+                    >
+                        ✨ AI Generate
+                    </button>
+
+                    {/* Upload Sketch */}
+                    <button
+                        onClick={() => fileInputRef.current?.click()}
+                        className="button-press"
+                        style={{ padding: '9px 16px', background: 'linear-gradient(135deg, #0ea5e9, #0284c7)', color: 'white', border: 'none', borderRadius: '10px', fontWeight: 800, fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: '0 4px 12px rgba(14,165,233,0.4)' }}
+                    >
+                        📷 Upload Sketch
+                    </button>
+                    <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleSketchUpload}
+                        style={{ display: 'none' }}
+                    />
+
                     {/* Undo Button */}
                     <button
                         onClick={handleUndo}
@@ -2683,133 +2883,170 @@ function FloorPlanner() {
 
                 </div>
 
-                {/* Right Panel: Interactive Canvas Canvas */}
+                {/* Right Panel: 2D Canvas or 3D Viewer */}
                 <div
                     ref={canvasRef}
-                    onClick={handleCanvasClick}
-                    onMouseMove={handleCanvasMouseMove}
                     className="card animate-scaleIn"
                     style={{
                         margin: 0, padding: 0, position: 'relative', overflow: 'hidden',
-                        background: '#fafaf9', border: '2px solid #cbd5e1', borderRadius: '24px',
-                        backgroundImage: 'radial-gradient(#cbd5e1 1.5px, transparent 1.5px)',
-                        backgroundSize: '25px 25px', cursor: activeTool ? 'crosshair' : 'default',
-                        boxShadow: 'inset 0 0 40px rgba(0,0,0,0.03)',
-                        userSelect: 'none'
+                        background: viewMode === '3d' ? 'linear-gradient(180deg, #0f172a 0%, #1e293b 100%)' : '#fafaf9',
+                        border: `2px solid ${viewMode === '3d' ? '#334155' : '#cbd5e1'}`,
+                        borderRadius: '24px',
+                        boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
+                        userSelect: 'none', height: '100%', minHeight: '500px'
                     }}
                 >
-                    {/* Sunlight Ambient Simulation Overlay */}
-                    <div style={{ position: 'absolute', inset: 0, background: getSunlightColor(), pointerEvents: 'none', transition: 'background 0.5s ease', zIndex: 1 }} />
-
-                    {/* Room Boundary Box */}
-                    <div style={{
-                        position: 'absolute', left: roomLeft, top: roomTop, width: roomPxW, height: roomPxH,
-                        border: '3px dashed #475569', borderRadius: '16px', background: 'rgba(255,255,255,0.7)',
-                        pointerEvents: 'none', zIndex: 2
-                    }}>
-                        <span style={{ position: 'absolute', top: '-24px', left: '50%', transform: 'translateX(-50%)', fontSize: '11px', fontWeight: 800, color: '#475569', background: '#f1f5f9', padding: '2px 8px', borderRadius: '6px' }}>
-                            North Wall ({roomWidth} ft)
-                        </span>
-                        <span style={{ position: 'absolute', bottom: '-24px', left: '50%', transform: 'translateX(-50%)', fontSize: '11px', fontWeight: 800, color: '#475569', background: '#f1f5f9', padding: '2px 8px', borderRadius: '6px' }}>
-                            South Wall
-                        </span>
-                    </div>
-
-                    {/* Vastu Quadrants Overlay */}
-                    {showVastuZones && (
-                        <div style={{ position: 'absolute', left: roomLeft, top: roomTop, width: roomPxW, height: roomPxH, pointerEvents: 'none', zIndex: 3, display: 'grid', gridTemplateColumns: '1fr 1fr', gridTemplateRows: '1fr 1fr' }}>
-                            <div style={{ borderRight: '1px dashed rgba(139, 92, 246, 0.4)', borderBottom: '1px dashed rgba(139, 92, 246, 0.4)', background: 'rgba(139, 92, 246, 0.05)', padding: '6px', fontSize: '11px', fontWeight: 800, color: '#7c3aed' }}>NW (Vayu)</div>
-                            <div style={{ borderBottom: '1px dashed rgba(139, 92, 246, 0.4)', background: 'rgba(59, 130, 246, 0.05)', padding: '6px', fontSize: '11px', fontWeight: 800, color: '#2563eb', textAlign: 'right' }}>NE (Ishanya - Sacred)</div>
-                            <div style={{ borderRight: '1px dashed rgba(139, 92, 246, 0.4)', background: 'rgba(234, 179, 8, 0.05)', padding: '6px', fontSize: '11px', fontWeight: 800, color: '#ca8a04' }}>SW (Nairrutya)</div>
-                            <div style={{ background: 'rgba(239, 68, 68, 0.05)', padding: '6px', fontSize: '11px', fontWeight: 800, color: '#dc2626', textAlign: 'right' }}>SE (Agneya - Fire)</div>
+                    {/* AI Scanning Overlay */}
+                    {isScanning && (
+                        <div style={{ position: 'absolute', inset: 0, background: 'rgba(15,23,42,0.92)', zIndex: 100, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', borderRadius: '22px' }}>
+                            <div style={{ fontSize: '48px', marginBottom: '16px', animation: 'spin 1s linear infinite' }}>🔍</div>
+                            <h3 style={{ color: 'white', fontSize: '20px', fontWeight: 800, margin: '0 0 8px' }}>AI Analyzing Sketch...</h3>
+                            <p style={{ color: '#94a3b8', fontSize: '13px', margin: '0 0 24px' }}>Detecting walls, doors, windows & rooms</p>
+                            <div style={{ width: '280px', height: '8px', background: '#1e293b', borderRadius: '8px', overflow: 'hidden' }}>
+                                <div style={{ height: '100%', width: `${scanProgress}%`, background: 'linear-gradient(90deg, #6366f1, #8b5cf6, #0ea5e9)', borderRadius: '8px', transition: 'width 0.15s ease' }} />
+                            </div>
+                            <p style={{ color: '#6366f1', fontSize: '13px', fontWeight: 800, marginTop: '10px' }}>{Math.round(scanProgress)}% complete</p>
                         </div>
                     )}
 
-                    {/* Noise Heatmap Overlay */}
-                    {showNoiseMap && (
-                        <div style={{ position: 'absolute', left: roomLeft, top: roomTop, width: roomPxW, height: roomPxH, pointerEvents: 'none', zIndex: 3, background: 'linear-gradient(90deg, rgba(239,68,68,0.3) 0%, rgba(234,179,8,0.15) 50%, rgba(34,197,94,0.1) 100%)', borderRadius: '16px', padding: '10px' }}>
-                            <span style={{ fontSize: '11px', fontWeight: 800, color: '#b91c1c', background: 'white', padding: '2px 8px', borderRadius: '6px' }}>🔊 High Street Noise Zone</span>
+                    {/* 3D View */}
+                    {viewMode === '3d' ? (
+                        <div style={{ width: '100%', height: '100%', minHeight: '500px' }}>
+                            {items.length === 0 ? (
+                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#64748b', gap: '12px' }}>
+                                    <div style={{ fontSize: '48px' }}>🏠</div>
+                                    <h3 style={{ color: '#cbd5e1', fontWeight: 800, margin: 0 }}>No Layout to Render</h3>
+                                    <p style={{ color: '#64748b', fontSize: '13px', margin: 0 }}>Place some items in 2D mode first, then switch to 3D view!</p>
+                                    <button onClick={() => { autoGenerateLayout(); }} style={{ marginTop: '8px', padding: '10px 22px', background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', color: 'white', border: 'none', borderRadius: '10px', fontWeight: 800, fontSize: '14px', cursor: 'pointer' }}>✨ Auto-Generate Layout</button>
+                                </div>
+                            ) : (
+                                <FloorPlanner3DViewer
+                                    items={items}
+                                    roomLeft={roomLeft}
+                                    roomTop={roomTop}
+                                    roomPxW={roomPxW}
+                                    roomPxH={roomPxH}
+                                    roomWidthFt={roomWidth}
+                                    roomHeightFt={roomHeight}
+                                />
+                            )}
                         </div>
-                    )}
+                    ) : (
+                    <>
+                    {/* 2D Konva Stage (visible in 2D mode only) */}
+                    <Stage
+                        width={CANVAS_W}
+                        height={CANVAS_H}
+                        scaleX={zoom}
+                        scaleY={zoom}
+                        x={stagePos.x}
+                        y={stagePos.y}
+                        draggable={!activeTool}
+                        onDragEnd={(e) => {
+                            if (e.target.className === 'Stage') {
+                                setStagePos({ x: e.target.x(), y: e.target.y() })
+                            }
+                        }}
+                        onClick={handleCanvasClick}
+                        onMouseMove={handleCanvasMouseMove}
+                        onWheel={handleWheel}
+                        style={{ cursor: activeTool ? 'crosshair' : 'grab' }}
+                    >
+                        <Layer>
+                            {/* Infinite Grid Background */}
+                            {Array.from({ length: 100 }).map((_, i) => (
+                                <KonvaLine key={`v-${i}`} points={[i * 25 - 1000, -1000, i * 25 - 1000, 2000]} stroke="#cbd5e1" strokeWidth={1} opacity={0.3} />
+                            ))}
+                            {Array.from({ length: 100 }).map((_, i) => (
+                                <KonvaLine key={`h-${i}`} points={[-1000, i * 25 - 1000, 2000, i * 25 - 1000]} stroke="#cbd5e1" strokeWidth={1} opacity={0.3} />
+                            ))}
 
-                    {/* Placed Canvas Items */}
-                    <div style={{ transform: `scale(${zoom})`, transformOrigin: 'top left', width: '100%', height: '100%' }}>
-                        {items.map(item => (
-                            <div
-                                key={item.id}
-                                onMouseDown={(e) => handleItemMouseDown(e, item)}
-                                className="button-press"
-                                style={{
-                                    position: 'absolute', left: item.x, top: item.y,
-                                    transform: `translate(-50%, -50%) rotate(${item.rotation}deg)`,
-                                    background: 'white',
-                                    border: `2px solid ${item.color || '#1e293b'}`,
-                                    borderRadius: '12px', padding: '8px 12px',
-                                    boxShadow: draggingId === item.id ? '0 15px 30px rgba(0,0,0,0.25)' : '0 6px 14px rgba(0,0,0,0.08)',
-                                    display: 'flex', alignItems: 'center', gap: '8px',
-                                    zIndex: draggingId === item.id ? 50 : 10,
-                                    cursor: 'grab',
-                                    transition: draggingId === item.id ? 'none' : 'box-shadow 0.2s, transform 0.2s'
-                                }}
-                            >
-                                <span style={{ color: item.color || '#1e293b', display: 'flex' }}>{getIcon(item.iconKey)}</span>
-                                <span style={{ fontSize: '11px', fontWeight: 800, color: '#1e293b', whiteSpace: 'nowrap' }}>{item.label}</span>
+                            {/* Sunlight Overlay */}
+                            <Rect x={roomLeft} y={roomTop} width={roomPxW} height={roomPxH} fill={getSunlightColor()} listening={false} />
 
-                                {/* Rotate Button */}
-                                <button
-                                    onClick={(e) => { e.stopPropagation(); rotateItem(item.id) }}
-                                    title="Rotate 90°"
-                                    style={{ background: '#f1f5f9', border: 'none', borderRadius: '50%', width: '20px', height: '20px', cursor: 'pointer', fontSize: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                            {/* Room Boundary Box */}
+                            <Rect
+                                x={roomLeft} y={roomTop} width={roomPxW} height={roomPxH}
+                                fill="rgba(255,255,255,0.7)" stroke="#475569" strokeWidth={3} dash={[10, 5]} listening={false}
+                            />
+                            <KonvaText x={roomLeft + roomPxW/2 - 40} y={roomTop - 20} text={`North Wall (${roomWidth} ft)`} fontSize={12} fill="#475569" fontStyle="bold" />
+                            <KonvaText x={roomLeft + roomPxW/2 - 30} y={roomTop + roomPxH + 10} text="South Wall" fontSize={12} fill="#475569" fontStyle="bold" />
+
+                            {/* Vastu Quadrants Overlay */}
+                            {showVastuZones && (
+                                <Group x={roomLeft} y={roomTop} listening={false}>
+                                    <Rect width={roomPxW/2} height={roomPxH/2} fill="rgba(139, 92, 246, 0.05)" stroke="rgba(139, 92, 246, 0.4)" dash={[5,5]} />
+                                    <KonvaText text="NW (Vayu)" x={10} y={10} fill="#7c3aed" fontSize={11} fontStyle="bold" />
+                                    
+                                    <Rect x={roomPxW/2} width={roomPxW/2} height={roomPxH/2} fill="rgba(59, 130, 246, 0.05)" stroke="rgba(139, 92, 246, 0.4)" dash={[5,5]} />
+                                    <KonvaText text="NE (Ishanya)" x={roomPxW - 80} y={10} fill="#2563eb" fontSize={11} fontStyle="bold" />
+                                    
+                                    <Rect y={roomPxH/2} width={roomPxW/2} height={roomPxH/2} fill="rgba(234, 179, 8, 0.05)" stroke="rgba(139, 92, 246, 0.4)" dash={[5,5]} />
+                                    <KonvaText text="SW (Nairrutya)" x={10} y={roomPxH/2 - 20} fill="#ca8a04" fontSize={11} fontStyle="bold" />
+                                    
+                                    <Rect x={roomPxW/2} y={roomPxH/2} width={roomPxW/2} height={roomPxH/2} fill="rgba(239, 68, 68, 0.05)" stroke="rgba(139, 92, 246, 0.4)" dash={[5,5]} />
+                                    <KonvaText text="SE (Agneya)" x={roomPxW - 80} y={roomPxH/2 - 20} fill="#dc2626" fontSize={11} fontStyle="bold" />
+                                </Group>
+                            )}
+
+                            {/* Noise Heatmap Overlay */}
+                            {showNoiseMap && (
+                                <Rect x={roomLeft} y={roomTop} width={roomPxW} height={roomPxH} fill="rgba(239,68,68,0.15)" listening={false} cornerRadius={16} />
+                            )}
+
+                            {/* Placed Canvas Items */}
+                            {items.map(item => (
+                                <Group
+                                    key={item.id}
+                                    x={item.x} y={item.y}
+                                    rotation={item.rotation}
+                                    draggable
+                                    onDragStart={() => setDraggingId(item.id)}
+                                    onDragEnd={(e) => { setDraggingId(null); handleItemDragEnd(e, item) }}
+                                    onClick={(e) => {
+                                        e.cancelBubble = true;
+                                        rotateItem(item.id);
+                                    }}
                                 >
-                                    ↻
-                                </button>
+                                    <Rect width={100} height={36} offsetX={50} offsetY={18} fill="white" stroke={item.color || '#1e293b'} strokeWidth={2} cornerRadius={8} shadowColor="black" shadowBlur={draggingId === item.id ? 15 : 5} shadowOpacity={0.15} />
+                                    <KonvaText text={`${getEmoji(item.iconKey)} ${item.label}`} x={-40} y={-5} fontSize={11} fill={item.color || '#1e293b'} fontStyle="bold" />
+                                </Group>
+                            ))}
 
-                                {/* Delete Button */}
-                                <button
-                                    onClick={(e) => { e.stopPropagation(); removeItem(item.id) }}
-                                    title="Delete Element"
-                                    style={{ background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '50%', width: '20px', height: '20px', cursor: 'pointer', fontSize: '11px', fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                                >
-                                    ×
-                                </button>
-                            </div>
-                        ))}
-
-                        {/* Hover Ghost Placement Preview */}
-                        {activeTool && hoverPos && (
-                            <div style={{
-                                position: 'absolute', left: hoverPos.x, top: hoverPos.y,
-                                transform: 'translate(-50%, -50%)',
-                                background: 'rgba(255,255,255,0.7)',
-                                border: `2px dashed ${activeTool.color}`,
-                                borderRadius: '12px', padding: '8px 12px',
-                                display: 'flex', alignItems: 'center', gap: '8px',
-                                zIndex: 40, pointerEvents: 'none', opacity: 0.8
-                            }}>
-                                <span style={{ color: activeTool.color }}>{getIcon(activeTool.iconKey)}</span>
-                                <span style={{ fontSize: '11px', fontWeight: 800, color: activeTool.color }}>{activeTool.label}</span>
-                            </div>
-                        )}
-                    </div>
+                            {/* Hover Ghost Placement Preview */}
+                            {activeTool && hoverPos && (
+                                <Group x={hoverPos.x} y={hoverPos.y} opacity={0.6}>
+                                    <Rect width={100} height={36} offsetX={50} offsetY={18} fill="rgba(255,255,255,0.8)" stroke={activeTool.color} strokeWidth={2} dash={[5, 5]} cornerRadius={8} />
+                                    <KonvaText text={`${getEmoji(activeTool.iconKey)} ${activeTool.label}`} x={-40} y={-5} fontSize={11} fill={activeTool.color} fontStyle="bold" />
+                                </Group>
+                            )}
+                        </Layer>
+                    </Stage>
 
                     {/* Canvas Empty State Guidance */}
-                    {items.length === 0 && !activeTool && (
+                    {viewMode === '2d' && items.length === 0 && !activeTool && (
                         <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', flexDirection: 'column', textAlign: 'center', zIndex: 5 }}>
                             <div style={{ width: '64px', height: '64px', background: '#fff7ed', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', color: '#ea580c', marginBottom: '12px' }}>✏️</div>
                             <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#334155', margin: '0 0 6px' }}>Blueprint Canvas Ready</h3>
                             <p style={{ fontSize: '13px', maxWidth: '320px', lineHeight: 1.6, color: '#64748b' }}>
-                                Select an element from the left toolbar, then click anywhere inside the grid to position walls, furniture & appliances.
+                                Select an element from the left toolbar, or click <strong>✨ AI Generate</strong> to auto-create a Vastu layout!
                             </p>
+                            <div style={{ display: 'flex', gap: '10px', marginTop: '16px' }}>
+                                <button onClick={autoGenerateLayout} style={{ padding: '10px 20px', background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', color: 'white', border: 'none', borderRadius: '10px', fontWeight: 800, fontSize: '13px', cursor: 'pointer' }}>✨ AI Generate</button>
+                                <button onClick={() => fileInputRef.current?.click()} style={{ padding: '10px 20px', background: 'linear-gradient(135deg, #0ea5e9, #0284c7)', color: 'white', border: 'none', borderRadius: '10px', fontWeight: 800, fontSize: '13px', cursor: 'pointer' }}>📷 Upload Sketch</button>
+                            </div>
                         </div>
                     )}
 
                     {/* Active Tool Bottom Floating Banner */}
-                    {activeTool && (
+                    {viewMode === '2d' && activeTool && (
                         <div style={{ position: 'absolute', bottom: '20px', left: '50%', transform: 'translateX(-50%)', background: '#0f172a', color: 'white', padding: '10px 24px', borderRadius: '30px', fontSize: '13px', fontWeight: 800, zIndex: 60, boxShadow: '0 10px 30px rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', gap: '12px' }}>
                             <span style={{ color: activeTool.color }}>{getIcon(activeTool.iconKey)}</span>
                             <span>Placing: {activeTool.label} (Click on grid)</span>
                             <button onClick={() => setActiveTool(null)} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white', borderRadius: '50%', width: '22px', height: '22px', cursor: 'pointer', fontSize: '12px', fontWeight: 800 }}>×</button>
                         </div>
+                    )}
+                    </>
                     )}
                 </div>
 
